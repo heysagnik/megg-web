@@ -82,7 +82,8 @@ export async function getProduct(productId: string): Promise<Product> {
 }
 
 export async function getRelatedProducts(productId: string): Promise<Product[]> {
-  return fetchJSON<Product[]>(`/products/${productId}/related`);
+  const data = await fetchJSON<Product[] | { products: Product[] }>(`/products/${productId}/related`);
+  return Array.isArray(data) ? data : (data as { products: Product[] }).products ?? [];
 }
 
 export async function getOutfits(page = 1, limit = 10): Promise<OutfitsResponse> {
@@ -91,6 +92,14 @@ export async function getOutfits(page = 1, limit = 10): Promise<OutfitsResponse>
     limit: String(limit),
   });
   return fetchJSON<OutfitsResponse>(`/outfits?${params}`);
+}
+
+export interface Category {
+  category: string;
+}
+
+export async function getCategories(): Promise<Category[]> {
+  return fetchJSON<Category[]>('/categories');
 }
 
 export async function getTrendingProducts(): Promise<Product[]> {

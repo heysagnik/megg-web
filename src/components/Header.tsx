@@ -23,18 +23,21 @@ const MOBILE_NAV = [
 ];
 
 const Header = () => {
-  const [menuOpen,   setMenuOpen]   = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const [query,      setQuery]      = useState('');
-  const [scrolled,   setScrolled]   = useState(false);
+  const [menuOpen,    setMenuOpen]    = useState(false);
+  const [searchOpen,  setSearchOpen]  = useState(false);
+  const [query,       setQuery]       = useState('');
+  const [pastHero, setPastHero] = useState(false);
   const { pathname } = useLocation();
   const navigate = useNavigate();
+  const isHome = pathname === '/';
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 8);
+    if (!isHome) { setPastHero(true); return; }
+    setPastHero(window.scrollY >= window.innerHeight * 0.9);
+    const onScroll = () => setPastHero(window.scrollY >= window.innerHeight * 0.9);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  }, [isHome]);
 
   // Close menu on route change
   useEffect(() => { setMenuOpen(false); setSearchOpen(false); }, [pathname]);
@@ -48,28 +51,17 @@ const Header = () => {
     }
   };
 
+  if (isHome && !pastHero) return null;
+
   return (
     <>
-      {/* ── Announcement bar ─────────────────────────────── */}
-      <div className="bg-black text-white overflow-hidden" style={{ height: '32px' }}>
-        <div className="marquee-track h-full items-center" style={{ display: 'flex' }}>
-          {[...Array(6)].map((_, i) => (
-            <span key={i} className="text-label whitespace-nowrap px-12" style={{ color: '#ccc', fontSize: '0.58rem' }}>
-              Free delivery on orders above ₹999&nbsp;&nbsp;·&nbsp;&nbsp;
-              Curated fashion, handpicked daily&nbsp;&nbsp;·&nbsp;&nbsp;
-              New arrivals every week
-            </span>
-          ))}
-        </div>
-      </div>
-
       {/* ── Main header ──────────────────────────────────── */}
       <header
         className="sticky top-0 z-[100]"
         style={{
           background: 'rgba(255,255,255,0.97)',
           backdropFilter: 'blur(12px)',
-          borderBottom: scrolled ? '1px solid #EBEBEB' : '1px solid #EBEBEB',
+          borderBottom: '1px solid #EBEBEB',
           height: 'var(--header-height)',
         }}
       >

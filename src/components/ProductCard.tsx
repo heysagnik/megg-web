@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import { formatPrice } from '../lib/api';
 import type { Product } from '../lib/api';
 
@@ -14,120 +15,96 @@ const COLOR_MAP: Record<string, string> = {
   yellow: '#D4C03A', purple: '#7B5EA7', olive: '#6B6B45', maroon: '#7A2D2D',
 };
 
-const ProductCard = ({ product, size = 'md', rank }: ProductCardProps) => {
-  const primaryImg = product.images[0] ?? '';
-  const hoverImg   = product.images[1] ?? '';
-  const hasHover   = !!hoverImg && hoverImg !== primaryImg;
+const textBase: React.CSSProperties = {
+  fontFamily: 'var(--font-sans)',
+  WebkitFontSmoothing: 'antialiased',
+  MozOsxFontSmoothing: 'grayscale',
+} as React.CSSProperties;
 
-  const handleClick = () => {
-    if (product.affiliate_link) window.open(product.affiliate_link, '_blank', 'noopener,noreferrer');
-  };
+const ProductCard = ({ product, size = 'md', rank }: ProductCardProps) => {
+  const navigate = useNavigate();
+
+  const primaryImg = product.images[0] ?? '';
+  const hasColor   = product.color && product.color !== 'NA' && product.color !== 'N/A';
+
+  const goToProduct = () => navigate(`/product/${product.id}`);
 
   return (
     <div
-      className="product-card group"
-      onClick={handleClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => e.key === 'Enter' && handleClick()}
+      onClick={goToProduct}
+      onKeyDown={(e) => e.key === 'Enter' && goToProduct()}
+      style={{ cursor: 'pointer', userSelect: 'none', outline: 'none' }}
     >
-      {/* Image */}
-      <div
-        style={{ position: 'relative', overflow: 'hidden', background: '#F5F5F5', aspectRatio: '3/4' }}
-      >
-        {/* Rank */}
+      {/* ── Image container ── */}
+      <div style={{ position: 'relative', overflow: 'hidden', background: 'var(--color-gray-50)', aspectRatio: '3/4' }}>
+
+        {/* Rank badge */}
         {rank !== undefined && (
           <div style={{
-            position: 'absolute', top: '8px', left: '8px', zIndex: 10,
-            background: '#0A0A0A', color: '#fff',
-            fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.1em',
-            padding: '3px 7px', fontFamily: 'var(--font-sans)',
+            position: 'absolute', top: '10px', left: '10px', zIndex: 20,
+            background: 'var(--color-black)', color: 'var(--color-white)',
+            fontSize: 'var(--text-2xs)', fontWeight: 700, letterSpacing: 'var(--tracking-wide)',
+            padding: '3px 8px', ...textBase,
           }}>
             #{rank}
           </div>
         )}
 
-        {/* Primary image */}
         <img
           src={primaryImg}
           alt={product.name}
           loading="lazy"
           draggable={false}
-          className="product-card-img"
-          style={{ position: 'absolute', inset: 0, opacity: hasHover ? undefined : 1 }}
+          style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
         />
-
-        {/* Hover image */}
-        {hasHover && (
-          <>
-            {/* Hide primary on hover via group */}
-            <style>{`.group:hover .primary-img { opacity: 0; } .group:hover .hover-img { opacity: 1; } .group:hover .product-card-img { transform: scale(1.04); }`}</style>
-            <img
-              src={primaryImg}
-              alt={product.name}
-              loading="lazy"
-              draggable={false}
-              className="product-card-img primary-img"
-              style={{ position: 'absolute', inset: 0, zIndex: 1, transition: 'opacity 0.35s ease, transform 0.65s ease' }}
-            />
-            <img
-              src={hoverImg}
-              alt={product.name}
-              loading="lazy"
-              draggable={false}
-              className="product-card-img hover-img"
-              style={{ position: 'absolute', inset: 0, zIndex: 2, opacity: 0, transition: 'opacity 0.35s ease, transform 0.65s ease' }}
-            />
-          </>
-        )}
-
-        {/* Shop CTA */}
-        <div style={{
-          position: 'absolute', bottom: 0, inset: 'auto 0 0 0', zIndex: 10,
-          background: 'linear-gradient(to top, rgba(0,0,0,0.62) 0%, transparent 100%)',
-          padding: '1.5rem 0.75rem 0.75rem',
-          opacity: 0, transform: 'translateY(4px)',
-          transition: 'opacity 0.25s ease, transform 0.25s ease',
-        }}
-          className="card-cta"
-        >
-          <style>{`.group:hover .card-cta { opacity: 1 !important; transform: translateY(0) !important; }`}</style>
-          <span style={{
-            display: 'inline-block',
-            color: '#fff', fontSize: '0.58rem', fontWeight: 500,
-            letterSpacing: '0.14em', textTransform: 'uppercase',
-            borderBottom: '1px solid rgba(255,255,255,0.5)',
-            paddingBottom: '1px',
-            fontFamily: 'var(--font-sans)',
-          }}>
-            Shop Now ↗
-          </span>
-        </div>
       </div>
 
-      {/* Info */}
-      <div style={{ paddingTop: '0.625rem' }}>
-        <p style={{ fontSize: '0.58rem', fontWeight: 500, letterSpacing: '0.12em', textTransform: 'uppercase', color: '#9A9A9A', marginBottom: '2px', fontFamily: 'var(--font-sans)' }}>
+      {/* ── Info ── */}
+      <div style={{ paddingTop: size === 'sm' ? 'var(--space-xs)' : '0.65rem' }}>
+        {/* Brand */}
+        <p style={{
+          fontSize: 'var(--text-2xs)', fontWeight: 700, letterSpacing: 'var(--tracking-widest)',
+          textTransform: 'uppercase', color: 'var(--color-muted)',
+          marginBottom: '3px', ...textBase,
+        }}>
           {product.brand}
         </p>
+
+        {/* Name */}
         <p style={{
-          fontSize: size === 'sm' ? '0.75rem' : '0.8rem',
-          fontWeight: 400, lineHeight: 1.35, color: '#0A0A0A',
+          fontSize: size === 'sm' ? 'var(--text-sm)' : '0.78rem',
+          fontWeight: 400, lineHeight: 1.4, color: 'var(--color-black)',
           display: '-webkit-box', WebkitBoxOrient: 'vertical',
           WebkitLineClamp: 2, overflow: 'hidden',
-          fontFamily: 'var(--font-sans)',
-        }}>
+          textWrap: 'pretty',
+          ...textBase,
+        } as React.CSSProperties}>
           {product.name}
         </p>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.375rem' }}>
-          <span style={{ fontSize: '0.85rem', fontWeight: 500, color: '#0A0A0A', fontFamily: 'var(--font-sans)' }}>
+
+        {/* Price + swatch */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.4rem' }}>
+          <span style={{
+            fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)',
+            fontWeight: 500, color: 'var(--color-black)',
+            fontVariantNumeric: 'tabular-nums',
+            letterSpacing: 'var(--tracking-normal)', ...textBase,
+          }}>
             {formatPrice(product.price)}
           </span>
-          {product.color && product.color !== 'NA' && product.color !== 'N/A' && (
-            <span style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.6rem', color: '#9A9A9A', textTransform: 'capitalize', fontFamily: 'var(--font-sans)' }}>
-              <span style={{ display: 'inline-block', width: '9px', height: '9px', borderRadius: '50%', border: '1px solid rgba(0,0,0,0.12)', background: COLOR_MAP[product.color.toLowerCase()] ?? '#aaa', flexShrink: 0 }} />
-              {product.color}
-            </span>
+
+          {hasColor && (
+            <span
+              title={product.color}
+              style={{
+                display: 'inline-block', width: '10px', height: '10px',
+                borderRadius: '50%', flexShrink: 0,
+                border: '1.5px solid rgba(0,0,0,0.12)',
+                background: COLOR_MAP[product.color!.toLowerCase()] ?? '#ccc',
+              }}
+            />
           )}
         </div>
       </div>
