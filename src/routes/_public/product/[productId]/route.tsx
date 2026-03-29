@@ -119,7 +119,7 @@ const ProductPage = () => {
             {images.map((img, i) => (
               <div key={i} ref={(el) => setImgRef(el, i)} style={{ height: '100svh', position: 'relative', overflow: 'hidden', background: 'var(--color-surface-2)' }}>
                 <img src={img} alt={`${product.name} — ${i + 1}`} draggable={false} loading={i === 0 ? 'eager' : 'lazy'}
-                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'top', userSelect: 'none' }}
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', userSelect: 'none' }}
                 />
               </div>
             ))}

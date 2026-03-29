@@ -76,9 +76,7 @@ const CategoryPage = () => {
       />
 
       <Container style={{ padding: '2.5rem var(--container-px) var(--space-3xl)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}
-          className="md:grid-cols-3 lg:grid-cols-4"
-        >
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
           {products.map((p) => <ProductCard key={p.id} product={p} />)}
           {loading && Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)}
         </div>
