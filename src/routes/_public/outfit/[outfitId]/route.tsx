@@ -80,9 +80,7 @@ const OutfitPage = () => {
           </div>
 
           {products.length > 0 ? (
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}
-              className="md:grid-cols-3 lg:grid-cols-4"
-            >
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
               {products.map((p) => <ProductCard key={p.id} product={p} />)}
             </div>
           ) : (
