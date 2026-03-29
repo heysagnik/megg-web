@@ -5,6 +5,7 @@ import { Helmet } from 'react-helmet-async';
 import { getProduct, getRelatedProducts, getProducts, formatPrice } from '../../../../lib/api';
 import type { Product } from '../../../../lib/api';
 import ProductCard from '../../../../components/ProductCard';
+import { Section, SectionHeader } from '../../../../components/ui';
 
 export async function loader({ params }: LoaderFunctionArgs) {
   const product = await getProduct(params.productId!);
@@ -74,33 +75,26 @@ const Accordion = ({ label, children }: { label: string; children: React.ReactNo
   );
 };
 
-const ShelfTitle = ({ title }: { title: string }) => (
-  <div style={{ marginBottom: 'var(--space-lg)', paddingLeft: '2rem' }}>
-    <p style={{ ...T, fontSize: '0.55rem', fontWeight: 600, letterSpacing: '0.22em', color: 'var(--color-muted)', marginBottom: '0.4rem' }}>Collection</p>
-    <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.88rem', fontWeight: 400, letterSpacing: '0.04em', color: 'var(--color-black)', lineHeight: 1.2, textTransform: 'uppercase', WebkitFontSmoothing: 'antialiased' }}>{title}</p>
-  </div>
-);
-
-const HScrollShelf = ({ title, products }: { title: string; products: Product[] }) => (
-  <section style={{ padding: 'var(--space-2xl) 0', borderTop: '1px solid var(--color-border-mid)' }}>
-    <ShelfTitle title={title} />
-    <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', scrollSnapType: 'x mandatory', scrollbarWidth: 'none', paddingLeft: '4rem', paddingRight: '4rem' }}>
+const HScrollShelf = ({ eyebrow, title, products }: { eyebrow: string; title: string; products: Product[] }) => (
+  <Section style={{ borderTop: '1px solid var(--color-border-mid)' }}>
+    <SectionHeader eyebrow={eyebrow} title={title} />
+    <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', scrollSnapType: 'x mandatory', scrollbarWidth: 'none' }}>
       {products.map((p) => (
-        <div key={p.id} style={{ flexShrink: 0, width: 'calc(25vw - 3rem)', scrollSnapAlign: 'start' }}>
+        <div key={p.id} style={{ flexShrink: 0, width: '260px', scrollSnapAlign: 'start' }}>
           <ProductCard product={p} />
         </div>
       ))}
     </div>
-  </section>
+  </Section>
 );
 
-const VGridShelf = ({ title, products }: { title: string; products: Product[] }) => (
-  <section style={{ padding: 'var(--space-2xl) 0', borderTop: '1px solid var(--color-border-mid)' }}>
-    <ShelfTitle title={title} />
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem', paddingLeft: '2rem', paddingRight: '2rem' }}>
+const VGridShelf = ({ eyebrow, title, products }: { eyebrow: string; title: string; products: Product[] }) => (
+  <Section style={{ borderTop: '1px solid var(--color-border-mid)' }}>
+    <SectionHeader eyebrow={eyebrow} title={title} />
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
       {products.map((p) => <ProductCard key={p.id} product={p} />)}
     </div>
-  </section>
+  </Section>
 );
 
 const BuyButton = ({ href }: { href: string }) => {
@@ -216,21 +210,17 @@ const ProductPage = () => {
         {/* RIGHT — sticky info panel */}
         <div ref={(el) => { if (el) el.scrollTop = 0; }} style={{ width: '50%', position: 'sticky', top: 0, height: '100svh', display: 'flex', alignItems: 'center', justifyContent: 'center', borderLeft: '1px solid var(--color-border)', overflowY: 'auto' }}>
           <div style={{ width: '72%', padding: '2rem 0' }}>
-            <p style={{ ...T, fontSize: '0.6rem', fontWeight: 700, letterSpacing: 'var(--tracking-widest)', color: 'var(--color-muted)', marginBottom: '0.35rem' }}>
+            <p style={{ ...T, fontSize: '0.6rem', fontWeight: 700, letterSpacing: 'var(--tracking-widest)', color: 'var(--color-muted)', marginBottom: '0.5rem' }}>
               {product.brand}
             </p>
-            <p style={{ ...T, fontSize: '1rem', fontWeight: 400, color: 'var(--color-black)', lineHeight: '1.4', letterSpacing: '-0.01em', marginBottom: '0.75rem', textWrap: 'balance' as React.CSSProperties['textWrap'], textTransform: 'uppercase' }}>
+            <p style={{ ...T, fontSize: '1.4rem', fontWeight: 400, color: 'var(--color-black)', lineHeight: '1.25', letterSpacing: '-0.02em', marginBottom: '1rem', textWrap: 'balance' as React.CSSProperties['textWrap'], textTransform: 'uppercase' }}>
               {product.name}
             </p>
-            <p style={{ ...T, fontSize: '1.1rem', fontWeight: 500, color: 'var(--color-black)', marginBottom: 'var(--space-md)', fontVariantNumeric: 'tabular-nums', letterSpacing: '0.01em' } as React.CSSProperties}>
+            <p style={{ ...T, fontSize: '1.5rem', fontWeight: 500, color: 'var(--color-black)', marginBottom: 'var(--space-md)', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' } as React.CSSProperties}>
               {formatPrice(product.price)}
             </p>
 
-            <BuyButton href={product.affiliate_link} />
-
-            <p style={{ ...T, color: 'var(--color-muted)', textAlign: 'center', fontSize: 'var(--text-xs)', marginTop: '0.6rem', textTransform: 'none' as React.CSSProperties['textTransform'], letterSpacing: '0.01em', lineHeight: 1.5 }}>
-              You'll be redirected to the brand's website
-            </p>
+            
 
             <div style={{ height: 'var(--space-md)' }} />
 
@@ -255,16 +245,17 @@ const ProductPage = () => {
             </Accordion>
 
             <div style={{ borderTop: '1px solid var(--color-border-mid)' }} />
+            <BuyButton href={product.affiliate_link} />
+
+            <p style={{ ...T, color: 'var(--color-muted)', textAlign: 'center', fontSize: 'var(--text-xs)', marginTop: '0.6rem', textTransform: 'none' as React.CSSProperties['textTransform'], letterSpacing: '0.01em', lineHeight: 1.5 }}>
+              You'll be redirected to the brand's website
+            </p>
           </div>
         </div>
       </div>
 
-      {brandProducts.length > 0 && <HScrollShelf title={`More from ${product.brand}`} products={brandProducts} />}
-      {related.length > 0 && (
-        <div style={{ background: 'var(--color-surface-2)' }}>
-          <VGridShelf title="You May Also Like" products={related} />
-        </div>
-      )}
+      {brandProducts.length > 0 && <HScrollShelf eyebrow="Same brand" title={`More from ${product.brand}`} products={brandProducts} />}
+      {related.length > 0 && <VGridShelf eyebrow="Picked for you" title="You May Also Like" products={related} />}
     </>
   );
 };

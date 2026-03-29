@@ -5,7 +5,6 @@ import type { Product } from '../lib/api';
 
 interface ProductCardProps {
   product: Product;
-  size?: 'sm' | 'md';
 }
 
 const COLOR_MAP: Record<string, string> = {
@@ -40,7 +39,7 @@ const ChevronBtn = ({ dir, onClick }: { dir: 'left' | 'right'; onClick: (e: Reac
   </button>
 );
 
-const ProductCard = ({ product, size = 'md' }: ProductCardProps) => {
+const ProductCard = ({ product }: ProductCardProps) => {
   const navigate = useNavigate();
   const [imgIdx, setImgIdx] = useState(0);
   const [hovered, setHovered] = useState(false);
@@ -85,15 +84,15 @@ const ProductCard = ({ product, size = 'md' }: ProductCardProps) => {
         )}
       </div>
 
-      <div style={{ paddingTop: size === 'sm' ? 'var(--space-xs)' : '0.65rem' }}>
+      <div style={{ paddingTop: '0.65rem' }}>
         <p style={{ fontSize: 'var(--text-xs)', fontWeight: 600, letterSpacing: 'var(--tracking-wider)', textTransform: 'uppercase', color: 'var(--color-muted)', marginBottom: '3px', ...T }}>
           {product.brand}
         </p>
-        <p style={{ fontSize: size === 'sm' ? 'var(--text-sm)' : '0.78rem', fontWeight: 400, lineHeight: 1.4, color: 'var(--color-black)', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden', textWrap: 'pretty', ...T } as React.CSSProperties}>
+        <p style={{ fontSize: '0.78rem', fontWeight: 400, lineHeight: 1.4, color: 'var(--color-black)', display: '-webkit-box', WebkitBoxOrient: 'vertical', WebkitLineClamp: 2, overflow: 'hidden', textWrap: 'pretty', ...T } as React.CSSProperties}>
           {product.name}
         </p>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '0.4rem' }}>
-          <span style={{ fontSize: size === 'sm' ? 'var(--text-sm)' : 'var(--text-base)', fontWeight: 500, color: 'var(--color-black)', fontVariantNumeric: 'tabular-nums', letterSpacing: 'var(--tracking-normal)', ...T }}>
+          <span style={{ fontSize: 'var(--text-base)', fontWeight: 500, color: 'var(--color-black)', fontVariantNumeric: 'tabular-nums', letterSpacing: 'var(--tracking-normal)', ...T }}>
             {formatPrice(product.price)}
           </span>
           {hasColor && (

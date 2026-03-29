@@ -123,8 +123,12 @@ const Under699Banner = () => (
 const TrendingStrip = ({ products }: { products: Product[] }) => (
   <Section>
     <SectionHeader eyebrow="What everyone's wearing" title="Trending Now" cta="See All" ctaTo="/products" />
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
-      {products.slice(0, 3).map((p) => <ProductCard key={p.id} product={p} />)}
+    <div style={{ display: 'flex', gap: '1rem', overflowX: 'auto', scrollSnapType: 'x mandatory', scrollbarWidth: 'none' }}>
+      {products.map((p) => (
+        <div key={p.id} style={{ flexShrink: 0, width: '260px', scrollSnapAlign: 'start' }}>
+          <ProductCard product={p} />
+        </div>
+      ))}
     </div>
   </Section>
 );
