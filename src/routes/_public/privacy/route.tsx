@@ -10,7 +10,7 @@ const Privacy = () => {
 
             <div className="container" style={{ padding: '100px 20px', maxWidth: '800px' }}>
                 <h1 className="text-section" style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', wordBreak: 'break-word' }}>Privacy Policy</h1>
-                <p className="text-body" style={{ marginBottom: '2rem', fontStyle: 'italic' }}>Last updated: 29/03/2026</p>
+                <p className="text-body" style={{ marginBottom: '2rem', fontStyle: 'italic' }}>Last updated: March 29, 2026</p>
 
                 <div className="text-body">
                     <p style={{ marginBottom: '1.5rem' }}>
