@@ -138,17 +138,18 @@ function SearchInner() {
       setPage(1)
       setProducts([])
       setHasMore(true)
+      setSearched(true)
       fetchPage(query, 1, cat, sortVal, maxP, true)
     },
     [query, fetchPage],
   )
 
-  // ── Initial load if query param present ────────────────────────────────────
+  // ── Initial load ────────────────────────────────────────────────────────────
 
   useEffect(() => {
-    if (initialQ) {
-      fetchPage(initialQ, 1, '', '', '', true)
-    }
+    // Always show products on initial load — query if present, else browse all
+    setSearched(true)
+    fetchPage(initialQ, 1, '', '', '', true)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 

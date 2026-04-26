@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useState, useCallback } from 'react'
 import type { CSSProperties, MouseEvent } from 'react'
 import type { Product } from '@/lib/api'
-import { formatPrice, getColorHex, isValidColor } from '@/lib/utils'
+import { formatPrice } from '@/lib/utils'
 
 // ─── Internal: Chevron Button ──────────────────────────────────────────────────
 
@@ -263,44 +263,20 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.name}
         </p>
 
-        {/* Price + colour swatch row */}
-        <div
+        {/* Price */}
+        <p
           style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
             marginTop: '0.4rem',
+            fontFamily: 'var(--font-sans)',
+            fontSize: '0.875rem',
+            fontWeight: 500,
+            color: 'var(--color-black)',
+            fontVariantNumeric: 'tabular-nums',
+            letterSpacing: '0',
           }}
         >
-          <span
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.875rem',
-              fontWeight: 500,
-              color: 'var(--color-black)',
-              fontVariantNumeric: 'tabular-nums',
-              letterSpacing: '0',
-            }}
-          >
-            {formatPrice(product.price)}
-          </span>
-
-          {isValidColor(product.color) && (
-            <span
-              title={product.color}
-              aria-label={`Colour: ${product.color}`}
-              style={{
-                display: 'inline-block',
-                width: '10px',
-                height: '10px',
-                borderRadius: '50%',
-                background: getColorHex(product.color ?? ''),
-                border: '1.5px solid rgba(0, 0, 0, 0.12)',
-                flexShrink: 0,
-              }}
-            />
-          )}
-        </div>
+          {formatPrice(product.price)}
+        </p>
       </div>
     </div>
   )

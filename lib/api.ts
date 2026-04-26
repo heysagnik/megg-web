@@ -7,11 +7,17 @@ const BASE_URL = 'https://api.megg.workers.dev/api';
 
 // ─── Types ────────────────────────────────────────────────
 
+export interface ProductVariant {
+  id: string;
+  color: string;
+  images: string[];
+}
+
 export interface Product {
   id: string;
   name: string;
   description?: string;
-  price: string;
+  price: string | number;
   brand: string;
   images: string[];
   category: string;
@@ -19,10 +25,16 @@ export interface Product {
   color?: string;
   fabric?: string[];
   affiliate_link?: string;
+  is_active?: boolean;
   popularity?: number;
   clicks?: number;
-  recent_clicks?: string;
-  click_count?: number;
+}
+
+export interface ProductDetail extends Product {
+  variants?: ProductVariant[];
+  more_from_brand?: Product[];
+  recommended?: Product[];
+  outfits?: unknown[];
 }
 
 export interface Reel {
@@ -180,10 +192,16 @@ export async function getUnder699(
   return fetchJSON<ProductsResponse>(`/products/under699?${p}`);
 }
 
-/** Single product — GET /products/:id */
-export async function getProduct(productId: string): Promise<Product> {
-  const data = await fetchJSON<{ product: Product } | Product>(`/products/${productId}`);
-  return 'product' in data ? (data as { product: Product }).product : data as Product;
+/** Single product with variants, recommendations — GET /products/:id */
+export async function getProduct(productId: string): Promise<ProductDetail> {
+  const data = await fetchJSON<{ product: Product } & Omit<ProductDetail, keyof Product>>(`/products/${productId}`);
+  return {
+    ...data.product,
+    variants:       data.variants,
+    more_from_brand: data.more_from_brand,
+    recommended:    data.recommended,
+    outfits:        data.outfits,
+  };
 }
 
 /** Related products — GET /products/:id/related */
