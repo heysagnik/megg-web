@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getUnder699, type Product, type AvailableFilters, type SortOption } from '@/lib/api'
+import { getCategoryDisplay } from '@/lib/utils'
 import ProductBrowseLayout, { BROWSE_EMPTY, type BrowseFilters } from '@/components/product/ProductBrowseLayout'
 
 const PAGE_SIZE = 20
@@ -23,8 +24,11 @@ export default function Under699Client() {
     fetchingRef.current = true
     setLoading(true)
     try {
-      const res = await getUnder699(pageNum, PAGE_SIZE, undefined,
-        (f.sort && f.sort !== 'relevance') ? f.sort as SortOption : undefined)
+      const res = await getUnder699(
+        pageNum, PAGE_SIZE,
+        f.subcategory || undefined,
+        (f.sort && f.sort !== 'relevance') ? f.sort as SortOption : undefined,
+      )
       const incoming = res.products ?? []
       if (res.total != null) setTotal(res.total)
       if (res.availableFilters) setAvail(res.availableFilters)
@@ -58,6 +62,40 @@ export default function Under699Client() {
     return () => obs.disconnect()
   }, [hasMore, loading, page, filters, fetchPage])
 
+  const categories = avail.categories ?? []
+
+  const navBtn = (active: boolean): React.CSSProperties => ({
+    fontFamily: 'var(--font-sans)', fontSize: '0.75rem', letterSpacing: '0.06em',
+    textTransform: 'uppercase', background: 'none', border: 'none', padding: 0,
+    cursor: 'pointer', textAlign: 'left',
+    color: active ? 'var(--color-black)' : 'var(--color-muted)',
+  })
+
+  const sidebarNav = categories.length > 0 ? (
+    <ul style={{ listStyle: 'none' }}>
+      <li style={{ marginBottom: '0.5rem' }}>
+        <button type="button"
+          onClick={() => handleFilterChange({ ...filters, subcategory: '' })}
+          style={navBtn(!filters.subcategory)}>
+          <span style={{ color: 'var(--color-muted)', fontSize: '0.65rem', marginRight: '0.35rem' }}>|00|</span>
+          All
+        </button>
+      </li>
+      {categories.map((cat, i) => (
+        <li key={cat.name} style={{ marginBottom: '0.5rem' }}>
+          <button type="button"
+            onClick={() => handleFilterChange({ ...filters, subcategory: filters.subcategory === cat.name ? '' : cat.name })}
+            style={navBtn(filters.subcategory === cat.name)}>
+            <span style={{ color: 'var(--color-muted)', fontSize: '0.65rem', marginRight: '0.35rem' }}>
+              |{String(i + 1).padStart(2, '0')}|
+            </span>
+            {getCategoryDisplay(cat.name)}
+          </button>
+        </li>
+      ))}
+    </ul>
+  ) : undefined
+
   return (
     <ProductBrowseLayout
       title="Shop Under ₹699"
@@ -66,6 +104,7 @@ export default function Under699Client() {
       loading={loading}
       hasMore={hasMore}
       sentinel={sentinelRef}
+      sidebarNav={sidebarNav}
       filters={filters}
       availableFilters={avail}
       onFilterChange={handleFilterChange}
