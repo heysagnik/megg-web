@@ -8,28 +8,6 @@ import { EndOfFeed } from '@/components/ui'
 
 const PAGE_SIZE = 12
 
-// ─── Responsive grid styles injected once ──────────────────────────────────────
-const GRID_STYLE_ID = 'na-grid-styles'
-const GRID_CSS = `
-  .na-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem;
-  }
-  @media (min-width: 1024px) {
-    .na-grid { grid-template-columns: repeat(3, 1fr); }
-  }
-`
-
-function injectGridStyles() {
-  if (typeof document === 'undefined') return
-  if (document.getElementById(GRID_STYLE_ID)) return
-  const tag = document.createElement('style')
-  tag.id = GRID_STYLE_ID
-  tag.textContent = GRID_CSS
-  document.head.appendChild(tag)
-}
-
 // ─── NewArrivalsSection ─────────────────────────────────────────────────────────
 
 export default function NewArrivalsSection() {
@@ -43,10 +21,6 @@ export default function NewArrivalsSection() {
   // Prevent duplicate fetches when the observer fires multiple times
   const fetchingRef = useRef(false)
 
-  // Inject grid CSS once on mount
-  useEffect(() => {
-    injectGridStyles()
-  }, [])
 
   // ── Fetch a single page ────────────────────────────────────────────────────
 
@@ -123,7 +97,7 @@ export default function NewArrivalsSection() {
   return (
     <>
       {/* Product grid */}
-      <div className="na-grid">
+      <div className="product-grid-3">
         {showSkeletons
           ? Array.from({ length: skeletonCount }).map((_, i) => (
               <CardSkeleton key={`skel-${i}`} />

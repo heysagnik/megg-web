@@ -228,18 +228,8 @@ export default function CategoryPageClient({
           padding: '0 var(--container-px)',
         }}
       >
-        <style>{`
-          .cat-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.25rem;
-          }
-          @media (min-width: 1024px) {
-            .cat-grid { grid-template-columns: repeat(3, 1fr); }
-          }
-        `}</style>
 
-        <div className="cat-grid">
+        <div className="product-grid-3">
           {loading && products.length === 0
             ? Array.from({ length: PAGE_SIZE }).map((_, i) => <CardSkeleton key={i} />)
             : products.map(p => <ProductCard key={p.id} product={p} />)

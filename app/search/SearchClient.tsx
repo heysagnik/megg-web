@@ -193,12 +193,6 @@ function SearchInner() {
         .chip:hover { opacity: 0.75; }
         .search-chips-row { scrollbar-width: none; }
         .search-chips-row::-webkit-scrollbar { display: none; }
-        .search-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 1rem;
-        }
-        @media (min-width: 1024px) { .search-grid { grid-template-columns: repeat(3, 1fr); } }
       `}</style>
 
       {/* ── Search bar ── */}

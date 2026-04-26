@@ -94,6 +94,7 @@ export default function HeroSection() {
         {PANELS.map((src, idx) => (
           <div
             key={src}
+            className={idx === 0 ? 'hero-panel-left' : 'hero-panel-right'}
             style={{ flex: 1, position: 'relative', overflow: 'hidden' }}
             onMouseEnter={() => handleEnter(idx)}
             onMouseLeave={() => handleLeave(idx)}

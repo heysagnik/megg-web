@@ -22,6 +22,7 @@ export default function SectionHeader({
       style={{ marginBottom: 'var(--space-lg)' }}
     >
       <div
+        className="section-header-row"
         style={{
           display: 'flex',
           alignItems: 'flex-end',

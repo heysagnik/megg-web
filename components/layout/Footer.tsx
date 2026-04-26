@@ -104,8 +104,8 @@ export default function Footer() {
             marginBottom:        '4rem',
           }}
         >
-          {/* Brand — spans 2 cols on larger grids */}
-          <div style={{ gridColumn: 'span 2' }}>
+          {/* Brand — spans 2 cols on larger grids, 1 col on mobile */}
+          <div className="footer-brand-col">
             <Link
               href="/"
               style={{

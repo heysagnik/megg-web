@@ -366,3 +366,83 @@ button {
   font-weight: 300;
 }
 .footer-link:hover { color: #ffffff; }
+
+/* ─── Responsive Product Grids ───────────────────────────────────────────── */
+/* 2-col base → 3-col at lg */
+.product-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  width: 100%;
+}
+@media (min-width: 1024px) {
+  .product-grid-2 { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* 2-col base → 3-col at md → 4-col at xl */
+.product-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  width: 100%;
+}
+@media (min-width: 768px) {
+  .product-grid-3 { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1280px) {
+  .product-grid-3 { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ─── Hero Section ───────────────────────────────────────────────────────── */
+.hero-panel-left  { display: block; }
+.hero-panel-right { display: block; }
+
+@media (max-width: 600px) {
+  /* Stack the two hero video panels on very small screens,
+     show only the first panel full-width to avoid a cramped side-by-side */
+  .hero-panel-right { display: none; }
+}
+
+/* ─── Footer ─────────────────────────────────────────────────────────────── */
+.footer-brand-col { grid-column: span 2; }
+
+@media (max-width: 480px) {
+  .footer-brand-col { grid-column: span 1; }
+}
+
+/* ─── Page Header / Section Header paddings ──────────────────────────────── */
+@media (max-width: 768px) {
+  .section-header-row {
+    flex-direction: column;
+    align-items: flex-start !important;
+    gap: 0.5rem;
+  }
+}
+
+/* ─── Search Page Grid ───────────────────────────────────────────────────── */
+.search-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+@media (min-width: 768px) {
+  .search-grid { grid-template-columns: repeat(3, 1fr); }
+}
+@media (min-width: 1280px) {
+  .search-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* ─── Global container padding tightens on mobile ────────────────────────── */
+@media (max-width: 480px) {
+  :root { --container-px: 1rem; }
+}
+
+/* ─── Fallback grid (for Products page Suspense skeleton) ────────────────── */
+.products-skeleton-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+@media (min-width: 768px) {
+  .products-skeleton-grid { grid-template-columns: repeat(3, 1fr); }
+}

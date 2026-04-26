@@ -54,6 +54,7 @@ export default function CategoryRow() {
       >
         {/* ─── Section header ─────────────────────────────────── */}
         <div
+          className="section-header-row"
           style={{
             display: 'flex',
             alignItems: 'flex-end',
@@ -106,10 +107,8 @@ export default function CategoryRow() {
               className="cat-card"
               style={{
                 flexShrink: 0,
-                /* ~4 cards visible: (100vw - 2*containerPx - 3*gap) / 4 */
-                width: 'calc((100vw - 2 * var(--container-px) - 3 * 1rem) / 4)',
-                minWidth: '200px',
-                maxWidth: '320px',
+                /* ~4 cards visible on desktop, 2 on mobile */
+                width: 'clamp(140px, 42vw, 280px)',
                 scrollSnapAlign: 'start',
                 textDecoration: 'none',
               }}

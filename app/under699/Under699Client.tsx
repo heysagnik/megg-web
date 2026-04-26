@@ -116,14 +116,6 @@ export default function Under699Page() {
       <style>{`
         .u699-chips { scrollbar-width: none; }
         .u699-chips::-webkit-scrollbar { display: none; }
-        .u699-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 1.25rem;
-        }
-        @media (min-width: 1024px) {
-          .u699-grid { grid-template-columns: repeat(3, 1fr); }
-        }
       `}</style>
 
       {/* ── Header ──────────────────────────────────────────────────────── */}
@@ -215,7 +207,7 @@ export default function Under699Page() {
           padding: '0 var(--container-px)',
         }}
       >
-        <div className="u699-grid">
+        <div className="product-grid-3">
           {loading && products.length === 0
             ? Array.from({ length: PAGE_SIZE }).map((_, i) => <CardSkeleton key={i} />)
             : products.map(p => <ProductCard key={p.id} product={p} />)

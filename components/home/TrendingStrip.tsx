@@ -40,8 +40,6 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
         <SectionHeader
           eyebrow="What everyone's wearing"
           title="Trending Now"
-          cta="See All"
-          ctaTo="/products"
         />
       </div>
 
@@ -67,10 +65,7 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
             key={product.id}
             style={{
               flexShrink: 0,
-              /* Match the 3-col grid card width */
-              width: 'calc((100vw - 2 * var(--container-px) - 2 * 1.25rem) / 3)',
-              minWidth: '220px',
-              maxWidth: '420px',
+              width: 'clamp(160px, 42vw, 340px)',
               scrollSnapAlign: 'start',
             }}
           >

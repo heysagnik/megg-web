@@ -62,13 +62,7 @@ export default async function ProductsPage({
               paddingBottom: "var(--space-2xl)",
             }}
           >
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
-                gap: "1.5rem 1rem",
-              }}
-            >
+            <div className="products-skeleton-grid">
               {Array.from({ length: 8 }).map((_, i) => (
                 <CardSkeleton key={i} />
               ))}

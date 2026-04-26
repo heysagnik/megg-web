@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import type { Product } from '@/lib/api'
 import CardSkeleton from '@/components/ui/CardSkeleton'
 import ProductCard from './ProductCard'
@@ -13,14 +13,6 @@ export interface ProductGridProps {
   children?: ReactNode
 }
 
-// ─── Constants ─────────────────────────────────────────────────────────────────
-
-const GRID_TEMPLATES: Record<2 | 3 | 4, string> = {
-  2: 'repeat(2, 1fr)',
-  3: 'repeat(3, 1fr)',
-  4: 'repeat(4, 1fr)',
-}
-
 // ─── Component ─────────────────────────────────────────────────────────────────
 
 export default function ProductGrid({
@@ -30,17 +22,16 @@ export default function ProductGrid({
   columns = 3,
   children,
 }: ProductGridProps) {
-  const gridStyle: CSSProperties = {
-    display: 'grid',
-    gridTemplateColumns: GRID_TEMPLATES[columns],
-    gap: '1rem',
-    width: '100%',
-  }
+  // Map column count to a responsive CSS class defined in globals.css
+  // 2 → product-grid-2  (2-col mobile → 3-col desktop)
+  // 3 → product-grid-3  (2-col mobile → 3-col desktop)
+  // 4 → product-grid-3  (same responsive behaviour, no 4-col on small screens)
+  const gridClass = columns === 2 ? 'product-grid-2' : 'product-grid-3'
 
   // ── Loading state: no products yet → fill grid with shimmer skeletons ──
   if (loading && products.length === 0) {
     return (
-      <div style={gridStyle} aria-busy="true" aria-label="Loading products">
+      <div className={gridClass} aria-busy="true" aria-label="Loading products">
         {Array.from({ length: skeletonCount }, (_, i) => (
           <CardSkeleton key={i} />
         ))}
@@ -55,7 +46,7 @@ export default function ProductGrid({
 
   // ── Populated grid ──
   return (
-    <div style={gridStyle}>
+    <div className={gridClass}>
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

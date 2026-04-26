@@ -88,11 +88,7 @@ export default function CategoryProductList({
       {/* ── Product Grid ── */}
       {products.length > 0 || loading ? (
         <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(3, 1fr)',
-            gap: '1rem',
-          }}
+          className="product-grid-3"
         >
           {products.map((p) => (
             <ProductCard key={p.id} product={p} />
