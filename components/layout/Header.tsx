@@ -91,7 +91,7 @@ export default function Header() {
         }}
         aria-hidden={!headerVisible}
         // inert removes the header from tab order when invisible
-        {...(!headerVisible ? { inert: 'true' } : {}) as React.HTMLAttributes<HTMLElement>}
+        {...(!headerVisible ? { inert: true } : {}) as React.HTMLAttributes<HTMLElement>}
       >
         {/* ── Three-zone bar ─────────────────────────────── */}
         <div

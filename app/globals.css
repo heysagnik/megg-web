@@ -437,12 +437,247 @@ button {
   :root { --container-px: 1rem; }
 }
 
-/* ─── Fallback grid (for Products page Suspense skeleton) ────────────────── */
-.products-skeleton-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 1rem;
-}
 @media (min-width: 768px) {
   .products-skeleton-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Editorial sidebar layout  (left nav · main · right panel)
+   Used by: /category, /under699, /search
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.z-shell {
+  display: grid;
+  grid-template-columns: 210px 1fr 140px;
+  min-height: calc(100vh - var(--header-height));
+  background: #fff;
+}
+
+/* ── Left sidebar ── */
+.z-left {
+  border-right: 1px solid #e8e8e8;
+  padding: 2.5rem 0 2.5rem 1.5rem;
+  position: sticky;
+  top: var(--header-height);
+  height: calc(100vh - var(--header-height));
+  overflow-y: auto;
+  scrollbar-width: none;
+  display: flex;
+  flex-direction: column;
+}
+.z-left::-webkit-scrollbar { display: none; }
+
+.z-nav-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: 0.7rem;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  line-height: 1.25;
+  color: #767676;
+  white-space: nowrap;
+  transition: color 0.12s;
+}
+.z-nav-btn:hover  { color: #000; }
+.z-nav-btn.active { color: #000; font-weight: 700; }
+.z-num { color: #bbb; margin-right: 0.35rem; font-weight: 400; }
+.z-nav-btn.active .z-num { color: #000; }
+
+.z-filters-btn {
+  margin-top: auto;
+  padding-top: 2.5rem;
+  display: block;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: #000;
+  padding-left: 0;
+}
+
+/* ── Main area ── */
+.z-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+/* ── Top strip ── */
+.z-topstrip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+/* ── Product grid inside the editorial shell ── */
+.z-grid {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  align-items: start;
+}
+
+/* ── Right blank column ── */
+.z-right {
+  border-left: 1px solid #e8e8e8;
+}
+
+/* ── VIEW 1 2 3 density strip ── */
+.z-view-strip {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  border-top: 1px solid #e8e8e8;
+  margin-top: auto;
+}
+.z-view-label {
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #767676;
+}
+.z-view-btn {
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #767676;
+  padding: 0;
+  transition: color 0.15s;
+}
+.z-view-btn.active { color: #000; font-weight: 700; text-decoration: underline; }
+.z-view-btn:hover  { color: #000; }
+
+/* ── Filter drawer ── */
+.z-filter-drawer {
+  position: fixed;
+  right: 0;
+  top: var(--header-height);
+  width: min(400px, 90vw);
+  height: calc(100vh - var(--header-height));
+  background: #fff;
+  border-left: 1px solid #e8e8e8;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 0.38s cubic-bezier(0.76,0,0.24,1);
+}
+.z-filter-drawer.open { transform: translateX(0); }
+
+.z-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.12);
+  z-index: 199; opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.z-backdrop.open { opacity: 1; pointer-events: auto; }
+
+.z-drawer-body { flex: 1; overflow-y: auto; scrollbar-width: none; }
+.z-drawer-body::-webkit-scrollbar { display: none; }
+
+.z-drawer-section {
+  border-bottom: 1px solid #e8e8e8;
+  padding: 1.25rem 1.5rem;
+}
+.z-drawer-section-title {
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #000;
+  margin-bottom: 0.875rem;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.z-section-num { color: #bbb; }
+
+.z-sort-btn {
+  display: block;
+  background: none; border: none;
+  padding: 0; margin-bottom: 0.6rem;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #767676;
+  transition: color 0.12s;
+  text-align: left;
+}
+.z-sort-btn:hover  { color: #000; }
+.z-sort-btn.active { color: #000; font-weight: 700; }
+
+.z-color-row {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  background: none; border: none;
+  padding: 0; width: 100%; text-align: left;
+}
+.z-color-square { width: 14px; height: 14px; flex-shrink: 0; border: 1px solid rgba(0,0,0,0.15); }
+.z-color-label {
+  font-family: var(--font-sans);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #222;
+}
+.z-color-row.active .z-color-label { font-weight: 700; }
+
+.z-view-results {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 1rem;
+  background: #000; color: #fff;
+  font-family: var(--font-sans);
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  border: none; cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.2s;
+}
+.z-view-results:hover { opacity: 0.82; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .z-shell { grid-template-columns: 180px 1fr; }
+  .z-right { display: none; }
+}
+@media (max-width: 600px) {
+  .z-shell { grid-template-columns: 1fr; }
+  .z-left {
+    position: static;
+    height: auto;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 0.75rem 1rem;
+    gap: 1.25rem;
+    border-right: none;
+    border-bottom: 1px solid #e8e8e8;
+  }
+  .z-nav-btn { margin-bottom: 0; white-space: nowrap; }
+  .z-filters-btn { margin-top: 0; padding-top: 0; border-left: 1px solid #e8e8e8; padding-left: 1.25rem; }
 }

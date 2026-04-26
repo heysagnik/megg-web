@@ -1,81 +1,32 @@
-import { Suspense } from "react";
-import { getProducts } from "@/lib/api";
-import { getCategoryDisplay } from "@/lib/utils";
-import { Container, PageHeader, CardSkeleton } from "@/components/ui";
-import FilterTabs from "@/components/product/FilterTabs";
-import ProductsClientList from "@/components/product/ProductsClientList";
-import type { Metadata } from "next";
+import type { Metadata } from 'next'
+import { listProducts } from '@/lib/api'
+import { getCategoryDisplay } from '@/lib/utils'
+import ProductsClient from './ProductsClient'
 
-/* ─── Metadata ───────────────────────────────────────── */
 export const metadata: Metadata = {
-  title: "Shop",
-  description: "Browse curated fashion on MEGG.",
-};
-
-/* ─── Page ───────────────────────────────────────────── */
-interface ProductsPageProps {
-  searchParams: Promise<{ category?: string }>;
+  title: 'Shop',
+  description: 'Browse curated fashion on MEGG.',
 }
 
-export default async function ProductsPage({
-  searchParams,
-}: ProductsPageProps) {
-  /* Next.js 15 — searchParams is a Promise */
-  const params = await searchParams;
-  const category = params.category ?? "";
+interface Props {
+  searchParams: Promise<{ category?: string }>
+}
 
-  /* Fetch first page on the server; gracefully fall back to empty */
-  const data = await getProducts(1, 20, category || undefined).catch(() => ({
+export default async function ProductsPage({ searchParams }: Props) {
+  const { category = '' } = await searchParams
+
+  const data = await listProducts({ page: 1, limit: 20, category: category || undefined }).catch(() => ({
     products: [],
-    page: 1,
-    limit: 20,
-  }));
-
-  const title = category ? getCategoryDisplay(category) : "All Products";
+    total: 0,
+    availableFilters: { subcategories: [], colors: [], brands: [], categories: [] },
+  }))
 
   return (
-    <>
-      {/* ── Page header ──────────────────────────────── */}
-      <Container>
-        <PageHeader
-          crumbs={[
-            { label: "Home", to: "/" },
-            { label: "Shop" },
-          ]}
-          title={title}
-          below={<FilterTabs activeCategory={category} />}
-        />
-      </Container>
-
-      {/* ── Product grid (client — handles infinite scroll) */}
-      {/*
-       * key={category} forces a clean remount whenever the category
-       * changes so the client component's local state (page, products,
-       * seenIds) starts fresh with the new server-fetched initialProducts.
-       */}
-      <Suspense
-        key={category}
-        fallback={
-          <Container
-            style={{
-              paddingTop: "var(--space-xl)",
-              paddingBottom: "var(--space-2xl)",
-            }}
-          >
-            <div className="products-skeleton-grid">
-              {Array.from({ length: 8 }).map((_, i) => (
-                <CardSkeleton key={i} />
-              ))}
-            </div>
-          </Container>
-        }
-      >
-        <ProductsClientList
-          key={category}
-          category={category}
-          initialProducts={data.products}
-        />
-      </Suspense>
-    </>
-  );
+    <ProductsClient
+      initialCategory={category}
+      initialProducts={data.products ?? []}
+      initialTotal={data.total ?? 0}
+      initialFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}
+    />
+  )
 }

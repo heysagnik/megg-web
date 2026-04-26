@@ -224,36 +224,33 @@ export default function ProductCard({ product }: ProductCardProps) {
         )}
       </div>
 
-      {/* ── Meta ── */}
-      <div style={{ paddingTop: '0.65rem' }}>
-        {/* Brand label */}
+      {/* ── Meta — flush, no horizontal padding ── */}
+      <div style={{ paddingTop: '0.5rem' }}>
         <p
           aria-label="Brand"
           style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: '0.75rem',
+            fontSize: '0.6rem',
             fontWeight: 600,
-            letterSpacing: '0.15em',
+            letterSpacing: '0.14em',
             textTransform: 'uppercase',
             color: 'var(--color-muted)',
-            marginBottom: '3px',
+            marginBottom: '2px',
             lineHeight: 1,
           }}
         >
           {product.brand}
         </p>
 
-        {/* Product name — 2-line clamp, NOT uppercased */}
         <p
           style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: '0.78rem',
+            fontSize: '0.8rem',
             fontWeight: 400,
-            lineHeight: 1.35,
+            lineHeight: 1.3,
             color: 'var(--color-black)',
             textTransform: 'none',
-            letterSpacing: '0',
-            // 2-line clamp
+            letterSpacing: 0,
             display: '-webkit-box',
             WebkitLineClamp: 2,
             WebkitBoxOrient: 'vertical',
@@ -263,16 +260,15 @@ export default function ProductCard({ product }: ProductCardProps) {
           {product.name}
         </p>
 
-        {/* Price */}
         <p
           style={{
-            marginTop: '0.4rem',
+            marginTop: '0.25rem',
             fontFamily: 'var(--font-sans)',
-            fontSize: '0.875rem',
+            fontSize: '0.8rem',
             fontWeight: 500,
             color: 'var(--color-black)',
             fontVariantNumeric: 'tabular-nums',
-            letterSpacing: '0',
+            letterSpacing: 0,
           }}
         >
           {formatPrice(product.price)}

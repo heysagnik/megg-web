@@ -74,14 +74,7 @@ export default function CategoryRow() {
             <h2 className="text-section">Shop by Category</h2>
           </div>
 
-          {/* CTA */}
-          <Link
-            href="/category"
-            className="btn-underline"
-            style={{ flexShrink: 0 }}
-          >
-            View All →
-          </Link>
+          
         </div>
 
         {/* ─── Horizontal scroll row ──────────────────────────── */}

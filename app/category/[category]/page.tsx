@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { browseCategory, getCategorySubcategories } from '@/lib/api'
+import { listProducts } from '@/lib/api'
 import { getCategoryDisplay } from '@/lib/utils'
 import CategoryPageClient from './CategoryPageClient'
 
@@ -21,10 +21,11 @@ export default async function CategoryPage({ params }: Props) {
   const slug = decodeURIComponent(category)
   const name = getCategoryDisplay(slug)
 
-  const [data, subcategories] = await Promise.all([
-    browseCategory(slug, 1, 20).catch(() => ({ products: [], total: 0 })),
-    getCategorySubcategories(slug).catch(() => []),
-  ])
+  const data = await listProducts({ category: slug, page: 1, limit: 20 }).catch(() => ({
+    products: [],
+    total: 0,
+    availableFilters: { subcategories: [], colors: [], brands: [], categories: [] },
+  }))
 
   return (
     <CategoryPageClient
@@ -32,7 +33,7 @@ export default async function CategoryPage({ params }: Props) {
       displayName={name}
       initialProducts={data.products ?? []}
       total={data.total ?? 0}
-      subcategories={subcategories}
+      availableFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}
     />
   )
 }

@@ -86,12 +86,25 @@ export interface Subcategory {
   created_at: string;
 }
 
+export interface FilterOption {
+  name: string;
+  count: number;
+}
+
+export interface AvailableFilters {
+  subcategories: FilterOption[];
+  colors: FilterOption[];
+  brands: FilterOption[];
+  categories: FilterOption[];
+}
+
 export interface ProductsResponse {
   products: Product[];
   page?: number;
   limit?: number;
   total?: number;
   totalPages?: number;
+  availableFilters?: AvailableFilters;
 }
 
 export interface SearchFilters {
@@ -137,7 +150,17 @@ async function fetchJSON<T>(path: string): Promise<T> {
 
 export type SortOption = 'price_asc' | 'price_desc' | 'newest' | 'popular';
 
-/** Product listing — GET /products/list (supports category, subcategory, sort) */
+export interface ListParams {
+  page?: number;
+  limit?: number;
+  category?: string;
+  subcategory?: string;
+  sort?: SortOption | 'relevance';
+  brand?: string;
+  color?: string;
+}
+
+/** Product listing — GET /products/list */
 export async function getProducts(
   page = 1,
   limit = 20,
@@ -145,10 +168,17 @@ export async function getProducts(
   subcategory?: string,
   sort?: SortOption,
 ): Promise<ProductsResponse> {
-  const p = new URLSearchParams({ page: String(page), limit: String(limit) });
-  if (category) p.set('category', category);
-  if (subcategory) p.set('subcategory', subcategory);
-  if (sort) p.set('sort', sort);
+  return listProducts({ page, limit, category, subcategory, sort });
+}
+
+/** Full-featured product listing with all filter params */
+export async function listProducts(params: ListParams): Promise<ProductsResponse> {
+  const p = new URLSearchParams({ page: String(params.page ?? 1), limit: String(params.limit ?? 20) });
+  if (params.category) p.set('category', params.category);
+  if (params.subcategory) p.set('subcategory', params.subcategory);
+  if (params.sort) p.set('sort', params.sort);
+  if (params.brand) p.set('brand', params.brand);
+  if (params.color) p.set('color', params.color);
   return fetchJSON<ProductsResponse>(`/products/list?${p}`);
 }
 
