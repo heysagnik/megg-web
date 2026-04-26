@@ -91,12 +91,16 @@ const GA_ID = 'G-P61VDHTVEG'
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${geist.variable}`}>
-      <head>
+    <html lang="en" className={`${cormorant.variable} ${geist.variable}`}><body>
+        <ProgressBar />
+        <Header />
+        <main style={{ minHeight: '100vh' }}>{children}</main>
+        <Footer />
+        {/* Analytics — deferred after body so they never block rendering */}
         <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} />
         <script
           dangerouslySetInnerHTML={{
-            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`,
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}',{send_page_view:true});`,
           }}
         />
         <script
@@ -104,12 +108,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           src="https://cloud.umami.is/script.js"
           data-website-id="37fe1a13-6bcf-448a-b7f6-fa147cd4080b"
         />
-      </head>
-      <body>
-        <ProgressBar />
-        <Header />
-        <main style={{ minHeight: '100vh' }}>{children}</main>
-        <Footer />
       </body>
     </html>
   )

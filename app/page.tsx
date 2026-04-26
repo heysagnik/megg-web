@@ -1,12 +1,15 @@
 import type { Metadata } from 'next'
+import dynamic from 'next/dynamic'
 import { getTrendingProducts } from '@/lib/api'
 import HeroSection from '@/components/home/HeroSection'
 import CategoryRow from '@/components/home/CategoryRow'
 import Under699Banner from '@/components/home/Under699Banner'
-import ReelsSection from '@/components/home/ReelsSection'
-import OffersSection from '@/components/home/OffersSection'
-import TrendingStrip from '@/components/home/TrendingStrip'
-import NewArrivalsSection from '@/components/home/NewArrivalsSection'
+
+// Below-fold sections — loaded lazily to keep initial JS bundle small
+const ReelsSection       = dynamic(() => import('@/components/home/ReelsSection'))
+const OffersSection      = dynamic(() => import('@/components/home/OffersSection'))
+const TrendingStrip      = dynamic(() => import('@/components/home/TrendingStrip'))
+const NewArrivalsSection = dynamic(() => import('@/components/home/NewArrivalsSection'))
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
@@ -29,27 +32,22 @@ export default async function HomePage() {
 
   return (
     <main>
-      {/* 1. Pull hero flush under the sticky header so no white gap appears */}
+      {/* 1. Hero — above fold, loads immediately */}
       <div style={{ marginTop: 'calc(-1 * var(--header-height))' }}>
         <HeroSection />
       </div>
 
-      {/* 2. Shop by Category — 4 cards visible at once, horizontal scroll */}
+      {/* 2. Categories — just below fold, static images */}
       <CategoryRow />
 
-      {/* 3. Shop Under ₹699 dark promo banner */}
+      {/* 3. Under ₹699 banner — text only, no images */}
       <Under699Banner />
 
-      {/* 4. Outfit Reels — tall portrait cards, horizontal scroll */}
+      {/* 4–7. Below fold — dynamically imported */}
       <ReelsSection />
-
-      {/* 5. Ongoing Offers — 3-column editorial cards */}
       <OffersSection />
-
-      {/* 6. Trending Now — horizontal snap-scroll strip */}
       <TrendingStrip products={trending} />
 
-      {/* 7. New Arrivals — infinite-scroll 4-col grid */}
       <section
         style={{
           paddingTop: 'var(--space-xl)',
@@ -72,7 +70,6 @@ export default async function HomePage() {
             </p>
             <h2 className="text-section">New Arrivals</h2>
           </div>
-
           <NewArrivalsSection />
         </div>
       </section>

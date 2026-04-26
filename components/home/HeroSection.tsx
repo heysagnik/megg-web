@@ -98,7 +98,8 @@ export default function HeroSection() {
               muted
               loop
               playsInline
-              preload="auto"
+              preload="none"
+              aria-label="Fashion editorial video"
               style={{
                 position: 'absolute',
                 inset: 0,
@@ -107,7 +108,9 @@ export default function HeroSection() {
                 objectFit: 'cover',
                 display: 'block',
               }}
-            />
+            >
+              <track kind="captions" srcLang="en" label="English" />
+            </video>
           </div>
         ))}
 

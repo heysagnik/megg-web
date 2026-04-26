@@ -127,9 +127,10 @@ export default function CategoryRow() {
                   src={cat.img}
                   alt={cat.label}
                   fill
-                  sizes="180px"
+                  sizes="(max-width: 768px) 50vw, 25vw"
                   className="cat-card-img"
                   style={{ objectFit: 'cover' }}
+                  loading="lazy"
                   draggable={false}
                 />
               </div>
