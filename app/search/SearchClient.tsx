@@ -266,7 +266,7 @@ function SearchInner() {
               style={{
                 flexShrink: 0,
                 fontFamily: 'var(--font-sans)',
-                fontSize: '0.62rem',
+                fontSize: '0.75rem',
                 letterSpacing: '0.12em',
                 textTransform: 'uppercase',
                 padding: '0.5rem 1rem',
@@ -317,7 +317,7 @@ function SearchInner() {
               alignItems: 'center',
               gap: '0.5rem',
               fontFamily: 'var(--font-sans)',
-              fontSize: '0.62rem',
+              fontSize: '0.75rem',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               color: 'var(--color-black)',
@@ -358,7 +358,7 @@ function SearchInner() {
             style={{
               appearance: 'none',
               fontFamily: 'var(--font-sans)',
-              fontSize: '0.62rem',
+              fontSize: '0.75rem',
               letterSpacing: '0.1em',
               textTransform: 'uppercase',
               border: 'none',
@@ -421,7 +421,7 @@ function SearchInner() {
               style={{
                 textAlign: 'center',
                 fontFamily: 'var(--font-sans)',
-                fontSize: '0.65rem',
+                fontSize: '0.75rem',
                 color: 'var(--color-muted)',
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',

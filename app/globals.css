@@ -60,10 +60,10 @@
   --color-border-mid: #cccccc;
   --color-muted:      #9a9a9a;
 
-  /* Type scale */
-  --text-2xs:  0.5rem;
-  --text-xs:   0.625rem;
-  --text-sm:   0.75rem;
+  /* Type scale — minimum 0.75rem (12px) for SEO/accessibility compliance */
+  --text-2xs:  0.75rem;
+  --text-xs:   0.75rem;
+  --text-sm:   0.8125rem;
   --text-base: 0.875rem;
   --text-md:   1rem;
   --text-lg:   1.25rem;

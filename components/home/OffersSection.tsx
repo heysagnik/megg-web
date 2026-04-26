@@ -89,7 +89,7 @@ export default function OffersSection() {
                   style={{
                     marginTop: '0.35rem',
                     fontFamily: 'var(--font-sans)',
-                    fontSize: '0.58rem',
+                    fontSize: '0.75rem',
                     letterSpacing: '0.14em',
                     textTransform: 'uppercase',
                     color: 'rgba(255,255,255,0.7)',

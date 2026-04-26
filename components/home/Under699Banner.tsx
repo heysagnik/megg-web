@@ -23,7 +23,7 @@ export default function Under699Banner() {
         <span
           style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: '0.62rem',
+            fontSize: '0.75rem',
             letterSpacing: '0.2em',
             color: 'var(--color-gray-400)',
             textTransform: 'uppercase',
@@ -72,7 +72,7 @@ export default function Under699Banner() {
             background: 'var(--color-white)',
             color: 'var(--color-black)',
             fontFamily: 'var(--font-sans)',
-            fontSize: '0.65rem',
+            fontSize: '0.75rem',
             letterSpacing: '0.16em',
             textTransform: 'uppercase',
             padding: '0.875rem 2.5rem',

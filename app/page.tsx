@@ -49,6 +49,7 @@ export default async function HomePage() {
       <TrendingStrip products={trending} />
 
       <section
+        id="new-arrivals"
         style={{
           paddingTop: 'var(--space-xl)',
           paddingBottom: 'var(--space-3xl)',

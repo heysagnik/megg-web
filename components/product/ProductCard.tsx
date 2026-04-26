@@ -231,7 +231,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           aria-label="Brand"
           style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: '0.58rem',
+            fontSize: '0.75rem',
             fontWeight: 600,
             letterSpacing: '0.15em',
             textTransform: 'uppercase',

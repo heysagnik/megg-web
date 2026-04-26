@@ -99,10 +99,10 @@ export default function Under699Page() {
   const chipStyle = (active: boolean) => ({
     flexShrink: 0 as const,
     fontFamily: 'var(--font-sans)',
-    fontSize: '0.58rem',
+    fontSize: '0.75rem',
     letterSpacing: '0.12em',
     textTransform: 'uppercase' as const,
-    padding: '0.42rem 0.85rem',
+    padding: '0.6rem 0.85rem', minHeight: '44px',
     border: `1px solid ${active ? 'var(--color-black)' : 'var(--color-border-mid)'}`,
     background: active ? 'var(--color-black)' : 'transparent',
     color: active ? 'var(--color-white)' : 'var(--color-muted)',
@@ -178,7 +178,7 @@ export default function Under699Page() {
 
         {/* Sort */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.58rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-muted)' }}>Sort</span>
+          <span style={{ fontFamily: 'var(--font-sans)', fontSize: '0.75rem', letterSpacing: '0.1em', textTransform: 'uppercase', color: 'var(--color-muted)' }}>Sort</span>
           <div style={{ position: 'relative' }}>
             <select
               value={sort}
@@ -186,7 +186,7 @@ export default function Under699Page() {
               style={{
                 appearance: 'none',
                 fontFamily: 'var(--font-sans)',
-                fontSize: '0.62rem',
+                fontSize: '0.75rem',
                 letterSpacing: '0.1em',
                 textTransform: 'uppercase',
                 color: 'var(--color-black)',

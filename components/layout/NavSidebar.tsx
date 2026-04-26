@@ -15,9 +15,9 @@ const NAV_SECTIONS = [
   {
     label: 'Shop',
     items: [
-      { label: 'New Arrivals',    to: '/products' },
+      { label: 'New Arrivals',    to: '/#new-arrivals' },
       { label: 'All Products',    to: '/products' },
-      { label: 'Trending Now',    to: '/products' },
+      { label: 'Under ₹699',      to: '/under699' },
     ],
   },
   {
@@ -214,7 +214,7 @@ export default function NavSidebar({ id, isOpen, onClose }: NavSidebarProps) {
                 justifyContent: 'flex-start',
                 gap: '0.5rem',
                 fontFamily: 'var(--font-sans)',
-                fontSize: '0.6875rem',
+                fontSize: '0.75rem',
                 fontWeight: 500,
                 letterSpacing: '0.13em',
                 textTransform: 'uppercase',
@@ -243,7 +243,7 @@ export default function NavSidebar({ id, isOpen, onClose }: NavSidebarProps) {
               <p
                 style={{
                   fontFamily: 'var(--font-sans)',
-                  fontSize: '0.55rem',
+                  fontSize: '0.75rem',
                   fontWeight: 600,
                   letterSpacing: '0.18em',
                   textTransform: 'uppercase',
@@ -308,7 +308,7 @@ export default function NavSidebar({ id, isOpen, onClose }: NavSidebarProps) {
                     ...rowBase,
                     padding: '0.75rem 1.5rem',
                     fontFamily: 'var(--font-sans)',
-                    fontSize: '0.72rem',
+                    fontSize: '0.75rem',
                     fontWeight: 400,
                     letterSpacing: '0.04em',
                     textTransform: 'none',
@@ -327,7 +327,7 @@ export default function NavSidebar({ id, isOpen, onClose }: NavSidebarProps) {
                     ...rowBase,
                     padding: '0.75rem 1.5rem',
                     fontFamily: 'var(--font-sans)',
-                    fontSize: '0.72rem',
+                    fontSize: '0.75rem',
                     fontWeight: 400,
                     letterSpacing: '0.04em',
                     textTransform: 'none',
