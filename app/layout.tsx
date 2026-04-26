@@ -87,9 +87,19 @@ export const metadata: Metadata = {
 
 // ─── Layout ───────────────────────────────────────────────────────────────────
 
+const GA_ID = 'G-P61VDHTVEG'
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${cormorant.variable} ${geist.variable}`}>
+      <head>
+        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`,
+          }}
+        />
+      </head>
       <body>
         <ProgressBar />
         <Header />
