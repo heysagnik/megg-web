@@ -1,0 +1,364 @@
+@import "tailwindcss";
+
+/* ─── Tailwind v4 Theme ──────────────────────────────────────────────────── */
+@theme {
+  /* Fonts — CSS vars injected by next/font into <html> */
+  --font-serif: var(--font-serif);
+  --font-sans:  var(--font-sans);
+
+  /* Palette */
+  --color-black:       #0a0a0a;
+  --color-white:       #ffffff;
+  --color-off-white:   #f8f7f5;
+  --color-stone:       #ebebeb;
+  --color-stone-dark:  #d4d4d4;
+  --color-muted:       #9a9a9a;
+  --color-muted-dark:  #616161;
+  --color-gray-50:     #f5f5f5;
+  --color-gray-100:    #ebebeb;
+  --color-gray-200:    #d4d4d4;
+  --color-gray-400:    #9a9a9a;
+  --color-gray-600:    #616161;
+  --color-surface:     #f5f5f5;
+  --color-surface-2:   #f8f7f5;
+  --color-border:      #e8e8e8;
+  --color-border-mid:  #cccccc;
+
+  /* Spacing */
+  --spacing-xs:  0.5rem;
+  --spacing-sm:  1rem;
+  --spacing-md:  1.5rem;
+  --spacing-lg:  2.5rem;
+  --spacing-xl:  4rem;
+  --spacing-2xl: 5rem;
+  --spacing-3xl: 8rem;
+
+  /* Layout */
+  --container-max: 1440px;
+  --container-px:  1.5rem;
+  --header-height: 52px;
+}
+
+/* ─── CSS Custom Properties ──────────────────────────────────────────────── */
+:root {
+  /* Fonts — fallbacks in case next/font hasn't hydrated yet */
+  --font-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-sans:  "Geist", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* Palette */
+  --color-black:      #0a0a0a;
+  --color-white:      #ffffff;
+  --color-off-white:  #f8f7f5;
+  --color-gray-50:    #f5f5f5;
+  --color-gray-100:   #ebebeb;
+  --color-gray-200:   #d4d4d4;
+  --color-gray-400:   #9a9a9a;
+  --color-gray-600:   #616161;
+  --color-surface:    #f5f5f5;
+  --color-surface-2:  #f8f7f5;
+  --color-border:     #e8e8e8;
+  --color-border-mid: #cccccc;
+  --color-muted:      #9a9a9a;
+
+  /* Type scale */
+  --text-2xs:  0.5rem;
+  --text-xs:   0.625rem;
+  --text-sm:   0.75rem;
+  --text-base: 0.875rem;
+  --text-md:   1rem;
+  --text-lg:   1.25rem;
+
+  /* Letter-spacing */
+  --tracking-tight:   -0.02em;
+  --tracking-normal:   0;
+  --tracking-wide:     0.06em;
+  --tracking-wider:    0.12em;
+  --tracking-widest:   0.18em;
+
+  /* Spacing */
+  --space-xs:  0.5rem;
+  --space-sm:  1rem;
+  --space-md:  1.5rem;
+  --space-lg:  2.5rem;
+  --space-xl:  4rem;
+  --space-2xl: 5rem;
+  --space-3xl: 8rem;
+
+  /* Layout */
+  --header-height:  52px;
+  --container-max:  1440px;
+  --container-px:   1.5rem;
+  --sidebar-width:  380px;
+}
+
+/* ─── Reset ──────────────────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--color-white);
+  color: var(--color-black);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Editorial baseline — no uppercase, just tight tracking */
+  letter-spacing: 0.01em;
+}
+
+img  { display: block; max-width: 100%; }
+a    { color: inherit; text-decoration: none; }
+button {
+  cursor: pointer;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+
+/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 3px; height: 3px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--color-gray-200); border-radius: 2px; }
+
+/* ─── Typography Utilities ───────────────────────────────────────────────── */
+.font-serif   { font-family: var(--font-serif); }
+.font-sans    { font-family: var(--font-sans); }
+
+/* Display — Dior-style editorial oversized serif */
+.text-display {
+  font-family: var(--font-serif);
+  font-size: clamp(2.8rem, 7vw, 6.5rem);
+  font-weight: 300;
+  line-height: 0.92;
+  letter-spacing: -0.04em;
+  text-transform: none;
+}
+
+/* Hero title */
+.text-hero-title {
+  font-family: var(--font-serif);
+  font-size: clamp(2rem, 4.5vw, 4rem);
+  font-weight: 300;
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+  text-transform: none;
+}
+
+/* Section header */
+.text-section {
+  font-family: var(--font-serif);
+  font-size: clamp(1.6rem, 2.5vw, 2.5rem);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  text-transform: none;
+}
+
+/* Small caps label — all-caps sans */
+.text-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+}
+
+/* Muted caption */
+.text-caption {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  font-weight: 400;
+  color: var(--color-muted);
+  letter-spacing: 0.03em;
+  text-transform: none;
+}
+
+/* ─── Navigation ─────────────────────────────────────────────────────────── */
+.nav-link {
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  position: relative;
+  padding-bottom: 2px;
+  transition: opacity 0.2s;
+}
+.nav-link::after {
+  content: '';
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--color-black);
+  transition: width 0.3s ease;
+}
+.nav-link:hover::after,
+.nav-link.active::after { width: 100%; }
+.nav-link:hover { opacity: 0.65; }
+
+/* ─── Buttons ────────────────────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-black);
+  color: var(--color-white);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  padding: 0.875rem 2.25rem;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+.btn-primary:hover { opacity: 0.82; }
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--color-black);
+  color: var(--color-black);
+  background: transparent;
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  padding: 0.875rem 2.25rem;
+  transition: background 0.2s, color 0.2s;
+  cursor: pointer;
+}
+.btn-outline:hover { background: var(--color-black); color: var(--color-white); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--color-black);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 500;
+  letter-spacing: var(--tracking-wider);
+  text-transform: uppercase;
+  padding: 0.875rem 1.25rem;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+.btn-ghost:hover { opacity: 0.55; }
+
+.btn-underline {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background: transparent;
+  border: none;
+  color: var(--color-black);
+  font-family: var(--font-sans);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: opacity 0.2s;
+}
+.btn-underline:hover { opacity: 0.6; }
+
+/* ─── Skeleton ───────────────────────────────────────────────────────────── */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-gray-100) 25%,
+    var(--color-gray-50) 50%,
+    var(--color-gray-100) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.6s ease infinite;
+}
+@keyframes skeleton-loading {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ─── Product card ───────────────────────────────────────────────────────── */
+@keyframes card-img-in {
+  from { opacity: 0; transform: translateX(6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes card-img-in-left {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes card-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ─── Marquee ────────────────────────────────────────────────────────────── */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 30s linear infinite;
+}
+
+/* ─── Sidebar ────────────────────────────────────────────────────────────── */
+@keyframes fade-in       { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fade-out      { from { opacity: 1; } to { opacity: 0; } }
+@keyframes slide-in-left { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes slide-out-left{ from { transform: translateX(0); } to { transform: translateX(-100%); } }
+
+/* ─── Progress bar ───────────────────────────────────────────────────────── */
+.progress-bar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--color-black);
+  z-index: 9999;
+  transform-origin: left;
+  pointer-events: none;
+}
+
+/* ─── Focus / selection ──────────────────────────────────────────────────── */
+:focus-visible {
+  outline: 1.5px solid var(--color-black);
+  outline-offset: 2px;
+}
+::selection {
+  background: var(--color-black);
+  color: var(--color-white);
+}
+
+/* ─── Footer links ───────────────────────────────────────────────────────── */
+.footer-link {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: #777;
+  text-decoration: none;
+  margin-bottom: 0.6rem;
+  transition: color 0.2s;
+  font-weight: 300;
+}
+.footer-link:hover { color: #ffffff; }

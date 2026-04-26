@@ -1,0 +1,62 @@
+import type { CSSProperties } from "react";
+import { cn } from "@/lib/utils";
+
+interface CardSkeletonProps {
+  className?: string;
+}
+
+const styles: Record<string, CSSProperties> = {
+  card: {
+    display: "flex",
+    flexDirection: "column",
+    width: "100%",
+  },
+  imageWrap: {
+    width: "100%",
+    aspectRatio: "3 / 4",
+  },
+  meta: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "0.5rem",
+    paddingTop: "0.75rem",
+  },
+  lineBrand: {
+    height: "0.625rem",
+    width: "40%",
+    borderRadius: 0,
+    background: "var(--color-gray-100)",
+  },
+  lineName: {
+    height: "0.625rem",
+    width: "70%",
+    borderRadius: 0,
+    background: "var(--color-gray-100)",
+  },
+  linePrice: {
+    height: "0.625rem",
+    width: "30%",
+    borderRadius: 0,
+    background: "var(--color-gray-50)",
+    marginTop: "0.25rem",
+  },
+};
+
+export default function CardSkeleton({ className }: CardSkeletonProps) {
+  return (
+    <div style={styles.card} className={cn(className)}>
+      {/* Image area — 3/4 aspect ratio shimmer */}
+      <div className="skeleton" style={styles.imageWrap} aria-hidden="true" />
+
+      {/* Text lines */}
+      <div style={styles.meta} aria-hidden="true">
+        {/* Brand */}
+        <div className="skeleton" style={styles.lineBrand} />
+        {/* Product name */}
+        <div className="skeleton" style={styles.lineName} />
+        {/* Price */}
+        <div className="skeleton" style={styles.linePrice} />
+      </div>
+    </div>
+  );
+}
