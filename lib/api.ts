@@ -224,7 +224,7 @@ export async function getProductRecommendations(productId: string): Promise<Prod
 
 /** Full-text search — GET /search */
 export async function searchProducts(params: SearchParams): Promise<SearchResult> {
-  const p = new URLSearchParams({ q: params.q });
+  const p = new URLSearchParams({ query: params.q });
   if (params.page) p.set('page', String(params.page));
   if (params.limit) p.set('limit', String(params.limit));
   if (params.category) p.set('category', params.category);
