@@ -99,6 +99,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}');`,
           }}
         />
+        <script
+          defer
+          src="https://cloud.umami.is/script.js"
+          data-website-id="37fe1a13-6bcf-448a-b7f6-fa147cd4080b"
+        />
       </head>
       <body>
         <ProgressBar />
