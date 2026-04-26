@@ -99,7 +99,7 @@ export default function CategoryRow() {
             paddingBottom: '4px', /* room for box-shadow if added later */
           }}
         >
-          {BENTO.map((cat) => (
+          {BENTO.map((cat, i) => (
             <Link
               key={cat.slug}
               href={`/category/${encodeURIComponent(cat.slug)}`}
@@ -130,7 +130,8 @@ export default function CategoryRow() {
                   sizes="(max-width: 768px) 50vw, 25vw"
                   className="cat-card-img"
                   style={{ objectFit: 'cover' }}
-                  loading="lazy"
+                  priority={i < 4}
+                  loading={i < 4 ? 'eager' : 'lazy'}
                   draggable={false}
                 />
               </div>

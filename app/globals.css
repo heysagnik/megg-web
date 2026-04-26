@@ -283,18 +283,22 @@ button {
 
 /* ─── Skeleton ───────────────────────────────────────────────────────────── */
 .skeleton {
-  background: linear-gradient(
-    90deg,
-    var(--color-gray-100) 25%,
-    var(--color-gray-50) 50%,
-    var(--color-gray-100) 75%
-  );
-  background-size: 200% 100%;
+  background: var(--color-gray-100);
+  position: relative;
+  overflow: hidden;
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
+  /* transform is GPU-composited — no main-thread paint */
   animation: skeleton-loading 1.6s ease infinite;
+  will-change: transform;
 }
 @keyframes skeleton-loading {
-  0%   { background-position:  200% 0; }
-  100% { background-position: -200% 0; }
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%);  }
 }
 
 /* ─── Product card ───────────────────────────────────────────────────────── */

@@ -30,15 +30,22 @@ export default function Header() {
       return
     }
 
-    const onScroll = () => {
-      const threshold = window.innerHeight * 0.8
-      setHeaderVisible(window.scrollY >= threshold)
-    }
+    // Use IntersectionObserver instead of a scroll listener —
+    // zero main-thread scroll cost, no setState on every frame.
+    const sentinel = document.createElement('div')
+    sentinel.style.cssText = 'position:absolute;top:80vh;height:1px;width:1px;pointer-events:none'
+    document.body.prepend(sentinel)
 
-    // Set initial state without waiting for scroll
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    return () => window.removeEventListener('scroll', onScroll)
+    const observer = new IntersectionObserver(
+      ([entry]) => setHeaderVisible(!entry.isIntersecting),
+      { threshold: 0 },
+    )
+    observer.observe(sentinel)
+
+    return () => {
+      observer.disconnect()
+      sentinel.remove()
+    }
   }, [isHomePage])
 
   /* ── Auto-focus search input when panel opens ───────── */

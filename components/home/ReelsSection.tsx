@@ -114,7 +114,7 @@ export default function ReelsSection() {
                 {reel.thumbnail_url && (
                   <Image
                     src={reel.thumbnail_url}
-                    alt={reel.category}
+                    alt=""
                     fill
                     sizes="(max-width: 768px) 50vw, 22vw"
                     className="reel-thumb"

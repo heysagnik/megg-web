@@ -11,7 +11,7 @@ import ProgressBar from '@/components/layout/ProgressBar'
 
 const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
+  weight: ['300', '400'],   // 500/600 unused — drop to halve font payload
   style: ['normal', 'italic'],
   variable: '--font-serif',
   display: 'swap',
@@ -19,7 +19,7 @@ const cormorant = Cormorant_Garamond({
 
 const geist = Geist({
   subsets: ['latin'],
-  weight: ['300', '400', '500', '600'],
+  weight: ['300', '400', '500'], // 600 unused
   variable: '--font-sans',
   display: 'swap',
 })
@@ -91,7 +91,15 @@ const GA_ID = 'G-P61VDHTVEG'
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${geist.variable}`}><body>
+    <html lang="en" className={`${cormorant.variable} ${geist.variable}`}>
+      <head>
+        {/* Preconnect to image CDN and analytics — saves 100–200ms per origin */}
+        <link rel="preconnect" href="https://media.meggfashion.in" />
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+        <link rel="dns-prefetch" href="https://cloud.umami.is" />
+      </head>
+      <body>
         <ProgressBar />
         <Header />
         <main style={{ minHeight: '100vh' }}>{children}</main>

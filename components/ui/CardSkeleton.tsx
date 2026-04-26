@@ -24,20 +24,14 @@ const styles: Record<string, CSSProperties> = {
   lineBrand: {
     height: "0.625rem",
     width: "40%",
-    borderRadius: 0,
-    background: "var(--color-gray-100)",
   },
   lineName: {
     height: "0.625rem",
     width: "70%",
-    borderRadius: 0,
-    background: "var(--color-gray-100)",
   },
   linePrice: {
     height: "0.625rem",
     width: "30%",
-    borderRadius: 0,
-    background: "var(--color-gray-50)",
     marginTop: "0.25rem",
   },
 };
