@@ -169,9 +169,9 @@ export default function ProductCard({ product }: ProductCardProps) {
   const wrapperStyle: CSSProperties = {
     cursor: 'pointer',
     width: '100%',
-    // Reset body-level uppercase / spacing so children can override cleanly
     textTransform: 'uppercase',
     letterSpacing: 'normal',
+    color: 'var(--color-black)',
   }
 
   const imageAreaStyle: CSSProperties = {

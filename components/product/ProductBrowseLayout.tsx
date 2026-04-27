@@ -12,12 +12,13 @@ import type { Product } from '@/lib/api'
 
 export interface BrowseFilters {
   subcategory: string
-  color:       string
-  brand:       string
-  sort:        SortOption | 'relevance' | ''
+  category:   string
+  color:      string
+  brand:      string
+  sort:       SortOption | 'relevance' | ''
 }
 
-export const BROWSE_EMPTY: BrowseFilters = { subcategory: '', color: '', brand: '', sort: '' }
+export const BROWSE_EMPTY: BrowseFilters = { subcategory: '', category: '', color: '', brand: '', sort: '' }
 
 const SORT_OPTIONS: { label: string; value: BrowseFilters['sort'] }[] = [
   { label: 'Relevance',         value: 'relevance'  },
@@ -270,10 +271,11 @@ export default function ProductBrowseLayout({
           grid-template-columns: repeat(3, 1fr);
           gap: 2rem;
           padding: 2rem 1.5rem 4rem;
+          align-items: stretch;
         }
-        @media (max-width: 900px)  { .browse-grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; padding: 1.25rem; } }
+        @media (max-width: 900px)  { .browse-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; padding: 1rem; align-items: stretch; } }
         .browse-mobile-filter { display: none; }
-        @media (max-width: 600px)  { .browse-sidebar { display: none !important; } .browse-mobile-filter { display: flex; align-items: center; gap: 0.4rem; } }
+        @media (max-width: 600px)  { .browse-sidebar { display: none !important; } .browse-mobile-filter { display: flex; align-items: center; gap: 0.4rem; } .browse-grid { gap: 0.5rem; padding: 0.75rem 0.5rem; align-items: stretch; } }
       `}</style>
 
       {/* ── Left sidebar ────────────────────────────── */}

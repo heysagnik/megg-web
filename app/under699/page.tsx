@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { getUnder699 } from '@/lib/api'
 import Under699Client from './Under699Client'
 
 export const metadata: Metadata = {
@@ -12,6 +13,18 @@ export const metadata: Metadata = {
   },
 }
 
-export default function Under699Page() {
-  return <Under699Client />
+export default async function Under699Page() {
+  const data = await getUnder699(1, 20).catch(() => ({
+    products: [],
+    total: 0,
+    availableFilters: { subcategories: [], colors: [], brands: [], categories: [] },
+  }))
+
+  return (
+    <Under699Client
+      initialProducts={data.products ?? []}
+      total={data.total ?? 0}
+      availableFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}
+    />
+  )
 }
