@@ -145,7 +145,7 @@ function SearchInner() {
             style={{
               flex: 1, fontFamily: 'var(--font-sans)', fontSize: '0.8rem',
               border: 'none', outline: 'none', background: 'transparent',
-              color: 'var(--color-black)', textTransform: 'none', minWidth: 0,
+              color: 'var(--color-black)', textTransform: 'uppercase', minWidth: 0,
             }}
           />
           <button type="submit" style={{

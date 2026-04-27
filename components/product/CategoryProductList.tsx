@@ -111,7 +111,7 @@ export default function CategoryProductList({
               color: 'var(--color-muted)',
               fontFamily: 'var(--font-sans)',
               fontSize: 'var(--text-base)',
-              textTransform: 'none',
+              textTransform: 'uppercase',
               letterSpacing: '0.02em',
               marginBottom: '1.5rem',
             }}

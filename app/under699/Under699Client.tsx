@@ -98,7 +98,7 @@ export default function Under699Client() {
 
   return (
     <ProductBrowseLayout
-      title="Shop Under ₹699"
+      title="Shop Under Rs. 699"
       products={products}
       total={total}
       loading={loading}

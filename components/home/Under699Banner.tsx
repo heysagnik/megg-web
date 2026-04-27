@@ -40,11 +40,11 @@ export default function Under699Banner() {
             fontWeight: 400,
             color: 'var(--color-white)',
             letterSpacing: '-0.02em',
-            textTransform: 'none',
+            textTransform: 'uppercase',
             lineHeight: 1.05,
           }}
         >
-          Shop Under ₹699
+          Shop Under <span style={{ textTransform: 'none' }}>Rs.</span> 699
         </h2>
 
         {/* Subtitle */}
@@ -55,7 +55,7 @@ export default function Under699Banner() {
             color: 'var(--color-gray-400)',
             maxWidth: '340px',
             lineHeight: 1.6,
-            textTransform: 'none',
+            textTransform: 'uppercase',
             letterSpacing: '0.03em',
           }}
         >

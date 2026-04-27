@@ -81,7 +81,7 @@ function FilterPanel({
     display: 'flex', justifyContent: 'space-between', alignItems: 'center',
     fontFamily: 'var(--font-sans)', fontSize: '0.8rem', letterSpacing: '0.02em',
     background: 'none', border: 'none', padding: '0.45rem 0', cursor: 'pointer',
-    textAlign: 'left', width: '100%', textTransform: 'none',
+    textAlign: 'left', width: '100%', textTransform: 'uppercase',
   }
 
   return (

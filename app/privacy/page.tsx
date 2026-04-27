@@ -22,7 +22,7 @@ const bodyStyle = {
   fontSize: '0.875rem',
   lineHeight: 1.9,
   color: 'var(--color-muted-dark)',
-  textTransform: 'none' as const,
+  textTransform: 'uppercase' as const,
   letterSpacing: '0.02em',
   marginBottom: '1rem',
 }
@@ -36,7 +36,7 @@ const listStyle = {
   fontSize: '0.875rem',
   lineHeight: 1.9,
   color: 'var(--color-muted-dark)',
-  textTransform: 'none' as const,
+  textTransform: 'uppercase' as const,
   letterSpacing: '0.02em',
 }
 

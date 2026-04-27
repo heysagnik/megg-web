@@ -131,7 +131,7 @@ export default function Footer() {
                 color:         '#777777',
                 lineHeight:    1.7,
                 maxWidth:      '270px',
-                textTransform: 'none',
+                textTransform: 'uppercase',
                 letterSpacing: '0.015em',
               }}
             >
@@ -193,7 +193,7 @@ export default function Footer() {
               fontSize:      '0.7rem',
               fontWeight:    300,
               color:         '#444444',
-              textTransform: 'none',
+              textTransform: 'uppercase',
               letterSpacing: '0.04em',
             }}
           >
@@ -206,7 +206,7 @@ export default function Footer() {
               fontSize:      '0.7rem',
               fontWeight:    300,
               color:         '#444444',
-              textTransform: 'none',
+              textTransform: 'uppercase',
               letterSpacing: '0.04em',
             }}
           >

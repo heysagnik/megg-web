@@ -22,10 +22,10 @@ export default function AboutPage() {
         Quality over quantity.
       </h1>
 
-      <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.875rem', lineHeight: 1.8, color: 'var(--color-muted-dark)', textTransform: 'none', letterSpacing: '0.02em', marginBottom: '1.5rem' }}>
+      <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.875rem', lineHeight: 1.8, color: 'var(--color-muted-dark)', textTransform: 'uppercase', letterSpacing: '0.02em', marginBottom: '1.5rem' }}>
         MEGG is a curated fashion discovery platform built for people who care about what they wear. We handpick products from trusted brands — no noise, no clutter. Just the best.
       </p>
-      <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.875rem', lineHeight: 1.8, color: 'var(--color-muted-dark)', textTransform: 'none', letterSpacing: '0.02em', marginBottom: '2.5rem' }}>
+      <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.875rem', lineHeight: 1.8, color: 'var(--color-muted-dark)', textTransform: 'uppercase', letterSpacing: '0.02em', marginBottom: '2.5rem' }}>
         New arrivals are added daily. Every product is vetted for quality, style, and value.
       </p>
 

@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
-import { Cormorant_Garamond, Geist } from 'next/font/google'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
@@ -9,21 +8,6 @@ import AppBottomSheet from '@/components/layout/AppBottomSheet'
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
 // next/font handles subsetting, self-hosting, and zero layout shift automatically.
-
-const cormorant = Cormorant_Garamond({
-  subsets: ['latin'],
-  weight: ['300', '400'],   // 500/600 unused — drop to halve font payload
-  style: ['normal', 'italic'],
-  variable: '--font-serif',
-  display: 'swap',
-})
-
-const geist = Geist({
-  subsets: ['latin'],
-  weight: ['300', '400', '500'], // 600 unused
-  variable: '--font-sans',
-  display: 'swap',
-})
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
@@ -92,7 +76,7 @@ const GA_ID = 'G-P61VDHTVEG'
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${geist.variable}`} data-scroll-behavior="smooth">
+    <html lang="en" data-scroll-behavior="smooth">
       <head>
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/logo.png" />

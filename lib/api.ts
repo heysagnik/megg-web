@@ -372,6 +372,6 @@ export async function getDailyDrops(): Promise<DailyDrop[]> {
 
 export function formatPrice(price: string): string {
   const num = parseFloat(price);
-  if (isNaN(num)) return '₹—';
-  return `₹${num.toLocaleString('en-IN')}`;
+  if (isNaN(num)) return 'Rs. —';
+  return `Rs. ${num.toLocaleString('en-IN')}`;
 }

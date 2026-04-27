@@ -113,7 +113,7 @@ export default function PageHeader({
           fontWeight: 400,
           lineHeight: 1.05,
           letterSpacing: '-0.02em',
-          textTransform: 'none',
+          textTransform: 'uppercase',
           color: 'var(--color-black)',
           marginBottom: subtitle || below ? 'var(--space-xs)' : 'var(--space-md)',
         }}

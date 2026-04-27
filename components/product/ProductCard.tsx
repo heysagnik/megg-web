@@ -170,7 +170,7 @@ export default function ProductCard({ product }: ProductCardProps) {
     cursor: 'pointer',
     width: '100%',
     // Reset body-level uppercase / spacing so children can override cleanly
-    textTransform: 'none',
+    textTransform: 'uppercase',
     letterSpacing: 'normal',
   }
 
@@ -263,7 +263,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             fontWeight: 400,
             lineHeight: 1.3,
             color: 'var(--color-black)',
-            textTransform: 'none',
+            textTransform: 'uppercase',
             letterSpacing: 0,
             display: '-webkit-box',
             WebkitLineClamp: 2,
@@ -283,6 +283,7 @@ export default function ProductCard({ product }: ProductCardProps) {
             color: 'var(--color-black)',
             fontVariantNumeric: 'tabular-nums',
             letterSpacing: 0,
+            textTransform: 'none',
           }}
         >
           {formatPrice(product.price)}

@@ -131,7 +131,7 @@ export default function NewArrivalsSection() {
               fontSize: '0.75rem',
               color: 'var(--color-muted)',
               letterSpacing: '0.06em',
-              textTransform: 'none',
+              textTransform: 'uppercase',
             }}
           >
             {error}

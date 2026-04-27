@@ -36,11 +36,11 @@ function Accordion({ label, children }: { label: string; children: React.ReactNo
           fontSize: '1.1rem', lineHeight: 1, fontWeight: 300,
           color: 'var(--color-muted)', display: 'inline-block',
           transform: open ? 'rotate(45deg)' : 'rotate(0deg)',
-          transition: 'transform 200ms ease-out', textTransform: 'none',
+          transition: 'transform 200ms ease-out', textTransform: 'uppercase',
         }}>+</span>
       </button>
       <div style={{ overflow: 'hidden', maxHeight: open ? '800px' : '0', transition: 'max-height 220ms ease-out' }}>
-        <div style={{ ...T, paddingBottom: '1.25rem', textTransform: 'none', letterSpacing: '0.01em', color: 'var(--color-gray-600)', lineHeight: 1.7, fontSize: '0.8rem' }}>
+        <div style={{ ...T, paddingBottom: '1.25rem', textTransform: 'uppercase', letterSpacing: '0.01em', color: 'var(--color-gray-600)', lineHeight: 1.7, fontSize: '0.8rem' }}>
           {children}
         </div>
       </div>
@@ -54,7 +54,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <p style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontFamily: 'var(--font-sans)', fontSize: '0.75rem' }}>
       <span style={{ color: 'var(--color-muted)', letterSpacing: '0.1em', textTransform: 'uppercase', fontSize: '0.7rem' }}>{label}</span>
-      <span style={{ color: 'var(--color-black)', letterSpacing: '0.04em', textTransform: 'none' }}>{value}</span>
+      <span style={{ color: 'var(--color-black)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>{value}</span>
     </p>
   )
 }
@@ -217,7 +217,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
   const recommended = product.recommended ?? []
 
   const price = typeof product.price === 'number'
-    ? `₹${product.price.toLocaleString('en-IN')}`
+    ? `Rs. ${product.price.toLocaleString('en-IN')}`
     : formatPrice(product.price)
 
   useEffect(() => {
@@ -304,7 +304,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
           .pdp-mobile-img-slide {
             flex-shrink: 0;
             width: 100vw;
-            height: 100dvh;
+            height: 67dvh;
             position: relative;
             scroll-snap-align: start;
             background: var(--color-surface-2);
@@ -390,7 +390,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
             </p>
 
             {/* Name */}
-            <h1 style={{ ...T, fontSize: 'clamp(1.1rem, 1.5vw, 1.4rem)', fontWeight: 400, color: 'var(--color-black)', lineHeight: 1.25, letterSpacing: '-0.02em', marginBottom: '0.75rem', textTransform: 'none' } as CSSProperties}>
+            <h1 style={{ ...T, fontSize: 'clamp(1.1rem, 1.5vw, 1.4rem)', fontWeight: 400, color: 'var(--color-black)', lineHeight: 1.25, letterSpacing: '-0.02em', marginBottom: '0.75rem', textTransform: 'uppercase' } as CSSProperties}>
               {product.name}
             </h1>
 
@@ -420,7 +420,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
             {/* Accordions */}
             {product.description && (
               <Accordion label="Description">
-                <p style={{ textTransform: 'none' }}>{product.description}</p>
+                <p style={{ textTransform: 'uppercase' }}>{product.description}</p>
               </Accordion>
             )}
 
@@ -442,7 +442,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
 
             <BuyButton href={product.affiliate_link} />
 
-            <p style={{ ...T, color: 'var(--color-muted)', textAlign: 'center', fontSize: '0.75rem', marginTop: '0.6rem', textTransform: 'none', letterSpacing: '0.01em', lineHeight: 1.5 }}>
+            <p style={{ ...T, color: 'var(--color-muted)', textAlign: 'center', fontSize: '0.75rem', marginTop: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.01em', lineHeight: 1.5 }}>
               You&apos;ll be redirected to the brand&apos;s website
             </p>
           </div>

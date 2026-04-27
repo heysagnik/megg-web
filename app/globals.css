@@ -1,10 +1,26 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'FuturaCyrillic';
+  src: url('/FuturaCyrillicBook.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Fallback for ₹ (U+20B9) which Futura doesn't include */
+@font-face {
+  font-family: 'FuturaCyrillic';
+  src: local('Arial'), local('Helvetica Neue');
+  font-weight: 400;
+  font-style: normal;
+  unicode-range: U+20B9;
+}
+
 /* ─── Tailwind v4 Theme ──────────────────────────────────────────────────── */
 @theme {
-  /* Fonts — CSS vars injected by next/font into <html> */
-  --font-serif: var(--font-serif);
-  --font-sans:  var(--font-sans);
+  --font-serif: 'FuturaCyrillic', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans:  'FuturaCyrillic', "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   /* Palette */
   --color-black:       #0a0a0a;
@@ -42,8 +58,8 @@
 /* ─── CSS Custom Properties ──────────────────────────────────────────────── */
 :root {
   /* Fonts — fallbacks in case next/font hasn't hydrated yet */
-  --font-serif: "Cormorant Garamond", Georgia, "Times New Roman", serif;
-  --font-sans:  "Geist", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: 'FuturaCyrillic', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-sans:  "FuturaCyrillic", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   /* Palette */
   --color-black:      #0a0a0a;
@@ -106,7 +122,7 @@ html {
 }
 
 body {
-  font-family: var(--font-sans);
+  font-family: 'FuturaCyrillic', "Helvetica Neue", Helvetica, Arial, sans-serif;
   background: var(--color-white);
   color: var(--color-black);
   line-height: 1.5;

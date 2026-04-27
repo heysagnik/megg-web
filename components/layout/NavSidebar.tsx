@@ -17,7 +17,7 @@ const NAV_SECTIONS = [
     items: [
       { label: 'New Arrivals',    to: '/#new-arrivals' },
       { label: 'All Products',    to: '/products' },
-      { label: 'Under ₹699',      to: '/under699' },
+      { label: 'Under Rs. 699',      to: '/under699' },
     ],
   },
   {
@@ -263,7 +263,7 @@ export default function NavSidebar({ id, isOpen, onClose }: NavSidebarProps) {
                         fontSize: '0.8125rem',
                         fontWeight: 400,
                         letterSpacing: '0.01em',
-                        textTransform: 'none',
+                        textTransform: 'uppercase',
                         color: '#1a1a1a',
                         backgroundColor:
                           hoveredIndex === item.label
@@ -305,7 +305,7 @@ export default function NavSidebar({ id, isOpen, onClose }: NavSidebarProps) {
                     fontSize: '0.75rem',
                     fontWeight: 400,
                     letterSpacing: '0.04em',
-                    textTransform: 'none',
+                    textTransform: 'uppercase',
                     color: 'var(--color-muted)',
                   }}
                 >
@@ -324,7 +324,7 @@ export default function NavSidebar({ id, isOpen, onClose }: NavSidebarProps) {
                     fontSize: '0.75rem',
                     fontWeight: 400,
                     letterSpacing: '0.04em',
-                    textTransform: 'none',
+                    textTransform: 'uppercase',
                     color: 'var(--color-muted)',
                   }}
                 >

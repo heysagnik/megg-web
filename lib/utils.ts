@@ -8,12 +8,12 @@ export function cn(...inputs: (string | undefined | null | false | 0)[]) {
 
 /**
  * Format a price string or number into Indian Rupee notation.
- * e.g. "1299" → "₹1,299"
+ * e.g. "1299" → "Rs. 1,299"
  */
 export function formatPrice(price: string | number): string {
   const num = typeof price === "string" ? parseFloat(price) : price;
-  if (isNaN(num)) return "₹—";
-  return `₹${num.toLocaleString("en-IN")}`;
+  if (isNaN(num)) return "Rs. —";
+  return `Rs. ${num.toLocaleString("en-IN")}`;
 }
 
 /**
