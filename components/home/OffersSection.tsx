@@ -107,6 +107,8 @@ export default function OffersSection() {
                     src={offer.banner_image}
                     alt={offer.title}
                     className="offer-img"
+                    loading="lazy"
+                    decoding="async"
                     style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                     draggable={false}
                   />

@@ -350,6 +350,9 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
               <img
                 src={img}
                 alt={`${product.name} — view ${i + 1}`}
+                loading={i === 0 ? 'eager' : 'lazy'}
+                decoding="async"
+                fetchPriority={i === 0 ? 'high' : 'low'}
                 style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', userSelect: 'none' }}
                 draggable={false}
               />
@@ -372,6 +375,9 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                 <img
                   src={img}
                   alt={`${product.name} — view ${i + 1}`}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  fetchPriority={i === 0 ? 'high' : 'low'}
                   style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', userSelect: 'none' }}
                   draggable={false}
                 />

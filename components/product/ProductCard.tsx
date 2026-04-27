@@ -211,6 +211,8 @@ export default function ProductCard({ product }: ProductCardProps) {
             key={imgIdx}
             src={currentSrc}
             alt={`${product.brand} ${product.name}`}
+            loading="lazy"
+            decoding="async"
             onLoad={handleImgLoad}
             style={{
               position: 'absolute',

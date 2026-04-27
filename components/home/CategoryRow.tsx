@@ -119,6 +119,8 @@ export default function CategoryRow() {
                   alt={cat.label}
                   className="cat-card-img"
                   loading={i < 4 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  fetchPriority={i < 2 ? 'high' : 'low'}
                   style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                   draggable={false}
                 />

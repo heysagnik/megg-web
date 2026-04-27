@@ -115,6 +115,8 @@ export default function ReelsSection() {
                     src={reel.thumbnail_url}
                     alt=""
                     className="reel-thumb"
+                    loading="lazy"
+                    decoding="async"
                     style={{
                       position: 'absolute',
                       inset: 0,
