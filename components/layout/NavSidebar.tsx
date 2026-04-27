@@ -23,33 +23,27 @@ const NAV_SECTIONS = [
   {
     label: 'Categories',
     items: [
-      { label: 'Shirts',          to: '/category/Shirt' },
-      { label: 'T-Shirts',        to: '/category/Tshirt' },
-      { label: 'Jeans',           to: '/category/Jeans' },
-      { label: 'Shoes',           to: '/category/Shoes' },
-      { label: 'Jackets',         to: '/category/Jacket' },
-      { label: 'Hoodies',         to: '/category/Hoodies' },
-      { label: 'Sweatshirts',     to: '/category/Sweatshirt' },
-      { label: 'Sweaters',        to: '/category/Sweater' },
-      { label: 'Track Pants',     to: '/category/Trackpants' },
-      { label: 'Accessories',     to: '/category/Mens Accessories' },
-      { label: 'Innerwear',       to: '/category/Innerwear' },
-      { label: 'Traditional',     to: '/category/Traditional' },
-    ],
-  },
-  {
-    label: 'Beauty & Care',
-    items: [
-      { label: 'Perfume',         to: '/category/Perfume' },
-      { label: 'Body Care',       to: '/category/Body Care' },
-      { label: 'Daily Essentials',to: '/category/Daily Essentials' },
+      { label: 'Shirts',           to: '/category/Shirt' },
+      { label: 'T-Shirts',         to: '/category/Tshirt' },
+      { label: 'Jeans',            to: '/category/Jeans' },
+      { label: 'Shoes',            to: '/category/Shoes' },
+      { label: 'Jackets',          to: '/category/Jacket' },
+      { label: 'Hoodies',          to: '/category/Hoodies' },
+      { label: 'Sweatshirts',      to: '/category/Sweatshirt' },
+      { label: 'Sweaters',         to: '/category/Sweater' },
+      { label: 'Track Pants',      to: '/category/Trackpants' },
+      { label: 'Accessories',      to: '/category/Mens Accessories' },
+      { label: 'Innerwear',        to: '/category/Innerwear' },
+      { label: 'Traditional',      to: '/category/Traditional' },
+      { label: 'Perfume',          to: '/category/Perfume' },
+      { label: 'Body Care',        to: '/category/Body Care' },
+      { label: 'Daily Essentials', to: '/category/Daily Essentials' },
     ],
   },
 ]
 
 const SECONDARY_ITEMS = [
-  { label: 'Search',    to: '/search',    external: false },
-  { label: 'Instagram ↗', to: 'https://www.instagram.com/meghansh07', external: true },
+  { label: 'Search', to: '/search', external: false },
 ]
 
 /* ─── Shared row style helpers ───────────────────────── */
@@ -338,6 +332,64 @@ export default function NavSidebar({ id, isOpen, onClose }: NavSidebarProps) {
                 </Link>
               )
             )}
+          </div>
+
+          {/* ── Download app ────────────────────────────────── */}
+          <div style={{ padding: '0.75rem 1.5rem 2.5rem' }}>
+            <a
+              href="https://play.google.com/store/apps/details?id=com.megg.megg"
+              target="_blank"
+              rel="noopener noreferrer"
+              tabIndex={isOpen ? 0 : -1}
+              style={{
+                display: 'block',
+                background: 'var(--color-black)',
+                padding: '1rem 1.125rem',
+                textDecoration: 'none',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+            >
+              {/* decorative rings */}
+              <div style={{
+                position: 'absolute', right: '-20px', top: '-20px',
+                width: '90px', height: '90px', borderRadius: '50%',
+                border: '1px solid rgba(255,255,255,0.07)', pointerEvents: 'none',
+              }} />
+              <div style={{
+                position: 'absolute', right: '16px', bottom: '-16px',
+                width: '48px', height: '48px', borderRadius: '50%',
+                border: '1px solid rgba(255,255,255,0.07)', pointerEvents: 'none',
+              }} />
+
+              <div style={{ marginBottom: '0.75rem' }}>
+                <img src="/logo.png" alt="Megg" style={{ width: '28px', height: '28px', objectFit: 'cover', flexShrink: 0, borderRadius: '4px' }} />
+              </div>
+
+              <p style={{
+                fontFamily: 'var(--font-serif)', fontSize: '1rem',
+                fontWeight: 300, letterSpacing: '-0.01em',
+                color: 'var(--color-white)', lineHeight: 1.25,
+                marginBottom: '0.875rem',
+              }}>
+                Better experience<br />on the app
+              </p>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{
+                  fontFamily: 'var(--font-sans)', fontSize: '0.58rem',
+                  letterSpacing: '0.14em', textTransform: 'uppercase',
+                  color: 'rgba(255,255,255,0.55)',
+                  borderBottom: '1px solid rgba(255,255,255,0.25)',
+                  paddingBottom: '1px',
+                }}>
+                  Download free
+                </span>
+                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+                  <path d="M1 11L11 1M11 1H4M11 1V8" stroke="rgba(255,255,255,0.4)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            </a>
           </div>
         </nav>
       </div>

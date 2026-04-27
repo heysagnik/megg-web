@@ -121,6 +121,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const [hovered, setHovered] = useState(false)
   const [imgIdx, setImgIdx] = useState(0)
   const [slideDir, setSlideDir] = useState<'left' | 'right'>('right')
+  const [imgLoaded, setImgLoaded] = useState(false)
+  const handleImgLoad = useCallback(() => setImgLoaded(true), [])
 
   const images = product.images ?? []
   const hasMultiple = images.length > 1
@@ -145,6 +147,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleLeft = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation()
+      setImgLoaded(false)
       setSlideDir('left')
       setImgIdx((i) => (i - 1 + images.length) % images.length)
     },
@@ -154,6 +157,7 @@ export default function ProductCard({ product }: ProductCardProps) {
   const handleRight = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation()
+      setImgLoaded(false)
       setSlideDir('right')
       setImgIdx((i) => (i + 1) % images.length)
     },
@@ -198,18 +202,27 @@ export default function ProductCard({ product }: ProductCardProps) {
     >
       {/* ── Image Area ── */}
       <div style={imageAreaStyle}>
+        {/* Shimmer skeleton shown until image loads */}
+        {!imgLoaded && (
+          <div className="skeleton" style={{ position: 'absolute', inset: 0 }} />
+        )}
         {currentSrc && (
           <img
             key={imgIdx}
             src={currentSrc}
             alt={`${product.brand} ${product.name}`}
+            onLoad={handleImgLoad}
             style={{
               position: 'absolute',
               inset: 0,
               width: '100%',
               height: '100%',
               objectFit: 'cover',
-              animation: `${slideDir === 'right' ? 'card-img-in' : 'card-img-in-left'} 280ms cubic-bezier(0.25,0.46,0.45,0.94) both`,
+              opacity: imgLoaded ? 1 : 0,
+              transition: 'opacity 300ms ease',
+              animation: imgLoaded
+                ? `${slideDir === 'right' ? 'card-img-in' : 'card-img-in-left'} 280ms cubic-bezier(0.25,0.46,0.45,0.94) both`
+                : 'none',
             }}
             draggable={false}
           />

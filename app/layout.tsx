@@ -5,6 +5,7 @@ import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ProgressBar from '@/components/layout/ProgressBar'
+import AppBottomSheet from '@/components/layout/AppBottomSheet'
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
 // next/font handles subsetting, self-hosting, and zero layout shift automatically.
@@ -91,8 +92,10 @@ const GA_ID = 'G-P61VDHTVEG'
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" className={`${cormorant.variable} ${geist.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${geist.variable}`} data-scroll-behavior="smooth">
       <head>
+        <link rel="icon" href="/logo.png" type="image/png" />
+        <link rel="apple-touch-icon" href="/logo.png" />
         {/* Preconnect to image CDN and analytics — saves 100–200ms per origin */}
         <link rel="preconnect" href="https://media.meggfashion.in" />
         <link rel="preconnect" href="https://res.cloudinary.com" />
@@ -101,6 +104,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       </head>
       <body>
         <ProgressBar />
+        <AppBottomSheet />
         <Header />
         <main style={{ minHeight: '100vh' }}>{children}</main>
         <Footer />

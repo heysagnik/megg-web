@@ -272,7 +272,8 @@ export default function ProductBrowseLayout({
           padding: 2rem 1.5rem 4rem;
         }
         @media (max-width: 900px)  { .browse-grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; padding: 1.25rem; } }
-        @media (max-width: 600px)  { .browse-sidebar { display: none !important; } }
+        .browse-mobile-filter { display: none; }
+        @media (max-width: 600px)  { .browse-sidebar { display: none !important; } .browse-mobile-filter { display: flex; align-items: center; gap: 0.4rem; } }
       `}</style>
 
       {/* ── Left sidebar ────────────────────────────── */}
@@ -346,7 +347,6 @@ export default function ProductBrowseLayout({
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
             {/* Mobile filter button */}
             <button type="button" onClick={() => setFilterOpen(true)} style={{
-              display: 'none',
               fontFamily: 'var(--font-sans)', fontSize: '0.7rem', letterSpacing: '0.12em',
               textTransform: 'uppercase', background: 'none', border: '1px solid var(--color-black)',
               padding: '0.5rem 0.875rem', cursor: 'pointer', color: 'var(--color-black)',
