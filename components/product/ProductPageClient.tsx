@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import type { CSSProperties } from 'react'
-import Image from 'next/image'
 import type { ProductDetail, Product, ProductVariant } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
 import ProductCard from '@/components/product/ProductCard'
@@ -125,7 +124,7 @@ function VariantSelector({
             aria-label={`${v.color} variant`}
           >
             {v.images[0] && (
-              <Image src={v.images[0]} alt={v.color} fill sizes="52px" style={{ objectFit: 'cover' }} />
+              <img src={v.images[0]} alt={v.color} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
             )}
           </button>
         ))}
@@ -305,7 +304,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
           .pdp-mobile-img-slide {
             flex-shrink: 0;
             width: 100vw;
-            height: 100vw;
+            height: 100svh;
             position: relative;
             scroll-snap-align: start;
             background: var(--color-surface-2);
@@ -348,13 +347,10 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
         <div className="pdp-mobile-images">
           {images.map((img, i) => (
             <div key={`m-${activeVariant?.id ?? 'base'}-${i}`} className="pdp-mobile-img-slide">
-              <Image
+              <img
                 src={img}
                 alt={`${product.name} — view ${i + 1}`}
-                fill
-                sizes="100vw"
-                priority={i === 0}
-                style={{ objectFit: 'cover', objectPosition: 'center top', userSelect: 'none' }}
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', userSelect: 'none' }}
                 draggable={false}
               />
             </div>
@@ -373,13 +369,10 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                 ref={el => setImgRef(el, i)}
                 style={{ height: '100svh', position: 'relative', overflow: 'hidden', background: 'var(--color-surface-2)' }}
               >
-                <Image
+                <img
                   src={img}
                   alt={`${product.name} — view ${i + 1}`}
-                  fill
-                  sizes="50vw"
-                  priority={i === 0}
-                  style={{ objectFit: 'cover', objectPosition: 'center', userSelect: 'none' }}
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', userSelect: 'none' }}
                   draggable={false}
                 />
               </div>
@@ -442,7 +435,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
             )}
 
             <Accordion label="Delivery & Returns">
-              <p>Complimentary shipping on all orders. Returns accepted within 30 days of delivery.</p>
+              <p>Delivery and returns are managed by the respective store. Megg is not responsible for shipping, returns, or any related issues.</p>
             </Accordion>
 
             <div style={{ borderTop: '1px solid var(--color-border-mid)' }} />

@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useEffect, useState } from 'react'
 import { getOffers, type Offer } from '@/lib/api'
 
@@ -73,13 +72,11 @@ export default function OffersSection() {
               }}
             >
               {offer.banner_image && (
-                <Image
+                <img
                   src={offer.banner_image}
                   alt={offer.title}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
                   className="offer-img"
-                  style={{ objectFit: 'cover' }}
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                   draggable={false}
                 />
               )}

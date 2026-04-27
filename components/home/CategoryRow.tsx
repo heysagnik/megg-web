@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Image from 'next/image'
 
 const BENTO = [
   { label: 'Shirts',           slug: 'Shirt',            img: 'https://media.meggfashion.in/products/00eb8653-dd44-48b2-88b8-0a84eb23859c/1772374312370_0.webp' },
@@ -115,15 +114,12 @@ export default function CategoryRow() {
                   background: 'var(--color-surface-2)',
                 }}
               >
-                <Image
+                <img
                   src={cat.img}
                   alt={cat.label}
-                  fill
-                  sizes="(max-width: 768px) 50vw, 25vw"
                   className="cat-card-img"
-                  style={{ objectFit: 'cover' }}
-                  priority={i < 4}
                   loading={i < 4 ? 'eager' : 'lazy'}
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
                   draggable={false}
                 />
               </div>

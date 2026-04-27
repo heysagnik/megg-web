@@ -112,8 +112,8 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* Editorial baseline — no uppercase, just tight tracking */
   letter-spacing: 0.01em;
+  text-transform: uppercase;
 }
 
 img  { display: block; max-width: 100%; }

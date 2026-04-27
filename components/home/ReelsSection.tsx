@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { getReels, type Reel } from '@/lib/api'
@@ -112,13 +111,15 @@ export default function ReelsSection() {
               >
                 {/* Thumbnail shown when not playing */}
                 {reel.thumbnail_url && (
-                  <Image
+                  <img
                     src={reel.thumbnail_url}
                     alt=""
-                    fill
-                    sizes="(max-width: 768px) 50vw, 22vw"
                     className="reel-thumb"
                     style={{
+                      position: 'absolute',
+                      inset: 0,
+                      width: '100%',
+                      height: '100%',
                       objectFit: 'cover',
                       opacity: isPlaying ? 0 : 1,
                       transition: 'opacity 0.3s',

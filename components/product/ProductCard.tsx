@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { useState, useCallback } from 'react'
 import type { CSSProperties, MouseEvent } from 'react'
@@ -200,13 +199,15 @@ export default function ProductCard({ product }: ProductCardProps) {
       {/* ── Image Area ── */}
       <div style={imageAreaStyle}>
         {currentSrc && (
-          <Image
+          <img
             key={imgIdx}
             src={currentSrc}
             alt={`${product.brand} ${product.name}`}
-            fill
-            sizes="(max-width: 768px) 50vw, 25vw"
             style={{
+              position: 'absolute',
+              inset: 0,
+              width: '100%',
+              height: '100%',
               objectFit: 'cover',
               animation: `${slideDir === 'right' ? 'card-img-in' : 'card-img-in-left'} 280ms cubic-bezier(0.25,0.46,0.45,0.94) both`,
             }}

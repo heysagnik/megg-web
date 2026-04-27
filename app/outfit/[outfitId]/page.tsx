@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
 import Link from 'next/link'
 import { getOutfit, getProduct, type Product } from '@/lib/api'
 import ProductCard from '@/components/product/ProductCard'
@@ -50,12 +49,10 @@ export default async function OutfitPage({ params }: Props) {
         }}
       >
         {outfit.model_image && (
-          <Image
+          <img
             src={outfit.model_image}
             alt={outfit.name}
-            fill
-            priority
-            style={{ objectFit: 'cover' }}
+            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
           />
         )}
         <div
