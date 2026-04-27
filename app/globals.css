@@ -141,7 +141,7 @@ button {
   font-weight: 300;
   line-height: 0.92;
   letter-spacing: -0.04em;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
 /* Hero title */
@@ -151,7 +151,7 @@ button {
   font-weight: 300;
   line-height: 1.0;
   letter-spacing: -0.03em;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
 /* Section header */
@@ -161,7 +161,7 @@ button {
   font-weight: 300;
   line-height: 1.05;
   letter-spacing: -0.025em;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
 /* Small caps label — all-caps sans */
@@ -180,7 +180,7 @@ button {
   font-weight: 400;
   color: var(--color-muted);
   letter-spacing: 0.03em;
-  text-transform: none;
+  text-transform: uppercase;
 }
 
 /* ─── Navigation ─────────────────────────────────────────────────────────── */
