@@ -80,7 +80,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/logo.png" />
-        {/* Preconnect to image CDN and analytics — saves 100–200ms per origin */}
+        {/* Preconnect to CDNs — saves 100–200ms per origin */}
         <link rel="preconnect" href="https://media.meggfashion.in" />
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />

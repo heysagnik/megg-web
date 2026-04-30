@@ -114,9 +114,10 @@ function DotIndicators({ count, active }: DotIndicatorsProps) {
 
 export interface ProductCardProps {
   product: Product
+  fetchPriority?: 'high' | 'low' | 'auto'
 }
 
-export default function ProductCard({ product }: ProductCardProps) {
+export default function ProductCard({ product, fetchPriority = 'auto' }: ProductCardProps) {
   const router = useRouter()
   const [hovered, setHovered] = useState(false)
   const [imgIdx, setImgIdx] = useState(0)
@@ -136,7 +137,15 @@ export default function ProductCard({ product }: ProductCardProps) {
 
   const handleMouseEnter = useCallback(() => {
     setHovered(true)
-  }, [])
+    // Preload the second image so the first carousel swap is instant
+    if (images.length > 1 && images[1]) {
+      const link = document.createElement('link')
+      link.rel = 'preload'
+      link.as = 'image'
+      link.href = images[1]
+      document.head.appendChild(link)
+    }
+  }, [images])
 
   const handleMouseLeave = useCallback(() => {
     setHovered(false)
@@ -211,8 +220,9 @@ export default function ProductCard({ product }: ProductCardProps) {
             key={imgIdx}
             src={currentSrc}
             alt={`${product.brand} ${product.name}`}
-            loading="lazy"
+            loading={fetchPriority === 'high' ? 'eager' : 'lazy'}
             decoding="async"
+            fetchPriority={fetchPriority}
             onLoad={handleImgLoad}
             style={{
               position: 'absolute',

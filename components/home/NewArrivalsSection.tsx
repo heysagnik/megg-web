@@ -102,8 +102,8 @@ export default function NewArrivalsSection() {
           ? Array.from({ length: skeletonCount }).map((_, i) => (
               <CardSkeleton key={`skel-${i}`} />
             ))
-          : products.map((product) => (
-              <ProductCard key={product.id} product={product} />
+          : products.map((product, i) => (
+              <ProductCard key={product.id} product={product} fetchPriority={i < 6 ? 'high' : 'auto'} />
             ))}
 
         {/* Append skeleton rows while loading subsequent pages */}

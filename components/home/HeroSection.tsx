@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useCallback } from 'react'
 
+// q_auto:low — reduces bitrate ~60-70% vs original; vc_auto serves WebM to Chrome
 const PANELS = [
-  'https://res.cloudinary.com/dlnf84fzs/video/upload/v1774763266/1_sbvyts.mp4',
-  'https://res.cloudinary.com/dlnf84fzs/video/upload/v1774763250/2_zpezta.mp4',
+  'https://res.cloudinary.com/dlnf84fzs/video/upload/q_auto:low,vc_auto/v1774763266/1_sbvyts',
+  'https://res.cloudinary.com/dlnf84fzs/video/upload/q_auto:low,vc_auto/v1774763250/2_zpezta',
 ]
 
 export default function HeroSection() {
@@ -101,11 +102,10 @@ export default function HeroSection() {
           >
             <video
               ref={(el) => { videoRefs.current[idx] = el }}
-              src={src}
               muted
               loop
               playsInline
-              preload="none"
+              preload="auto"
               aria-label="Fashion editorial video"
               style={{
                 position: 'absolute',
@@ -116,7 +116,8 @@ export default function HeroSection() {
                 display: 'block',
               }}
             >
-              <track kind="captions" srcLang="en" label="English" />
+              <source src={`${src}.webm`} type="video/webm" />
+              <source src={`${src}.mp4`} type="video/mp4" />
             </video>
           </div>
         ))}

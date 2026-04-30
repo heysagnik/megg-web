@@ -104,12 +104,12 @@ export default function AppBottomSheet() {
             display: 'block', width: '100%', textAlign: 'center',
             fontFamily: 'var(--font-sans)', fontSize: '0.75rem',
             letterSpacing: '0.14em', textTransform: 'uppercase',
-            background: 'var(--color-black)', color: 'var(--color-white)',
+            background: 'var(--color-black)', color: '#ffffff',
             padding: '0.875rem', marginBottom: '0.625rem',
           }}
           onClick={dismiss}
         >
-          Download App
+          <span style={{ color: '#ffffff', display: 'block' }}>Download App</span>
         </a>
         <button
           type="button"
@@ -119,7 +119,7 @@ export default function AppBottomSheet() {
             fontFamily: 'var(--font-sans)', fontSize: '0.75rem',
             letterSpacing: '0.14em', textTransform: 'uppercase',
             background: 'none', border: '1px solid var(--color-border-mid)',
-            color: 'var(--color-muted)', padding: '0.875rem', cursor: 'pointer',
+            color: '#767676', padding: '0.875rem', cursor: 'pointer',
           }}
         >
           Continue Here

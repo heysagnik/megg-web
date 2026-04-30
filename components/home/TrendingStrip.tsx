@@ -60,7 +60,7 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
           paddingBottom: '4px', /* tiny room so card box-shadows aren't clipped */
         }}
       >
-        {products.map((product) => (
+        {products.map((product, i) => (
           <div
             key={product.id}
             style={{
@@ -69,7 +69,7 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
               scrollSnapAlign: 'start',
             }}
           >
-            <ProductCard product={product} />
+            <ProductCard product={product} fetchPriority={i < 4 ? 'high' : 'auto'} />
           </div>
         ))}
       </div>
