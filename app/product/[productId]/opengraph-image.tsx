@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og'
 import { getCdnImageUrl } from '@/lib/image'
+import { getProduct } from '@/lib/api'
 
 export const alt = 'Product image'
 export const size = { width: 1200, height: 630 }
@@ -11,10 +12,9 @@ type Props = { params: Promise<{ productId: string }> }
 export default async function Image({ params }: Props) {
   const { productId } = await params
 
-  const product = await fetch(`https://api.megg.workers.dev/api/products/${productId}`)
-    .then(r => r.json())
-    .then((d: { product?: { images?: string[]; name?: string; brand?: string; price?: number | string } }) => d.product ?? null)
-    .catch(() => null)
+  // Use the same cached getProduct used by generateMetadata — avoids a second
+  // network hit and won't fail if the raw Cloudflare Worker blocks non-browser fetches.
+  const product = await getProduct(productId).catch(() => null)
 
   const imageUrl = product?.images?.[0] ?? null
 
