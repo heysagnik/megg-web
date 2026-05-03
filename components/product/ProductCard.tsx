@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import type { CSSProperties, MouseEvent } from 'react'
 import type { Product } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
@@ -123,7 +123,20 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
   const [imgIdx, setImgIdx] = useState(0)
   const [slideDir, setSlideDir] = useState<'left' | 'right'>('right')
   const [imgLoaded, setImgLoaded] = useState(false)
-  const handleImgLoad = useCallback(() => setImgLoaded(true), [])
+  const [retrySeed, setRetrySeed] = useState(0)
+  const retryRef = useRef(0)
+
+  const handleImgLoad = useCallback(() => {
+    retryRef.current = 0
+    setImgLoaded(true)
+  }, [])
+
+  const handleImgError = useCallback(() => {
+    if (retryRef.current >= 3) return
+    const delay = 1000 * 2 ** retryRef.current
+    retryRef.current += 1
+    setTimeout(() => setRetrySeed(s => s + 1), delay)
+  }, [])
 
   const images = product.images ?? []
   const hasMultiple = images.length > 1
@@ -156,6 +169,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
   const handleLeft = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation()
+      retryRef.current = 0
       setImgLoaded(false)
       setSlideDir('left')
       setImgIdx((i) => (i - 1 + images.length) % images.length)
@@ -166,6 +180,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
   const handleRight = useCallback(
     (e: MouseEvent<HTMLButtonElement>) => {
       e.stopPropagation()
+      retryRef.current = 0
       setImgLoaded(false)
       setSlideDir('right')
       setImgIdx((i) => (i + 1) % images.length)
@@ -217,13 +232,14 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
         )}
         {currentSrc && (
           <img
-            key={imgIdx}
+            key={`${imgIdx}-${retrySeed}`}
             src={currentSrc}
             alt={`${product.brand} ${product.name}`}
             loading={fetchPriority === 'high' ? 'eager' : 'lazy'}
             decoding="async"
             fetchPriority={fetchPriority}
             onLoad={handleImgLoad}
+            onError={handleImgError}
             style={{
               position: 'absolute',
               inset: 0,

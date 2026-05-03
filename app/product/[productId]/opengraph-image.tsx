@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og'
 import { getProduct } from '@/lib/api'
 
-export const runtime = 'edge'
+export const runtime = 'nodejs'
 export const alt = 'Product image'
 export const size = { width: 1200, height: 1200 }
 export const contentType = 'image/png'
@@ -14,23 +14,21 @@ export default async function Image({ params }: Props) {
 
   const imageUrl = product?.images?.[0] ?? null
 
-  // Fetch the image and convert to a data URI so the edge runtime
-  // can embed it directly — edge functions can't load arbitrary external
-  // URLs inside ImageResponse without this.
-  let imageSrc: string | null = null
+  let imageData: ArrayBuffer | null = null
+  let imageMime = 'image/webp'
   if (imageUrl) {
     try {
       const res = await fetch(imageUrl)
-      const buf = await res.arrayBuffer()
-      const mime = res.headers.get('content-type') ?? 'image/webp'
-      const bytes = new Uint8Array(buf)
-      let binary = ''
-      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
-      imageSrc = `data:${mime};base64,${btoa(binary)}`
+      imageData = await res.arrayBuffer()
+      imageMime = res.headers.get('content-type') ?? 'image/webp'
     } catch {
-      imageSrc = null
+      imageData = null
     }
   }
+
+  const imageSrc = imageData
+    ? `data:${imageMime};base64,${Buffer.from(imageData).toString('base64')}`
+    : null
 
   return new ImageResponse(
     (
