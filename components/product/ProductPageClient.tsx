@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import type { CSSProperties } from 'react'
 import type { ProductDetail, Product, ProductVariant } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
+import { getCdnImageUrl } from '@/lib/image'
 import ProductCard from '@/components/product/ProductCard'
 import Section from '@/components/ui/Section'
 import SectionHeader from '@/components/ui/SectionHeader'
@@ -124,7 +125,11 @@ function VariantSelector({
             aria-label={`${v.color} variant`}
           >
             {v.images[0] && (
-              <img src={v.images[0]} alt={v.color} style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+              <img
+                src={getCdnImageUrl(v.images[0], { width: 80, quality: 80 })}
+                alt={v.color}
+                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+              />
             )}
           </button>
         ))}

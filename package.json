@@ -24,5 +24,20 @@
     "eslint": "^9.0.0",
     "eslint-config-next": "latest",
     "typescript": "~5.9.3"
+  },
+  "browserslist": {
+    "production": [
+      "chrome >= 80",
+      "edge >= 80",
+      "firefox >= 74",
+      "safari >= 14",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

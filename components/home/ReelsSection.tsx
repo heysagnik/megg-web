@@ -1,8 +1,8 @@
 'use client'
 
-import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { getReels, type Reel } from '@/lib/api'
+import { getCdnImageUrl } from '@/lib/image'
 
 export default function ReelsSection() {
   const [reels, setReels] = useState<Reel[]>([])
@@ -112,7 +112,9 @@ export default function ReelsSection() {
                 {/* Thumbnail shown when not playing */}
                 {reel.thumbnail_url && (
                   <img
-                    src={reel.thumbnail_url}
+                    src={getCdnImageUrl(reel.thumbnail_url, { width: 300, quality: 80 })}
+                    srcSet={`${getCdnImageUrl(reel.thumbnail_url, { width: 240, quality: 80 })} 240w, ${getCdnImageUrl(reel.thumbnail_url, { width: 300, quality: 80 })} 300w, ${getCdnImageUrl(reel.thumbnail_url, { width: 480, quality: 80 })} 480w`}
+                    sizes="clamp(150px, 22vw, 240px)"
                     alt=""
                     className="reel-thumb"
                     loading="lazy"
@@ -137,7 +139,7 @@ export default function ReelsSection() {
                   muted
                   loop
                   playsInline
-                  preload="metadata"
+                  preload="none"
                   style={{
                     position: 'absolute',
                     inset: 0,

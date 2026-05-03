@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { getCdnImageUrl } from '@/lib/image'
 
 const BENTO = [
   { label: 'Shirts',           slug: 'Shirt',            img: 'https://media.meggfashion.in/products/00eb8653-dd44-48b2-88b8-0a84eb23859c/1772374312370_0.webp' },
@@ -115,7 +116,9 @@ export default function CategoryRow() {
                 }}
               >
                 <img
-                  src={cat.img}
+                  src={getCdnImageUrl(cat.img, { width: 320, quality: 80 })}
+                  srcSet={`${getCdnImageUrl(cat.img, { width: 240, quality: 80 })} 240w, ${getCdnImageUrl(cat.img, { width: 320, quality: 80 })} 320w`}
+                  sizes="clamp(140px, 42vw, 280px)"
                   alt={cat.label}
                   className="cat-card-img"
                   loading={i < 4 ? 'eager' : 'lazy'}

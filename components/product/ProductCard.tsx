@@ -5,6 +5,7 @@ import { useState, useCallback, useRef } from 'react'
 import type { CSSProperties, MouseEvent } from 'react'
 import type { Product } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
+import { getCdnImageUrl, getProductSrcSet } from '@/lib/image'
 
 // ─── Internal: Chevron Button ──────────────────────────────────────────────────
 
@@ -157,7 +158,10 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
       const link = document.createElement('link')
       link.rel = 'preload'
       link.as = 'image'
-      link.href = images[1]
+      // Use the same optimised width used for the card src
+      link.href = getCdnImageUrl(images[1], { width: 480, quality: 85 })
+      link.setAttribute('imagesrcset', getProductSrcSet(images[1]))
+      link.setAttribute('imagesizes', '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw')
       document.head.appendChild(link)
     }
   }, [images])
@@ -234,10 +238,14 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
         {currentSrc && (
           <img
             key={`${imgIdx}-${retrySeed}`}
-            src={currentSrc}
+            // Serve a 480 px fallback; srcSet lets the browser pick the right size
+            src={getCdnImageUrl(currentSrc, { width: 480, quality: 85 })}
+            srcSet={getProductSrcSet(currentSrc)}
+            // Card occupies ~50 vw on mobile, ~33 vw on tablet, ~25 vw on desktop
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             alt={`${product.brand} ${product.name}`}
-            width={600}
-            height={800}
+            width={480}
+            height={640}
             loading={isHigh ? 'eager' : 'lazy'}
             decoding={isHigh ? 'sync' : 'async'}
             fetchPriority={fetchPriority}

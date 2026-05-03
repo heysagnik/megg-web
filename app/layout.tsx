@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
+import Script from 'next/script'
 import './globals.css'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
@@ -64,6 +65,14 @@ export const metadata: Metadata = {
     title: 'MEGG — Curated Fashion',
     description: 'Curated fashion picks, outfits, and trending products for men.',
     locale: 'en_IN',
+    images: [
+      {
+        url: `${BASE_URL}/og.png`,
+        width: 1200,
+        height: 630,
+        alt: 'MEGG — Curated Men\'s Fashion India',
+      },
+    ],
   },
 
   // Twitter / X
@@ -71,6 +80,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'MEGG — Curated Fashion',
     description: 'Curated fashion picks, outfits, and trending products for men.',
+    images: [`${BASE_URL}/og.png`],
   },
 
   // Robots
@@ -116,33 +126,46 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/logo.png" />
+        {/* Preload the custom font — eliminates FOUT and helps CLS score */}
+        <link
+          rel="preload"
+          href="/FuturaCyrillicBook.ttf"
+          as="font"
+          type="font/ttf"
+          crossOrigin="anonymous"
+        />
         {/* Preconnect to CDNs — saves 100–200ms per origin */}
-        <link rel="preconnect" href="https://media.meggfashion.in" />
-        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="preconnect" href="https://media.meggfashion.in" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://cloud.umami.is" />
       </head>
       <body>
-        <script
+        {/* JSON-LD — lives in <head> via next/script, never blocks body parsing */}
+        <Script
+          id="org-schema"
           type="application/ld+json"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
         />
         <ProgressBar />
         <AppBottomSheet />
         <Header />
-        <main style={{ minHeight: '100vh' }}>{children}</main>
+        <div id="page-wrapper" style={{ minHeight: '100vh' }}>{children}</div>
         <Footer />
-        {/* Analytics — deferred after body so they never block rendering */}
-        <script async src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`} />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}',{send_page_view:true});`,
-          }}
+        {/* GA — afterInteractive: injected after hydration, never blocks navigationStart */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
+          strategy="afterInteractive"
         />
-        <script
-          defer
+        <Script id="ga-init" strategy="afterInteractive">
+          {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','${GA_ID}',{send_page_view:true});`}
+        </Script>
+        {/* Umami — lazyOnload: runs during browser idle time */}
+        <Script
           src="https://cloud.umami.is/script.js"
           data-website-id="37fe1a13-6bcf-448a-b7f6-fa147cd4080b"
+          strategy="lazyOnload"
         />
       </body>
     </html>

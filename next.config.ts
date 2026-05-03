@@ -33,6 +33,28 @@ const nextConfig: NextConfig = {
         source: '/(.*)',
         headers: securityHeaders,
       },
+      // Fonts in public/ — immutable, 1-year cache + CORS so browsers can load cross-origin
+      {
+        source: '/:path*\\.ttf',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+        ],
+      },
+      {
+        source: '/:path*\\.woff2',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'Access-Control-Allow-Origin', value: '*' },
+        ],
+      },
+      // Static images in public/ — 7-day cache
+      {
+        source: '/:path*\\.(png|jpg|jpeg|webp|avif|svg|ico)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=604800, stale-while-revalidate=86400' },
+        ],
+      },
     ]
   },
 

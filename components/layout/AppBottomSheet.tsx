@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 
 const STORAGE_KEY = 'megg_app_sheet_dismissed'
 
@@ -73,10 +74,12 @@ export default function AppBottomSheet() {
 
         {/* Icon + copy */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '1.25rem' }}>
-          <img
+          <Image
             src="/logo.png"
             alt="Megg"
-            style={{ width: '48px', height: '48px', flexShrink: 0, objectFit: 'contain', borderRadius: '10px' }}
+            width={48}
+            height={48}
+            style={{ flexShrink: 0, objectFit: 'contain', borderRadius: '10px' }}
           />
           <div>
             <p style={{

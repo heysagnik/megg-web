@@ -1,8 +1,9 @@
 import { ImageResponse } from 'next/og'
+import { getCdnImageUrl } from '@/lib/image'
 
 export const alt = 'Product image'
 export const size = { width: 1200, height: 1200 }
-export const contentType = 'image/png'
+export const contentType = 'image/jpeg'
 export const revalidate = 86400 // cache for 24h — only generated once per product per day
 
 type Props = { params: Promise<{ productId: string }> }
@@ -17,17 +18,11 @@ export default async function Image({ params }: Props) {
 
   const imageUrl = product?.images?.[0] ?? null
 
-  let imgSrc: string | null = null
-  if (imageUrl) {
-    try {
-      const sharp = (await import('sharp')).default
-      const buf = await fetch(imageUrl).then(r => r.arrayBuffer())
-      const jpeg = await sharp(Buffer.from(buf)).jpeg({ quality: 85 }).toBuffer()
-      imgSrc = `data:image/jpeg;base64,${jpeg.toString('base64')}`
-    } catch {
-      imgSrc = null
-    }
-  }
+  // Let Cloudflare Image Resizing serve a correctly-sized JPEG —
+  // no local sharp processing needed.
+  const imgSrc = imageUrl
+    ? getCdnImageUrl(imageUrl, { width: 1200, quality: 85, fit: 'cover' })
+    : null
 
   return new ImageResponse(
     (
