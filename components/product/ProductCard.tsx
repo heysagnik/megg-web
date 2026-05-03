@@ -119,10 +119,12 @@ export interface ProductCardProps {
 
 export default function ProductCard({ product, fetchPriority = 'auto' }: ProductCardProps) {
   const router = useRouter()
+  const isHigh = fetchPriority === 'high'
   const [hovered, setHovered] = useState(false)
   const [imgIdx, setImgIdx] = useState(0)
   const [slideDir, setSlideDir] = useState<'left' | 'right'>('right')
-  const [imgLoaded, setImgLoaded] = useState(false)
+  // High-priority cards start visible — no fade-in delay for above-fold images
+  const [imgLoaded, setImgLoaded] = useState(isHigh)
   const [retrySeed, setRetrySeed] = useState(0)
   const retryRef = useRef(0)
 
@@ -226,8 +228,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
     >
       {/* ── Image Area ── */}
       <div style={imageAreaStyle}>
-        {/* Shimmer skeleton shown until image loads */}
-        {!imgLoaded && (
+        {!isHigh && !imgLoaded && (
           <div className="skeleton" style={{ position: 'absolute', inset: 0 }} />
         )}
         {currentSrc && (
@@ -235,8 +236,10 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
             key={`${imgIdx}-${retrySeed}`}
             src={currentSrc}
             alt={`${product.brand} ${product.name}`}
-            loading={fetchPriority === 'high' ? 'eager' : 'lazy'}
-            decoding="async"
+            width={600}
+            height={800}
+            loading={isHigh ? 'eager' : 'lazy'}
+            decoding={isHigh ? 'sync' : 'async'}
             fetchPriority={fetchPriority}
             onLoad={handleImgLoad}
             onError={handleImgError}
@@ -247,8 +250,8 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
               height: '100%',
               objectFit: 'cover',
               opacity: imgLoaded ? 1 : 0,
-              transition: 'opacity 300ms ease',
-              animation: imgLoaded
+              transition: isHigh ? 'none' : 'opacity 300ms ease',
+              animation: (!isHigh && imgLoaded)
                 ? `${slideDir === 'right' ? 'card-img-in' : 'card-img-in-left'} 280ms cubic-bezier(0.25,0.46,0.45,0.94) both`
                 : 'none',
             }}
