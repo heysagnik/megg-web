@@ -11,7 +11,7 @@ import AppBottomSheet from '@/components/layout/AppBottomSheet'
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
-const BASE_URL = 'https://meggfashion.in'
+const BASE_URL = 'https://www.meggfashion.in'
 
 export const viewport: Viewport = {
   themeColor: '#0a0a0a',

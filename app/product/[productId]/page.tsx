@@ -10,19 +10,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProduct(productId).catch(() => null)
   if (!product) return { title: 'Product — MEGG' }
 
+  const description = product.description?.trim()
+    || `Buy ${product.name} by ${product.brand} online. Shop curated men's fashion on MEGG.`
+
   return {
-    title: product.name,
-    description: product.description ?? `Shop ${product.name} by ${product.brand} on MEGG.`,
+    title: `${product.name} — Buy Online | MEGG`,
+    description,
+    alternates: {
+      canonical: `https://www.meggfashion.in/product/${productId}`,
+    },
     openGraph: {
       type: 'website',
-      url: `https://meggfashion.in/product/${productId}`,
+      url: `https://www.meggfashion.in/product/${productId}`,
       title: `${product.name} — MEGG`,
-      description: product.description ?? `Shop ${product.name} by ${product.brand} on MEGG.`,
+      description,
     },
     twitter: {
       card: 'summary_large_image',
       title: `${product.name} — MEGG`,
-      description: product.description ?? `Shop ${product.name} by ${product.brand} on MEGG.`,
+      description,
     },
   }
 }

@@ -3,7 +3,7 @@ export function GET() {
     `User-agent: *
 Allow: /
 
-Sitemap: https://meggfashion.in/sitemap.xml
+Sitemap: https://www.meggfashion.in/sitemap.xml
 `,
     { headers: { 'Content-Type': 'text/plain' } },
   )
