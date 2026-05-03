@@ -4,6 +4,7 @@ export function GET() {
 Allow: /
 Disallow: /search
 Disallow: /download
+Disallow: /_next/static/media/
 
 Sitemap: https://www.meggfashion.in/sitemap.xml
 `,
