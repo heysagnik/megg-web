@@ -14,9 +14,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: product.name,
     description: product.description ?? `Shop ${product.name} by ${product.brand} on MEGG.`,
     openGraph: {
+      type: 'website',
+      url: `https://meggfashion.in/product/${productId}`,
       title: `${product.name} — MEGG`,
       description: product.description ?? `Shop ${product.name} by ${product.brand} on MEGG.`,
-      images: product.images[0] ? [{ url: product.images[0] }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${product.name} — MEGG`,
+      description: product.description ?? `Shop ${product.name} by ${product.brand} on MEGG.`,
     },
   }
 }

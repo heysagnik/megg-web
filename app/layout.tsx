@@ -43,14 +43,6 @@ export const metadata: Metadata = {
     url: BASE_URL,
     title: 'MEGG — Curated Fashion',
     description: 'Curated fashion picks, outfits, and trending products for men.',
-    images: [
-      {
-        url: '/og-image.jpg',
-        width: 1200,
-        height: 630,
-        alt: 'MEGG — Curated Fashion',
-      },
-    ],
     locale: 'en_IN',
   },
 
@@ -59,7 +51,6 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'MEGG — Curated Fashion',
     description: 'Curated fashion picks, outfits, and trending products for men.',
-    images: ['/og-image.jpg'],
   },
 
   // Robots
