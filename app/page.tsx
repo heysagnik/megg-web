@@ -9,11 +9,12 @@ import TrendingStrip from '@/components/home/TrendingStrip'
 import NewArrivalsSection from '@/components/home/NewArrivalsSection'
 
 export const metadata: Metadata = {
-  title: 'MEGG — Curated Fashion',
-  description: 'Curated fashion picks, outfits, and trending products. Quality over quantity.',
+  title: 'MEGG — Curated Men\'s Fashion India',
+  description: 'Shop curated men\'s fashion on MEGG — T-shirts, shirts, jeans, shoes & more. Hand-picked styles from top brands. New arrivals daily.',
+  keywords: ['men fashion India', 'curated men clothing', 'buy men t-shirts online India', 'affordable men fashion', 'trending outfits for men', 'men clothing online India', 'MEGG fashion'],
   openGraph: {
-    title: 'MEGG — Curated Fashion',
-    description: 'Curated fashion picks, outfits, and trending products. Quality over quantity.',
+    title: 'MEGG — Curated Men\'s Fashion India',
+    description: 'Shop curated men\'s fashion on MEGG — T-shirts, shirts, jeans, shoes & more. Hand-picked styles from top brands. New arrivals daily.',
     type: 'website',
   },
 }
@@ -23,6 +24,9 @@ export default async function HomePage() {
 
   return (
     <main>
+      <h1 style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', borderWidth: 0 }}>
+        MEGG — Curated Men&apos;s Fashion India
+      </h1>
       <div style={{ marginTop: 'calc(-1 * var(--header-height))' }}>
         <HeroSection />
       </div>

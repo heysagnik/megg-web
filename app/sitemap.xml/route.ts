@@ -5,7 +5,6 @@ const BASE = 'https://www.meggfashion.in'
 const STATIC = [
   { url: BASE,               priority: '1.0', changefreq: 'daily'   },
   { url: `${BASE}/products`, priority: '0.9', changefreq: 'daily'   },
-  { url: `${BASE}/search`,   priority: '0.7', changefreq: 'weekly'  },
   { url: `${BASE}/under699`, priority: '0.8', changefreq: 'daily'   },
   { url: `${BASE}/about`,    priority: '0.4', changefreq: 'monthly' },
 ]

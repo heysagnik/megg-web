@@ -3,13 +3,14 @@ import { getUnder699 } from '@/lib/api'
 import Under699Client from './Under699Client'
 
 export const metadata: Metadata = {
-  title: 'Shop Under Rs. 699',
-  description: 'Curated fashion picks under Rs. 699. New styles added daily on MEGG.',
-  alternates: { canonical: 'https://meggfashion.in/under699' },
+  title: 'Men\'s Fashion Under ₹699 — Budget Picks | MEGG',
+  description: 'Shop men\'s T-shirts, shirts, and accessories under ₹699 on MEGG. Curated budget fashion — new styles added daily.',
+  alternates: { canonical: 'https://www.meggfashion.in/under699' },
   openGraph: {
-    title: 'Shop Under Rs. 699 — MEGG',
-    description: 'Curated fashion picks under Rs. 699. New styles added daily.',
-    url: 'https://meggfashion.in/under699',
+    type: 'website',
+    title: 'Men\'s Fashion Under ₹699 — MEGG',
+    description: 'Shop men\'s T-shirts, shirts, and accessories under ₹699 on MEGG. New styles added daily.',
+    url: 'https://www.meggfashion.in/under699',
   },
 }
 

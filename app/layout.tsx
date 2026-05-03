@@ -28,7 +28,27 @@ export const metadata: Metadata = {
   description:
     'Curated fashion picks, outfits, and trending products for men. Quality over quantity.',
 
-  keywords: ['men fashion India', 'curated men clothing', 'buy men shirts online', 'affordable fashion India', 'trending outfits for men', 'men t-shirts online', 'men casual wear', 'MEGG fashion'],
+  keywords: [
+    // Brand
+    'MEGG', 'MEGG fashion', 'meggfashion',
+    // Category — head terms
+    'men fashion India', 'men clothing online India', 'men T-shirts online India',
+    'men shirts online India', 'men jeans online India', 'men shoes online India',
+    'men jackets online India', 'men hoodies online India', 'men sweatshirts India',
+    'men accessories India', 'men innerwear India', 'men track pants India',
+    'men perfume India', 'men ethnic wear India',
+    // Intent-based
+    'buy men clothes online India', 'affordable men fashion India',
+    'curated men clothing India', 'best men fashion site India',
+    'men fashion under 699', 'men clothing under 1000 India',
+    'trending men outfits India', 'men casual wear India',
+    // Long-tail
+    'best men T-shirts online India', 'buy men polo T-shirts India',
+    'men cotton shirts online', 'men slim fit jeans India',
+    'men sneakers online India', 'men formal shoes India',
+    'men winter jackets India', 'men bomber jacket India',
+    'men gym innerwear India', 'men ethnic kurta online',
+  ],
 
   authors: [{ name: 'MEGG', url: BASE_URL }],
   creator: 'MEGG',
