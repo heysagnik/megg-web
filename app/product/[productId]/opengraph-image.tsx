@@ -14,6 +14,24 @@ export default async function Image({ params }: Props) {
 
   const imageUrl = product?.images?.[0] ?? null
 
+  // Fetch the image and convert to a data URI so the edge runtime
+  // can embed it directly — edge functions can't load arbitrary external
+  // URLs inside ImageResponse without this.
+  let imageSrc: string | null = null
+  if (imageUrl) {
+    try {
+      const res = await fetch(imageUrl)
+      const buf = await res.arrayBuffer()
+      const mime = res.headers.get('content-type') ?? 'image/webp'
+      const bytes = new Uint8Array(buf)
+      let binary = ''
+      for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i])
+      imageSrc = `data:${mime};base64,${btoa(binary)}`
+    } catch {
+      imageSrc = null
+    }
+  }
+
   return new ImageResponse(
     (
       <div
@@ -26,10 +44,10 @@ export default async function Image({ params }: Props) {
           background: '#0a0a0a',
         }}
       >
-        {imageUrl ? (
+        {imageSrc ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
-            src={imageUrl}
+            src={imageSrc}
             alt={product?.name ?? ''}
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
