@@ -20,8 +20,10 @@ export default async function Image({ params }: Props) {
   let imgSrc: string | null = null
   if (imageUrl) {
     try {
+      const sharp = (await import('sharp')).default
       const buf = await fetch(imageUrl).then(r => r.arrayBuffer())
-      imgSrc = `data:image/webp;base64,${Buffer.from(buf).toString('base64')}`
+      const jpeg = await sharp(Buffer.from(buf)).jpeg({ quality: 85 }).toBuffer()
+      imgSrc = `data:image/jpeg;base64,${jpeg.toString('base64')}`
     } catch {
       imgSrc = null
     }
