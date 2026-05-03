@@ -45,21 +45,37 @@ export default async function ProductPage({ params }: Props) {
 
   const price = typeof product.price === 'number' ? product.price : parseFloat(product.price)
 
+  const canonicalUrl = `https://www.meggfashion.in/product/${productId}`
+  const description = product.description?.trim()
+    || `Buy ${product.name} by ${product.brand} online. Shop curated men's fashion on MEGG.`
+
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'Product',
-    name: product.name,
-    description: product.description ?? `${product.name} by ${product.brand}`,
-    brand: { '@type': 'Brand', name: product.brand },
-    image: product.images,
-    offers: {
-      '@type': 'Offer',
-      price,
-      priceCurrency: 'INR',
-      availability: 'https://schema.org/InStock',
-      url: product.affiliate_link,
-    },
-    category: product.category,
+    '@graph': [
+      {
+        '@type': 'Product',
+        name: product.name,
+        description,
+        brand: { '@type': 'Brand', name: product.brand },
+        image: product.images,
+        offers: {
+          '@type': 'Offer',
+          price,
+          priceCurrency: 'INR',
+          availability: 'https://schema.org/InStock',
+          url: product.affiliate_link,
+        },
+        category: product.category,
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.meggfashion.in' },
+          { '@type': 'ListItem', position: 2, name: product.category, item: `https://www.meggfashion.in/category/${encodeURIComponent(product.category)}` },
+          { '@type': 'ListItem', position: 3, name: product.name, item: canonicalUrl },
+        ],
+      },
+    ],
   }
 
   return (

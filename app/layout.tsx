@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   description:
     'Curated fashion picks, outfits, and trending products for men. Quality over quantity.',
 
-  keywords: ['fashion', 'men fashion', 'curated clothing', 'trending outfits', 'affordable fashion India'],
+  keywords: ['men fashion India', 'curated men clothing', 'buy men shirts online', 'affordable fashion India', 'trending outfits for men', 'men t-shirts online', 'men casual wear', 'MEGG fashion'],
 
   authors: [{ name: 'MEGG', url: BASE_URL }],
   creator: 'MEGG',
@@ -65,6 +65,31 @@ export const metadata: Metadata = {
 
 const GA_ID = 'G-P61VDHTVEG'
 
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': `${BASE_URL}/#organization`,
+      name: 'MEGG',
+      url: BASE_URL,
+      logo: { '@type': 'ImageObject', url: `${BASE_URL}/logo.png` },
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${BASE_URL}/#website`,
+      url: BASE_URL,
+      name: 'MEGG',
+      publisher: { '@id': `${BASE_URL}/#organization` },
+      potentialAction: {
+        '@type': 'SearchAction',
+        target: { '@type': 'EntryPoint', urlTemplate: `${BASE_URL}/search?q={search_term_string}` },
+        'query-input': 'required name=search_term_string',
+      },
+    },
+  ],
+}
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" data-scroll-behavior="smooth">
@@ -78,6 +103,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="dns-prefetch" href="https://cloud.umami.is" />
       </head>
       <body>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+        />
         <ProgressBar />
         <AppBottomSheet />
         <Header />

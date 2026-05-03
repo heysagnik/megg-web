@@ -304,7 +304,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
           .pdp-mobile-img-slide {
             flex-shrink: 0;
             width: 100vw;
-            height: 67dvh;
+            aspect-ratio: 3 / 4;
             position: relative;
             scroll-snap-align: start;
             background: var(--color-surface-2);
