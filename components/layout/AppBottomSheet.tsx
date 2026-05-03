@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import Image from 'next/image'
+import { getCdnImageUrl } from '@/lib/image'
 
 const STORAGE_KEY = 'megg_app_sheet_dismissed'
 
@@ -74,8 +74,8 @@ export default function AppBottomSheet() {
 
         {/* Icon + copy */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '1.25rem' }}>
-          <Image
-            src="/logo.png"
+          <img
+            src={getCdnImageUrl('/logo.png', { width: 48 })}
             alt="Megg"
             width={48}
             height={48}

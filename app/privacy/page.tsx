@@ -3,8 +3,9 @@ import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
-  description: 'Privacy Policy for the MEGG mobile application.',
-  alternates: { canonical: 'https://meggfashion.in/privacy' },
+  description: 'Privacy Policy for MEGG — India\'s curated men\'s fashion platform.',
+  alternates: { canonical: 'https://www.meggfashion.in/privacy' },
+  robots: { index: false, follow: false },
 }
 
 const sectionStyle = {

@@ -106,11 +106,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ]
 
   return {
-    title: `${name} for Men — Shop Online | MEGG`,
+    title: `${name} for Men — Shop Online`,
     description,
     keywords,
     alternates: { canonical: url },
-    openGraph: { type: 'website', url, title: `${name} for Men — MEGG`, description },
+    openGraph: { type: 'website', url, title: `${name} for Men — Shop Online | MEGG`, description },
   }
 }
 

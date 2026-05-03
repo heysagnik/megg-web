@@ -15,19 +15,23 @@ const CDN_HOST = 'https://media.meggfashion.in'
 
 export interface CdnImageOptions {
   width: number
+  height?: number
   quality?: number
   /** 'cover' crops to fill, 'contain' letterboxes — default 'cover' */
   fit?: 'cover' | 'contain' | 'scale-down'
+  /** Override output format — default 'auto' (WebP/AVIF). Use 'jpeg' for OG images. */
+  format?: 'auto' | 'jpeg' | 'webp' | 'avif' | 'png'
 }
 
 export function getCdnImageUrl(
   src: string,
-  { width, quality = 85, fit = 'cover' }: CdnImageOptions,
+  { width, height, quality = 85, fit = 'cover', format = 'auto' }: CdnImageOptions,
 ): string {
   if (!src || !src.startsWith(CDN_HOST)) return src
 
   const imagePath = src.slice(CDN_HOST.length) // e.g. /products/uuid/filename.webp
-  return `${CDN_HOST}/cdn-cgi/image/width=${width},quality=${quality},format=auto,fit=${fit}${imagePath}`
+  const heightParam = height ? `,height=${height}` : ''
+  return `${CDN_HOST}/cdn-cgi/image/width=${width}${heightParam},quality=${quality},format=${format},fit=${fit}${imagePath}`
 }
 
 /**

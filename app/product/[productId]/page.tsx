@@ -8,28 +8,54 @@ type Props = { params: Promise<{ productId: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { productId } = await params
   const product = await getProduct(productId).catch(() => null)
-  if (!product) return { title: 'Product — MEGG' }
+  if (!product) return { title: 'Product' }
 
   const price = typeof product.price === 'number' ? product.price : parseFloat(String(product.price))
-  const priceStr = !isNaN(price) ? ` at ₹${price.toLocaleString('en-IN')}` : ''
+  const priceStr = !isNaN(price) ? `₹${price.toLocaleString('en-IN')}` : ''
+  const brand = product.brand as string | undefined
+  const cat = (product.category as string | undefined)?.toLowerCase() ?? 'clothing'
+
+  // Full description for <meta name="description">
   const description = product.description?.trim()
-    || `Buy ${product.name} by ${product.brand}${priceStr}. Curated men's fashion on MEGG — fast delivery.`
+    || `Buy ${product.name} by ${brand ?? ''}${priceStr ? ` at ${priceStr}` : ''}. Curated men's fashion on MEGG — fast delivery.`
+
+  // Short punchy summary for OG/social sharing (always includes price)
+  const ogDescription = [
+    brand,
+    priceStr,
+    product.category,
+  ].filter(Boolean).join(' · ')
+    || description.slice(0, 150)
 
   const url = `https://www.meggfashion.in/product/${productId}`
+  const ogImageUrl = `${url}/opengraph-image`
+
+  const keywords = [
+    product.name,
+    ...(brand ? [`${brand} ${cat} India`, `buy ${brand} ${cat}`, `${brand} India`] : []),
+    `buy ${product.name} online`,
+    `${cat} for men India`,
+    `men ${cat} online India`,
+    `curated men fashion MEGG`,
+  ].filter(Boolean) as string[]
+
   return {
-    title: `${product.name} by ${product.brand} | MEGG`,
+    title: `${product.name} by ${product.brand}`,
     description,
+    keywords,
     alternates: { canonical: url },
     openGraph: {
       type: 'website',
       url,
-      title: `${product.name} by ${product.brand} | MEGG`,
-      description,
+      title: `${product.name} by ${product.brand} — MEGG`,
+      description: ogDescription,
+      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: product.name as string }],
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${product.name} by ${product.brand} | MEGG`,
-      description,
+      title: `${product.name} by ${product.brand} — MEGG`,
+      description: ogDescription,
+      images: [ogImageUrl],
     },
   }
 }

@@ -9,12 +9,31 @@ import TrendingStrip from '@/components/home/TrendingStrip'
 import NewArrivalsSection from '@/components/home/NewArrivalsSection'
 
 export const metadata: Metadata = {
-  title: 'MEGG — Curated Men\'s Fashion India',
-  description: 'Shop curated men\'s fashion on MEGG — T-shirts, shirts, jeans, shoes & more. Hand-picked styles from top brands. New arrivals daily.',
-  keywords: ['men fashion India', 'curated men clothing', 'buy men t-shirts online India', 'affordable men fashion', 'trending outfits for men', 'men clothing online India', 'MEGG fashion'],
+  title: { absolute: 'MEGG — Curated Men\'s Fashion India' },
+  description: 'Shop curated men\'s fashion on MEGG — T-shirts, shirts, jeans, shoes, jackets & more. Hand-picked styles from top brands. New arrivals daily. Quality over quantity.',
+  keywords: [
+    // High-intent purchase
+    'men fashion India', 'men clothing online India', 'buy men clothes online India',
+    'shop men fashion India', 'men clothing brands India',
+    // Category
+    'men T-shirts online India', 'men shirts online India', 'men jeans India',
+    'men shoes online India', 'men jackets India', 'men hoodies India',
+    'men accessories India', 'men track pants India',
+    // Occasion
+    'men casual wear India', 'men office wear India', 'men gym wear India',
+    'men streetwear India', 'men party wear India',
+    // Value
+    'affordable men fashion India', 'men fashion under 699', 'budget men clothing India',
+    // Discovery
+    'trending men outfits India', 'curated men fashion India',
+    'men outfit ideas India', 'new arrivals men fashion India',
+    'men fashion trends India', 'best men fashion site India',
+    // Brand
+    'MEGG', 'MEGG fashion', 'meggfashion',
+  ],
   openGraph: {
     title: 'MEGG — Curated Men\'s Fashion India',
-    description: 'Shop curated men\'s fashion on MEGG — T-shirts, shirts, jeans, shoes & more. Hand-picked styles from top brands. New arrivals daily.',
+    description: 'Shop curated men\'s fashion on MEGG — T-shirts, shirts, jeans, shoes, jackets & more. Hand-picked styles from top brands. New arrivals daily.',
     type: 'website',
   },
 }

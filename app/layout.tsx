@@ -27,28 +27,36 @@ export const metadata: Metadata = {
     template: '%s — MEGG',
   },
   description:
-    'Curated fashion picks, outfits, and trending products for men. Quality over quantity.',
+    'MEGG is India\'s curated men\'s fashion platform — handpicked T-shirts, shirts, jeans, shoes, jackets & more from top brands. Quality over quantity, always.',
 
   keywords: [
     // Brand
-    'MEGG', 'MEGG fashion', 'meggfashion',
-    // Category — head terms
-    'men fashion India', 'men clothing online India', 'men T-shirts online India',
-    'men shirts online India', 'men jeans online India', 'men shoes online India',
-    'men jackets online India', 'men hoodies online India', 'men sweatshirts India',
-    'men accessories India', 'men innerwear India', 'men track pants India',
-    'men perfume India', 'men ethnic wear India',
-    // Intent-based
-    'buy men clothes online India', 'affordable men fashion India',
-    'curated men clothing India', 'best men fashion site India',
-    'men fashion under 699', 'men clothing under 1000 India',
-    'trending men outfits India', 'men casual wear India',
-    // Long-tail
-    'best men T-shirts online India', 'buy men polo T-shirts India',
-    'men cotton shirts online', 'men slim fit jeans India',
-    'men sneakers online India', 'men formal shoes India',
+    'MEGG', 'MEGG fashion', 'meggfashion', 'MEGG app', 'megg fashion India',
+    // Core head terms
+    'men fashion India', 'men clothing online India', 'men fashion online India',
+    'buy men clothes online India', 'best men fashion site India',
+    // Categories
+    'men T-shirts online India', 'men shirts online India', 'men jeans online India',
+    'men shoes online India', 'men jackets online India', 'men hoodies online India',
+    'men sweatshirts India', 'men accessories India', 'men innerwear India',
+    'men track pants India', 'men perfume India', 'men ethnic wear India',
+    'men sweaters online India', 'men joggers India',
+    // Occasion / intent clusters
+    'men casual wear India', 'men office wear India', 'men gym wear India',
+    'men party wear India', 'men streetwear India', 'men ethnic wear online',
+    // Price / value
+    'affordable men fashion India', 'men fashion under 699', 'men clothing under 1000 India',
+    'budget men fashion India', 'men clothes deals India',
+    // Discovery
+    'curated men fashion India', 'trending men outfits India', 'men outfit ideas India',
+    'men fashion trends India', 'new arrivals men fashion India',
+    'men wardrobe essentials India', 'men fashion inspiration India',
+    // Long-tail commercial
+    'best men T-shirts online India', 'men slim fit jeans India',
+    'men sneakers online India', 'men formal shirts India',
     'men winter jackets India', 'men bomber jacket India',
-    'men gym innerwear India', 'men ethnic kurta online',
+    'men cotton shirts online India', 'men ethnic kurta online India',
+    'men oversized hoodie India', 'men track pants online India',
   ],
 
   authors: [{ name: 'MEGG', url: BASE_URL }],
@@ -65,14 +73,6 @@ export const metadata: Metadata = {
     title: 'MEGG — Curated Fashion',
     description: 'Curated fashion picks, outfits, and trending products for men.',
     locale: 'en_IN',
-    images: [
-      {
-        url: `${BASE_URL}/og.png`,
-        width: 1200,
-        height: 630,
-        alt: 'MEGG — Curated Men\'s Fashion India',
-      },
-    ],
   },
 
   // Twitter / X
@@ -80,7 +80,6 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'MEGG — Curated Fashion',
     description: 'Curated fashion picks, outfits, and trending products for men.',
-    images: [`${BASE_URL}/og.png`],
   },
 
   // Robots

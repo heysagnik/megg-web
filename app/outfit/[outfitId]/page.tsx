@@ -10,11 +10,19 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { outfitId } = await params
+  const url = `https://www.meggfashion.in/outfit/${outfitId}`
   try {
     const outfit = await getOutfit(outfitId)
-    return { title: outfit.name, description: `Shop ${outfit.name} on MEGG` }
+    const description = `Shop the ${outfit.name} outfit on MEGG — curated men's fashion India.`
+    return {
+      title: outfit.name,
+      description,
+      alternates: { canonical: url },
+      openGraph: { type: 'website', url, title: `${outfit.name} — MEGG`, description },
+      twitter: { card: 'summary_large_image', title: `${outfit.name} — MEGG`, description },
+    }
   } catch {
-    return { title: 'Outfit' }
+    return { title: 'Outfit', alternates: { canonical: url } }
   }
 }
 

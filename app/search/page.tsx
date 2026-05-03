@@ -2,13 +2,13 @@ import type { Metadata } from 'next'
 import SearchClient from './SearchClient'
 
 export const metadata: Metadata = {
-  title: 'Search',
-  description: 'Search for fashion products, brands, and styles on MEGG.',
-  alternates: { canonical: 'https://meggfashion.in/search' },
+  title: 'Search Men\'s Fashion',
+  description: 'Search men\'s T-shirts, shirts, jeans, shoes, brands, and styles on MEGG.',
+  alternates: { canonical: 'https://www.meggfashion.in/search' },
   openGraph: {
-    title: 'Search — MEGG',
-    description: 'Search for fashion products, brands, and styles on MEGG.',
-    url: 'https://meggfashion.in/search',
+    title: 'Search Men\'s Fashion — MEGG',
+    description: 'Search men\'s T-shirts, shirts, jeans, shoes, brands, and styles on MEGG.',
+    url: 'https://www.meggfashion.in/search',
   },
   robots: { index: false, follow: true },
 }

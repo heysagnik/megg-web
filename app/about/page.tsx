@@ -2,8 +2,21 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 
 export const metadata: Metadata = {
-  title: 'About',
-  description: 'MEGG is a curated fashion platform. Quality over quantity.',
+  title: { absolute: 'About MEGG — Curated Men\'s Fashion Platform India' },
+  description: 'MEGG is India\'s curated men\'s fashion discovery platform. We handpick T-shirts, shirts, jeans, shoes & more from trusted brands — no noise, no clutter. Quality over quantity, always.',
+  keywords: [
+    'about MEGG', 'MEGG fashion India', 'meggfashion about',
+    'curated men fashion platform India', 'men fashion discovery India',
+    'best men fashion curation India', 'MEGG brand story',
+    'handpicked men clothing India', 'quality men fashion India',
+  ],
+  alternates: { canonical: 'https://www.meggfashion.in/about' },
+  openGraph: {
+    type: 'website',
+    url: 'https://www.meggfashion.in/about',
+    title: 'About MEGG — Curated Men\'s Fashion Platform India',
+    description: 'MEGG is India\'s curated men\'s fashion discovery platform. Handpicked styles from trusted brands. Quality over quantity.',
+  },
 }
 
 export default function AboutPage() {
