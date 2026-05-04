@@ -337,9 +337,7 @@ export default function NavSidebar({ id, isOpen, onClose }: NavSidebarProps) {
           {/* ── Download app ────────────────────────────────── */}
           <div style={{ padding: '0.75rem 1.5rem 2.5rem' }}>
             <a
-              href="https://play.google.com/store/apps/details?id=com.megg.megg"
-              target="_blank"
-              rel="noopener noreferrer"
+              href="/download"
               tabIndex={isOpen ? 0 : -1}
               style={{
                 display: 'block',

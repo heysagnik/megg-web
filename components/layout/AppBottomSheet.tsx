@@ -100,9 +100,7 @@ export default function AppBottomSheet() {
 
         {/* Actions */}
         <a
-          href="https://play.google.com/store/apps/details?id=com.megg.megg"
-          target="_blank"
-          rel="noopener noreferrer"
+          href="/download"
           style={{
             display: 'block', width: '100%', textAlign: 'center',
             fontFamily: 'var(--font-sans)', fontSize: '0.75rem',

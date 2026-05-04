@@ -141,9 +141,18 @@ export interface SearchParams {
 // ─── Fetch Helper ─────────────────────────────────────────
 
 async function fetchJSON<T>(path: string): Promise<T> {
-  const res = await fetch(`${BASE_URL}${path}`, { next: { revalidate: 60 } });
-  if (!res.ok) throw new Error(`API error ${res.status}: ${path}`);
-  return res.json() as Promise<T>;
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), 10_000)
+  try {
+    const res = await fetch(`${BASE_URL}${path}`, {
+      next: { revalidate: 60 },
+      signal: controller.signal,
+    })
+    if (!res.ok) throw new Error(`API error ${res.status}: ${path}`)
+    return res.json() as Promise<T>
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 // ─── Products ─────────────────────────────────────────────
