@@ -112,8 +112,8 @@ export default function ReelsSection() {
                 {/* Thumbnail shown when not playing */}
                 {reel.thumbnail_url && (
                   <img
-                    src={getCdnImageUrl(reel.thumbnail_url, { width: 300, quality: 80 })}
-                    srcSet={`${getCdnImageUrl(reel.thumbnail_url, { width: 240, quality: 80 })} 240w, ${getCdnImageUrl(reel.thumbnail_url, { width: 300, quality: 80 })} 300w, ${getCdnImageUrl(reel.thumbnail_url, { width: 480, quality: 80 })} 480w`}
+                    src={getCdnImageUrl(reel.thumbnail_url, { width: 300, quality: 95 })}
+                    srcSet={`${getCdnImageUrl(reel.thumbnail_url, { width: 240, quality: 95 })} 240w, ${getCdnImageUrl(reel.thumbnail_url, { width: 300, quality: 95 })} 300w, ${getCdnImageUrl(reel.thumbnail_url, { width: 480, quality: 95 })} 480w`}
                     sizes="clamp(150px, 22vw, 240px)"
                     alt={`Style reel — ${reel.category}`}
                     className="reel-thumb"

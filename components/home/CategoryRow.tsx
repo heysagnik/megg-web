@@ -116,8 +116,8 @@ export default function CategoryRow() {
                 }}
               >
                 <img
-                  src={getCdnImageUrl(cat.img, { width: 320, quality: 80 })}
-                  srcSet={`${getCdnImageUrl(cat.img, { width: 240, quality: 80 })} 240w, ${getCdnImageUrl(cat.img, { width: 320, quality: 80 })} 320w`}
+                  src={getCdnImageUrl(cat.img, { width: 320, quality: 95 })}
+                  srcSet={`${getCdnImageUrl(cat.img, { width: 240, quality: 95 })} 240w, ${getCdnImageUrl(cat.img, { width: 320, quality: 95 })} 320w`}
                   sizes="clamp(140px, 42vw, 280px)"
                   alt={cat.label}
                   className="cat-card-img"

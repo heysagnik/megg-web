@@ -159,7 +159,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
       const link = document.createElement('link')
       link.rel = 'preload'
       link.as = 'image'
-      link.href = getCdnImageUrl(images[1], { width: 480, quality: 85 })
+      link.href = getCdnImageUrl(images[1], { width: 480, quality: 95 })
       link.setAttribute('imagesrcset', getProductSrcSet(images[1]))
       link.setAttribute('imagesizes', '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw')
       document.head.appendChild(link)
@@ -241,7 +241,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
           <img
             key={`${imgIdx}-${retrySeed}`}
             // Serve a 480 px fallback; srcSet lets the browser pick the right size
-            src={getCdnImageUrl(currentSrc, { width: 480, quality: 85 })}
+            src={getCdnImageUrl(currentSrc, { width: 480, quality: 95 })}
             srcSet={getProductSrcSet(currentSrc)}
             // Card occupies ~50 vw on mobile, ~33 vw on tablet, ~25 vw on desktop
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"

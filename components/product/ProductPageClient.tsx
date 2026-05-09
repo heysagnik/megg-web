@@ -222,7 +222,7 @@ function VariantSelector({
           >
             {v.images[0] && (
               <img
-                src={getCdnImageUrl(v.images[0], { width: 80, quality: 80 })}
+                src={getCdnImageUrl(v.images[0], { width: 80, quality: 95 })}
                 alt={v.color}
                 style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
               />

@@ -25,7 +25,7 @@ export interface CdnImageOptions {
 
 export function getCdnImageUrl(
   src: string,
-  { width, height, quality = 85, fit = 'cover', format = 'auto' }: CdnImageOptions,
+  { width, height, quality = 95, fit = 'cover', format = 'auto' }: CdnImageOptions,
 ): string {
   if (!src || !src.startsWith(CDN_HOST)) return src
 
@@ -38,7 +38,7 @@ export function getCdnImageUrl(
  * Returns a ready-made srcset string for typical product card sizes.
  * Usage:  <img srcSet={getProductSrcSet(url)} sizes="..." />
  */
-export function getProductSrcSet(src: string, quality = 85): string {
+export function getProductSrcSet(src: string, quality = 95): string {
   const widths = [320, 480, 640, 800]
   return widths
     .map((w) => `${getCdnImageUrl(src, { width: w, quality })} ${w}w`)
