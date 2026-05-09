@@ -28,15 +28,21 @@ export const metadata: Metadata = {
     template: '%s — MEGG',
   },
   description:
-    'MEGG is India\'s curated men\'s fashion platform — handpicked T-shirts, shirts, jeans, shoes, jackets & more from top brands. Quality over quantity, always.',
+    'MEGG is India\'s #1 curated men\'s fashion platform. Shop handpicked T-shirts, shirts, jeans, shoes, jackets, hoodies, track pants, perfume & more from top brands. New arrivals daily. Free fashion discovery — quality over quantity.',
 
   keywords: [
-    'MEGG', 'MEGG fashion', 'meggfashion', 'MEGG app',
-    'men fashion India', 'men clothing online India',
-    'curated men fashion India', 'best men fashion site India',
-    'trending men outfits India', 'men outfit ideas India',
-    'men fashion trends India', 'new arrivals men fashion India',
-    'men wardrobe essentials India',
+    'MEGG', 'MEGG fashion', 'meggfashion', 'MEGG app', 'megg fashion India',
+    'men fashion India', 'men clothing online India', 'buy men clothes online India',
+    'men fashion online shopping India', 'best men fashion website India',
+    'curated men fashion India', 'trending men fashion India',
+    'men T-shirts online India', 'men shirts online India', 'men jeans online India',
+    'men shoes online India', 'men jackets online India', 'men hoodies online India',
+    'men track pants online India', 'men perfume online India', 'men body care India',
+    'men sneakers India', 'men ethnic wear India', 'men innerwear online India',
+    'affordable men fashion India', 'men fashion under 699', 'budget men clothing India',
+    'new arrivals men fashion India', 'men outfit ideas India',
+    'men streetwear India', 'men casual wear India', 'men office wear India',
+    'men gym wear India', 'men party wear India',
   ],
 
   authors: [{ name: 'MEGG', url: BASE_URL }],
@@ -53,8 +59,8 @@ export const metadata: Metadata = {
     type: 'website',
     siteName: 'MEGG',
     url: BASE_URL,
-    title: 'MEGG — Curated Fashion',
-    description: 'Curated fashion picks, outfits, and trending products for men.',
+    title: 'MEGG — Curated Men\'s Fashion India',
+    description: 'Shop T-shirts, shirts, jeans, shoes, jackets, hoodies & more. Handpicked from top brands. New arrivals daily.',
     locale: 'en_IN',
   },
 
@@ -62,8 +68,8 @@ export const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     site: '@meggfashion',
-    title: 'MEGG — Curated Fashion',
-    description: 'Curated fashion picks, outfits, and trending products for men.',
+    title: 'MEGG — Curated Men\'s Fashion India',
+    description: 'Shop T-shirts, shirts, jeans, shoes, jackets, hoodies & more. Handpicked from top brands. New arrivals daily.',
   },
 
   // Robots
@@ -85,15 +91,28 @@ const orgSchema = {
       '@type': 'Organization',
       '@id': `${BASE_URL}/#organization`,
       name: 'MEGG',
+      alternateName: ['MEGG Fashion', 'meggfashion', 'Megg India'],
       url: BASE_URL,
       logo: { '@type': 'ImageObject', url: `${BASE_URL}/logo.png` },
+      description: 'India\'s curated men\'s fashion platform — handpicked T-shirts, shirts, jeans, shoes, jackets & more from top brands.',
+      sameAs: [
+        'https://www.instagram.com/meghansh07',
+      ],
+      contactPoint: {
+        '@type': 'ContactPoint',
+        email: 'meggxfashion@gmail.com',
+        contactType: 'customer service',
+      },
     },
     {
       '@type': 'WebSite',
       '@id': `${BASE_URL}/#website`,
       url: BASE_URL,
       name: 'MEGG',
+      alternateName: 'MEGG Fashion India',
+      description: 'Shop curated men\'s fashion — T-shirts, shirts, jeans, shoes, jackets, hoodies, track pants, perfume & more.',
       publisher: { '@id': `${BASE_URL}/#organization` },
+      inLanguage: 'en-IN',
       potentialAction: {
         '@type': 'SearchAction',
         target: { '@type': 'EntryPoint', urlTemplate: `${BASE_URL}/search?q={search_term_string}` },

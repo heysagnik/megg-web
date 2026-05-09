@@ -28,13 +28,16 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   }
 
   return {
-    title: 'Shop Men\'s Fashion — T-Shirts, Shirts, Jeans & More',
-    description: 'Browse curated men\'s clothing on MEGG — T-shirts, shirts, jeans, shoes, jackets and more. Filter by brand, color, and price. New arrivals daily.',
+    title: 'Shop All Men\'s Fashion — T-Shirts, Shirts, Jeans, Shoes & More Online India',
+    description: 'Browse & buy curated men\'s clothing on MEGG — T-shirts, shirts, jeans, shoes, jackets, hoodies, track pants, perfume & more. Filter by brand, color, price. Top brands, new arrivals daily.',
     keywords: [
-      'shop men clothes online India', 'men fashion collection India',
+      'shop men clothes online India', 'buy men fashion online India',
+      'men fashion collection India', 'all men clothing India',
       'curated men fashion India', 'best men clothing site India',
+      'men T-shirts shirts jeans shoes India', 'men clothing brands India',
       'affordable men fashion India', 'new men fashion arrivals India',
       'trending men clothing India', 'buy men outfits online India',
+      'men fashion online shopping India', 'men clothing store online India',
     ],
     alternates: { canonical: url },
     openGraph: {

@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   // Full description for <meta name="description">
   const description = product.description?.trim()
-    || `Buy ${product.name} by ${brand ?? ''}${priceStr ? ` at ${priceStr}` : ''}. Curated men's fashion on MEGG — fast delivery.`
+    || `Buy ${product.name} by ${brand ?? ''}${priceStr ? ` at ${priceStr}` : ''} online India. Shop ${cat} for men on MEGG — curated fashion, top brands, fast delivery.`
 
   // Short punchy summary for OG/social sharing (always includes price)
   const ogDescription = [
@@ -31,13 +31,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const url = `https://www.meggfashion.in/product/${productId}`
   const ogImageUrl = `${url}/opengraph-image`
 
+  const subcat = (product.subcategory as string | undefined)?.toLowerCase() ?? ''
   const keywords = [
     product.name,
-    ...(brand ? [`${brand} ${cat} India`, `buy ${brand} ${cat}`, `${brand} India`] : []),
-    `buy ${product.name} online`,
-    `${cat} for men India`,
-    `men ${cat} online India`,
-    `curated men fashion MEGG`,
+    ...(brand ? [
+      `${brand} ${cat} India`, `buy ${brand} ${cat}`, `${brand} India`,
+      `${brand} ${cat} online`, `${brand} men ${cat}`,
+    ] : []),
+    `buy ${product.name} online`, `buy ${product.name} online India`,
+    `${cat} for men India`, `${cat} for men online India`,
+    `men ${cat} online India`, `best ${cat} for men India`,
+    ...(subcat ? [`men ${subcat} India`, `${subcat} for men online`] : []),
+    ...(product.color ? [`${product.color} ${cat} for men`] : []),
+    'curated men fashion MEGG', 'MEGG fashion',
   ].filter(Boolean) as string[]
 
   return {
