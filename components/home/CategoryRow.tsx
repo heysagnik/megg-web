@@ -9,7 +9,7 @@ const BENTO = [
   { label: 'Jackets',          slug: 'Jacket',           img: 'https://media.meggfashion.in/products/temp_1771611492547_38u7u7q9h/image_0.webp' },
   { label: 'Accessories',      slug: 'Mens Accessories', img: 'https://media.meggfashion.in/products/bea12666-5c41-470a-bc41-cdac7f013cfc/1776507541400_0.webp' },
   { label: 'Hoodies',          slug: 'Hoodies',          img: 'https://media.meggfashion.in/products/temp_1770915432663_er6yvb1le/image_0.webp' },
-  { label: 'Innerwear',        slug: 'Innerwear',        img: 'https://media.meggfashion.in/products/temp_1770919426531_981py8387/image_0.webp' },
+  { label: 'Innerwear',        slug: 'Innerwear',        img: 'https://media.meggfashion.in/products/temp_1770919439126_z4xttgv2e/image_0.webp' },
   { label: 'Sweater',          slug: 'Sweater',          img: 'https://media.meggfashion.in/products/temp_1770920293205_5b8g1dfm3/image_0.webp' },
   { label: 'Sweatshirt',       slug: 'Sweatshirt',       img: 'https://media.meggfashion.in/products/temp_1770914564470_mo7nk88l9/image_0.webp' },
   { label: 'Track Pants',      slug: 'Trackpants',       img: 'https://media.meggfashion.in/products/0a4c383c-ee22-430d-b6b3-ed7342af71f0/1777109370621_0.webp' },
