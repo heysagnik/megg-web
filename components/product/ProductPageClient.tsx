@@ -60,6 +60,65 @@ function Row({ label, value }: { label: string; value: string }) {
   )
 }
 
+// ─── Share Button (floating on image column, desktop only) ────────────────────
+
+function FloatingShareButton({ name, brand, price }: { name: string; brand: string; price: string }) {
+  const [copied, setCopied] = useState(false)
+
+  const handleShare = async () => {
+    const url = window.location.href
+    const text = `${name} by ${brand} — ${price}`
+
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: `${name} — MEGG`, text, url })
+      } catch {
+        // user cancelled or share sheet dismissed
+      }
+      return
+    }
+
+    await navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={handleShare}
+      title={copied ? 'Link copied!' : 'Share'}
+      style={{
+        position: 'absolute', top: '1rem', right: '1rem', zIndex: 10,
+        width: '2.25rem', height: '2.25rem',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'rgba(255,255,255,0.88)',
+        backdropFilter: 'blur(6px)',
+        border: '1px solid rgba(0,0,0,0.10)',
+        cursor: 'pointer',
+        transition: 'background 150ms ease-out, transform 150ms ease-out',
+        color: copied ? 'var(--color-black)' : 'var(--color-black)',
+      }}
+      onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,1)')}
+      onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.88)')}
+    >
+      {copied
+        ? (
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        )
+        : (
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+          </svg>
+        )
+      }
+    </button>
+  )
+}
+
 // ─── Buy Button ────────────────────────────────────────────────────────────────
 
 function BuyButton({ href }: { href?: string }) {
@@ -386,6 +445,13 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                   style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', userSelect: 'none' }}
                   draggable={false}
                 />
+                {i === 0 && (
+                  <FloatingShareButton
+                    name={product.name as string}
+                    brand={product.brand as string}
+                    price={price}
+                  />
+                )}
               </div>
             ))}
           </div>
