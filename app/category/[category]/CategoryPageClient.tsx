@@ -114,6 +114,40 @@ export default function CategoryPageClient({
     </div>
   )
 
+  const mobileSubcatTabs = subcats.length > 0 ? (
+    <>
+      <button
+        type="button"
+        onClick={() => handleFilterChange({ ...filters, subcategory: '' })}
+        style={{
+          ...navBtn(!filters.subcategory),
+          flexShrink: 0, whiteSpace: 'nowrap',
+          padding: '0.7rem 0.875rem',
+          borderBottom: !filters.subcategory ? '2px solid var(--color-black)' : '2px solid transparent',
+          fontSize: '0.7rem', letterSpacing: '0.1em',
+        }}
+      >
+        All
+      </button>
+      {subcats.map(s => (
+        <button
+          key={s.name}
+          type="button"
+          onClick={() => handleFilterChange({ ...filters, subcategory: filters.subcategory === s.name ? '' : s.name })}
+          style={{
+            ...navBtn(filters.subcategory === s.name),
+            flexShrink: 0, whiteSpace: 'nowrap',
+            padding: '0.7rem 0.875rem',
+            borderBottom: filters.subcategory === s.name ? '2px solid var(--color-black)' : '2px solid transparent',
+            fontSize: '0.7rem', letterSpacing: '0.1em',
+          }}
+        >
+          {s.name}
+        </button>
+      ))}
+    </>
+  ) : undefined
+
   return (
     <ProductBrowseLayout
       title={displayName}
@@ -124,6 +158,7 @@ export default function CategoryPageClient({
       hasMore={hasMore}
       sentinel={sentinelRef}
       sidebarNav={sidebarNav}
+      mobileSubcategoryTabs={mobileSubcatTabs}
       filters={filters}
       availableFilters={avail}
       onFilterChange={handleFilterChange}

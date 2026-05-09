@@ -129,7 +129,6 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   letter-spacing: 0.01em;
-  text-transform: uppercase;
 }
 
 img  { display: block; max-width: 100%; }

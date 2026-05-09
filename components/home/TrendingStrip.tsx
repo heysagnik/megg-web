@@ -14,8 +14,8 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
   return (
     <section
       style={{
-        paddingTop: 'var(--space-xl)',
-        paddingBottom: 'var(--space-xl)',
+        paddingTop: 'var(--space-md)',
+        paddingBottom: 'var(--space-md)',
         overflow: 'hidden',
       }}
     >

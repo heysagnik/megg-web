@@ -60,60 +60,97 @@ function Row({ label, value }: { label: string; value: string }) {
   )
 }
 
-// ─── Share Button (floating on image column, desktop only) ────────────────────
+// ─── Share icon SVG ────────────────────────────────────────────────────────────
 
-function FloatingShareButton({ name, brand, price }: { name: string; brand: string; price: string }) {
+function ShareIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
+      <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+    </svg>
+  )
+}
+
+function useShareHandler({ name, brand, price }: { name: string; brand: string; price: string }) {
   const [copied, setCopied] = useState(false)
 
   const handleShare = async () => {
     const url = window.location.href
     const text = `${name} by ${brand} — ${price}`
-
     if (navigator.share) {
-      try {
-        await navigator.share({ title: `${name} — MEGG`, text, url })
-      } catch {
-        // user cancelled or share sheet dismissed
-      }
+      try { await navigator.share({ title: `${name} — MEGG`, text, url }) } catch { /* dismissed */ }
       return
     }
-
     await navigator.clipboard.writeText(url)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
 
+  return { copied, handleShare }
+}
+
+// Absolute inside image slide — used on both mobile and desktop
+function DesktopShareButton({ name, brand, price }: { name: string; brand: string; price: string }) {
+  const { copied, handleShare } = useShareHandler({ name, brand, price })
   return (
     <button
       type="button"
       onClick={handleShare}
-      title={copied ? 'Link copied!' : 'Share'}
+      aria-label="Share product"
       style={{
-        position: 'absolute', top: '1rem', right: '1rem', zIndex: 10,
-        width: '2.25rem', height: '2.25rem',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        position: 'absolute',
+        top: '1rem',
+        right: '1rem',
+        zIndex: 10,
+        width: '2.25rem',
+        height: '2.25rem',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         background: 'rgba(255,255,255,0.88)',
         backdropFilter: 'blur(6px)',
         border: '1px solid rgba(0,0,0,0.10)',
         cursor: 'pointer',
-        transition: 'background 150ms ease-out, transform 150ms ease-out',
-        color: copied ? 'var(--color-black)' : 'var(--color-black)',
+        color: 'var(--color-black)',
+        transition: 'background 150ms ease-out',
       }}
       onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,1)')}
       onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.88)')}
     >
       {copied
-        ? (
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="20 6 9 17 4 12" />
-          </svg>
-        )
-        : (
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="18" cy="5" r="3" /><circle cx="6" cy="12" r="3" /><circle cx="18" cy="19" r="3" />
-            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" /><line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
-          </svg>
-        )
+        ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+        : <ShareIcon />
+      }
+    </button>
+  )
+}
+
+function InlineShareButton({ name, brand, price }: { name: string; brand: string; price: string }) {
+  const { copied, handleShare } = useShareHandler({ name, brand, price })
+  return (
+    <button
+      type="button"
+      onClick={handleShare}
+      aria-label="Share product"
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: '2.25rem',
+        height: '2.25rem',
+        background: 'none',
+        border: '1px solid var(--color-border-mid)',
+        cursor: 'pointer',
+        color: 'var(--color-black)',
+        flexShrink: 0,
+        transition: 'background 150ms ease-out',
+      }}
+      onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-gray-50)')}
+      onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+    >
+      {copied
+        ? <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+        : <ShareIcon />
       }
     </button>
   )
@@ -337,6 +374,9 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
           width: 72%;
           padding: 2rem 0;
         }
+        .pdp-mobile-images-wrap {
+          display: none;
+        }
         .pdp-mobile-images {
           display: none;
         }
@@ -355,13 +395,17 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
           .pdp-images {
             display: none;
           }
-          .pdp-mobile-images {
+          .pdp-mobile-images-wrap {
             display: block;
+            position: relative;
+            width: 100%;
+          }
+          .pdp-mobile-images {
+            display: flex;
             width: 100%;
             overflow-x: auto;
             scroll-snap-type: x mandatory;
             scrollbar-width: none;
-            display: flex;
             flex-direction: row;
           }
           .pdp-mobile-images::-webkit-scrollbar { display: none; }
@@ -405,23 +449,25 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
       `}</style>
 
       {/* ── Two-column layout ── */}
-      <div className="pdp-layout">
+      <article className="pdp-layout">
 
         {/* MOBILE: horizontal swipeable image strip */}
-        <div className="pdp-mobile-images">
-          {images.map((img, i) => (
-            <div key={`m-${activeVariant?.id ?? 'base'}-${i}`} className="pdp-mobile-img-slide">
-              <img
-                src={img}
-                alt={`${product.name} — view ${i + 1}`}
-                loading={i === 0 ? 'eager' : 'lazy'}
-                decoding="async"
-                fetchPriority={i === 0 ? 'high' : 'low'}
-                style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', userSelect: 'none' }}
-                draggable={false}
-              />
-            </div>
-          ))}
+        <div className="pdp-mobile-images-wrap">
+          <div className="pdp-mobile-images">
+            {images.map((img, i) => (
+              <div key={`m-${activeVariant?.id ?? 'base'}-${i}`} className="pdp-mobile-img-slide">
+                <img
+                  src={img}
+                  alt={`${product.name} — view ${i + 1}`}
+                  loading={i === 0 ? 'eager' : 'lazy'}
+                  decoding="async"
+                  fetchPriority={i === 0 ? 'high' : 'low'}
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', userSelect: 'none' }}
+                  draggable={false}
+                />
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* DESKTOP: LEFT image stack */}
@@ -445,13 +491,6 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                   style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', userSelect: 'none' }}
                   draggable={false}
                 />
-                {i === 0 && (
-                  <FloatingShareButton
-                    name={product.name as string}
-                    brand={product.brand as string}
-                    price={price}
-                  />
-                )}
               </div>
             ))}
           </div>
@@ -471,10 +510,13 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
               {product.name}
             </h1>
 
-            {/* Price */}
-            <p style={{ ...T, fontSize: '1.4rem', fontWeight: 500, color: 'var(--color-black)', marginBottom: 'var(--space-sm)', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em', textTransform: 'none' } as CSSProperties}>
-              {price}
-            </p>
+            {/* Price + Share */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-sm)' }}>
+              <p style={{ ...T, fontSize: '1.4rem', fontWeight: 500, color: 'var(--color-black)', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em', textTransform: 'none' } as CSSProperties}>
+                {price}
+              </p>
+              <InlineShareButton name={product.name as string} brand={product.brand as string} price={price} />
+            </div>
 
             {/* Category / subcategory tags */}
             {(product.category || product.subcategory) && (
@@ -524,7 +566,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
             </p>
           </div>
         </div>
-      </div>
+      </article>
 
       {/* ── Below-fold shelves — using API data directly ── */}
       <HScrollShelf eyebrow="Same brand" title={`More from ${product.brand}`} products={moreFromBrand} />

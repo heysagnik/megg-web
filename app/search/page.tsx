@@ -1,16 +1,40 @@
 import type { Metadata } from 'next'
 import SearchClient from './SearchClient'
 
-export const metadata: Metadata = {
-  title: 'Search Men\'s Fashion',
-  description: 'Search men\'s T-shirts, shirts, jeans, shoes, brands, and styles on MEGG.',
-  alternates: { canonical: 'https://www.meggfashion.in/search' },
-  openGraph: {
-    title: 'Search Men\'s Fashion — MEGG',
+interface Props {
+  searchParams: Promise<{ q?: string }>
+}
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const { q } = await searchParams
+  const query = q?.trim()
+  const url = 'https://www.meggfashion.in/search'
+
+  if (query) {
+    return {
+      title: `${query} — Search Men's Fashion`,
+      description: `Search results for "${query}" on MEGG — curated men's fashion India. Find T-shirts, shirts, jeans, shoes & more.`,
+      alternates: { canonical: url },
+      openGraph: {
+        title: `${query} — Search Men's Fashion | MEGG`,
+        description: `Search results for "${query}" on MEGG.`,
+        url: `${url}?q=${encodeURIComponent(query)}`,
+      },
+      robots: { index: true, follow: true },
+    }
+  }
+
+  return {
+    title: 'Search Men\'s Fashion',
     description: 'Search men\'s T-shirts, shirts, jeans, shoes, brands, and styles on MEGG.',
-    url: 'https://www.meggfashion.in/search',
-  },
-  robots: { index: false, follow: true },
+    alternates: { canonical: url },
+    openGraph: {
+      title: 'Search Men\'s Fashion — MEGG',
+      description: 'Search men\'s T-shirts, shirts, jeans, shoes, brands, and styles on MEGG.',
+      url,
+    },
+    robots: { index: false, follow: true },
+  }
 }
 
 export default function SearchPage() {

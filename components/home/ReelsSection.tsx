@@ -37,8 +37,8 @@ export default function ReelsSection() {
   return (
     <section
       style={{
-        paddingTop: 'var(--space-xl)',
-        paddingBottom: 'var(--space-xl)',
+        paddingTop: 'var(--space-lg)',
+        paddingBottom: 'var(--space-md)',
         overflow: 'hidden',
       }}
     >
@@ -115,7 +115,7 @@ export default function ReelsSection() {
                     src={getCdnImageUrl(reel.thumbnail_url, { width: 300, quality: 80 })}
                     srcSet={`${getCdnImageUrl(reel.thumbnail_url, { width: 240, quality: 80 })} 240w, ${getCdnImageUrl(reel.thumbnail_url, { width: 300, quality: 80 })} 300w, ${getCdnImageUrl(reel.thumbnail_url, { width: 480, quality: 80 })} 480w`}
                     sizes="clamp(150px, 22vw, 240px)"
-                    alt=""
+                    alt={`Style reel — ${reel.category}`}
                     className="reel-thumb"
                     loading="lazy"
                     decoding="async"

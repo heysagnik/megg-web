@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { notFound } from 'next/navigation'
 import { getProduct } from '@/lib/api'
 import ProductPageClient from '@/components/product/ProductPageClient'
@@ -45,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     keywords,
     alternates: { canonical: url },
     openGraph: {
-      type: 'website',
+      type: 'article',
       url,
       title: `${product.name} by ${product.brand} — MEGG`,
       description: ogDescription,
@@ -53,9 +54,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
+      site: '@meggfashion',
       title: `${product.name} by ${product.brand} — MEGG`,
       description: ogDescription,
       images: [ogImageUrl],
+    },
+    other: {
+      'product:price:amount': String(price),
+      'product:price:currency': 'INR',
+      'product:brand': brand ?? '',
+      'product:availability': 'in stock',
     },
   }
 }
@@ -113,8 +121,10 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <>
-      <script
+      <Script
+        id={`product-jsonld-${productId}`}
         type="application/ld+json"
+        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ProductPageClient product={product} />

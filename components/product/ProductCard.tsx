@@ -122,6 +122,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
   const router = useRouter()
   const isHigh = fetchPriority === 'high'
   const [hovered, setHovered] = useState(false)
+  const isTouchRef = useRef(false)
   const [imgIdx, setImgIdx] = useState(0)
   const [slideDir, setSlideDir] = useState<'left' | 'right'>('right')
   // High-priority cards start visible — no fade-in delay for above-fold images
@@ -152,13 +153,12 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
   }, [router, product.id])
 
   const handleMouseEnter = useCallback(() => {
+    if (isTouchRef.current) return
     setHovered(true)
-    // Preload the second image so the first carousel swap is instant
     if (images.length > 1 && images[1]) {
       const link = document.createElement('link')
       link.rel = 'preload'
       link.as = 'image'
-      // Use the same optimised width used for the card src
       link.href = getCdnImageUrl(images[1], { width: 480, quality: 85 })
       link.setAttribute('imagesrcset', getProductSrcSet(images[1]))
       link.setAttribute('imagesizes', '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw')
@@ -167,6 +167,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
   }, [images])
 
   const handleMouseLeave = useCallback(() => {
+    if (isTouchRef.current) return
     setHovered(false)
     setSlideDir('right')
     setImgIdx(0)
@@ -220,6 +221,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
       tabIndex={0}
       style={wrapperStyle}
       onClick={handleClick}
+      onTouchStart={() => { isTouchRef.current = true }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onKeyDown={(e) => {

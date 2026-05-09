@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import NavSidebar from './NavSidebar'
+import { getSearchSuggestions } from '@/lib/api'
 
 export default function Header() {
   const pathname = usePathname()
@@ -13,8 +14,11 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [headerVisible, setHeaderVisible] = useState(true)
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
 
   const searchInputRef = useRef<HTMLInputElement>(null)
+  const suggestTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const isHomePage = pathname === '/'
 
   /* ── Close sidebar on route change ─────────────────── */
@@ -62,12 +66,33 @@ export default function Header() {
       e.preventDefault()
       const q = searchQuery.trim()
       if (!q) return
+      setShowSuggestions(false)
       router.push(`/search?q=${encodeURIComponent(q)}`)
       setSearchOpen(false)
       setSearchQuery('')
     },
     [router, searchQuery],
   )
+
+  const handleSearchInputChange = useCallback((val: string) => {
+    setSearchQuery(val)
+    if (suggestTimer.current) clearTimeout(suggestTimer.current)
+    if (val.trim().length < 2) { setSuggestions([]); setShowSuggestions(false); return }
+    suggestTimer.current = setTimeout(async () => {
+      try {
+        const s = await getSearchSuggestions(val.trim())
+        setSuggestions(s)
+        setShowSuggestions(s.length > 0)
+      } catch { setSuggestions([]) }
+    }, 300)
+  }, [])
+
+  const handleSuggestionClick = useCallback((s: string) => {
+    setShowSuggestions(false)
+    setSearchQuery('')
+    setSearchOpen(false)
+    router.push(`/search?q=${encodeURIComponent(s)}`)
+  }, [router])
 
   const toggleSearch = () => setSearchOpen((prev) => !prev)
 
@@ -223,10 +248,11 @@ export default function Header() {
           role="search"
           aria-label="Site search"
           style={{
-            overflow: 'hidden',
+            overflow: 'visible',
             maxHeight: searchOpen ? '72px' : '0',
             transition: 'max-height 0.38s cubic-bezier(0.76,0,0.24,1)',
             borderTop: searchOpen ? '1px solid var(--color-border)' : '1px solid transparent',
+            position: 'relative',
           }}
         >
           <form
@@ -238,6 +264,7 @@ export default function Header() {
               height: '72px',
               paddingLeft: '1.25rem',
               paddingRight: '1.25rem',
+              visibility: searchOpen ? 'visible' : 'hidden',
             }}
           >
             {/* Small search icon inside input row */}
@@ -262,9 +289,11 @@ export default function Header() {
               ref={searchInputRef}
               type="text"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => handleSearchInputChange(e.target.value)}
+              onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true) }}
               placeholder="Search products…"
               tabIndex={searchOpen ? 0 : -1}
+              autoComplete="off"
               style={{
                 flex: 1,
                 border: 'none',
@@ -309,6 +338,7 @@ export default function Header() {
               onClick={() => {
                 setSearchOpen(false)
                 setSearchQuery('')
+                setShowSuggestions(false)
               }}
               tabIndex={searchOpen ? 0 : -1}
               aria-label="Close search"
@@ -330,6 +360,41 @@ export default function Header() {
               ✕
             </button>
           </form>
+
+          {/* Search suggestions dropdown */}
+          {searchOpen && showSuggestions && suggestions.length > 0 && (
+            <ul style={{
+              position: 'absolute', top: '72px', left: 0, right: 0, zIndex: 101,
+              background: 'var(--color-white)',
+              borderBottom: '1px solid var(--color-border)',
+              listStyle: 'none', maxHeight: '240px', overflowY: 'auto',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+            }}>
+              {suggestions.map(s => (
+                <li key={s}>
+                  <button
+                    type="button"
+                    onMouseDown={() => handleSuggestionClick(s)}
+                    style={{
+                      width: '100%', textAlign: 'left',
+                      padding: '0.65rem 1.25rem',
+                      fontFamily: 'var(--font-sans)', fontSize: '0.75rem',
+                      textTransform: 'uppercase', letterSpacing: '0.06em',
+                      background: 'none', border: 'none', cursor: 'pointer',
+                      color: 'var(--color-black)',
+                      borderBottom: '1px solid var(--color-border)',
+                      display: 'flex', alignItems: 'center', gap: '0.75rem',
+                    }}
+                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-gray-50)')}
+                    onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
+                    {s}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </header>
 

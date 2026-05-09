@@ -43,6 +43,9 @@ export interface ProductBrowseLayoutProps {
   // Sidebar nav (e.g. subcategory list)
   sidebarNav?: ReactNode
 
+  // Mobile subcategory tabs
+  mobileSubcategoryTabs?: ReactNode
+
   // Filters
   filters:         BrowseFilters
   availableFilters: AvailableFilters
@@ -242,6 +245,7 @@ export default function ProductBrowseLayout({
   title, crumb,
   products, total, loading, hasMore, sentinel,
   sidebarNav,
+  mobileSubcategoryTabs,
   filters, availableFilters, onFilterChange,
 }: ProductBrowseLayoutProps) {
   const [filterOpen, setFilterOpen] = useState(false)
@@ -275,7 +279,8 @@ export default function ProductBrowseLayout({
         }
         @media (max-width: 900px)  { .browse-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; padding: 1rem; align-items: stretch; } }
         .browse-mobile-filter { display: none; }
-        @media (max-width: 600px)  { .browse-sidebar { display: none !important; } .browse-mobile-filter { display: flex; align-items: center; gap: 0.4rem; } .browse-grid { gap: 0.5rem; padding: 0.75rem 0.5rem; align-items: stretch; } }
+        .browse-mobile-subcats { display: none; }
+        @media (max-width: 600px)  { .browse-sidebar { display: none !important; } .browse-mobile-filter { display: flex; align-items: center; gap: 0.4rem; } .browse-grid { gap: 0.5rem; padding: 0.75rem 0.5rem; align-items: stretch; } .browse-mobile-subcats { display: flex; } }
       `}</style>
 
       {/* ── Left sidebar ────────────────────────────── */}
@@ -364,6 +369,17 @@ export default function ProductBrowseLayout({
             </span>
           </div>
         </div>
+
+        {/* Mobile subcategory tabs */}
+        {mobileSubcategoryTabs && (
+          <div className="browse-mobile-subcats" style={{
+            overflowX: 'auto', scrollbarWidth: 'none',
+            gap: 0, borderBottom: '1px solid var(--color-border)',
+            padding: '0 0.75rem',
+          }}>
+            {mobileSubcategoryTabs}
+          </div>
+        )}
 
         {/* Grid */}
         <div className="browse-grid">

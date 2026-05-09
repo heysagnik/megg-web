@@ -1,4 +1,4 @@
-import { getCategories, listProducts } from '@/lib/api'
+import { getCategories, listProducts, getOutfits } from '@/lib/api'
 
 const BASE = 'https://www.meggfashion.in'
 
@@ -23,33 +23,36 @@ async function getAllProducts() {
 }
 
 export async function GET() {
-  const [categories, products] = await Promise.all([
+  const [categories, products, outfits] = await Promise.all([
     getCategories().catch(() => []),
     getAllProducts(),
+    getOutfits(1, 100).catch(() => []),
   ])
 
   const catUrls = categories.map(c => ({
     url: `${BASE}/category/${encodeURIComponent(c.category)}`,
     priority: '0.8',
     changefreq: 'daily',
-    lastmod: null,
   }))
 
   const productUrls = products.map(p => ({
     url: `${BASE}/product/${p.id}`,
     priority: '0.9',
     changefreq: 'weekly',
-    lastmod: null,
   }))
 
-  const all = [...STATIC.map(u => ({ ...u, lastmod: null })), ...catUrls, ...productUrls]
-  const today = new Date().toISOString().split('T')[0]
+  const outfitUrls = outfits.map(o => ({
+    url: `${BASE}/outfit/${o.id}`,
+    priority: '0.7',
+    changefreq: 'weekly',
+  }))
+
+  const all = [...STATIC, ...catUrls, ...productUrls, ...outfitUrls]
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${all.map(u => `  <url>
     <loc>${u.url}</loc>
-    <lastmod>${today}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
   </url>`).join('\n')}

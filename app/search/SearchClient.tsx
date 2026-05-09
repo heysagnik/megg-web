@@ -2,7 +2,7 @@
 
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { searchProducts, listProducts, type Product, type AvailableFilters, type SortOption } from '@/lib/api'
+import { searchProducts, listProducts, getSearchSuggestions, type Product, type AvailableFilters, type SortOption } from '@/lib/api'
 import ProductBrowseLayout, { BROWSE_EMPTY, type BrowseFilters } from '@/components/product/ProductBrowseLayout'
 
 const PAGE_SIZE = 20
@@ -48,15 +48,18 @@ function SearchInner() {
   const [hasMore,    setHasMore]    = useState(true)
   const [filters,    setFilters]    = useState<BrowseFilters>(BROWSE_EMPTY)
   const [avail,      setAvail]      = useState<AvailableFilters>({ subcategories: [], colors: [], brands: [], categories: [] })
+  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
 
   const sentinelRef = useRef<HTMLDivElement>(null)
   const fetchingRef = useRef(false)
+  const suggestTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   // ── Fetch ──────────────────────────────────────────────────────────────────
   const fetchPage = useCallback(async (
     q: string, pageNum: number, f: BrowseFilters, reset: boolean,
   ) => {
-    if (fetchingRef.current) return
+    if (fetchingRef.current && !reset) return
     fetchingRef.current = true
     setLoading(true)
     try {
@@ -95,16 +98,42 @@ function SearchInner() {
   const handleSearch = useCallback((e?: React.FormEvent) => {
     e?.preventDefault()
     const q = inputValue.trim()
+    fetchingRef.current = false
     setQuery(q); setPage(1); setProducts([]); setHasMore(true)
+    setShowSuggestions(false)
     router.replace(q ? `/search?q=${encodeURIComponent(q)}` : '/search', { scroll: false })
     fetchPage(q, 1, filters, true)
   }, [inputValue, filters, fetchPage, router])
 
   // Filter change
   const handleFilterChange = useCallback((next: BrowseFilters) => {
+    fetchingRef.current = false
     setFilters(next); setPage(1); setHasMore(true)
     fetchPage(query, 1, next, true)
   }, [query, fetchPage])
+
+  // Fetch suggestions as user types
+  const handleInputChange = useCallback((val: string) => {
+    setInputValue(val)
+    if (suggestTimer.current) clearTimeout(suggestTimer.current)
+    if (val.trim().length < 2) { setSuggestions([]); setShowSuggestions(false); return }
+    suggestTimer.current = setTimeout(async () => {
+      try {
+        const s = await getSearchSuggestions(val.trim())
+        setSuggestions(s)
+        setShowSuggestions(s.length > 0)
+      } catch { setSuggestions([]) }
+    }, 300)
+  }, [])
+
+  const handleSuggestionClick = useCallback((s: string) => {
+    setInputValue(s)
+    setShowSuggestions(false)
+    fetchingRef.current = false
+    setQuery(s); setPage(1); setProducts([]); setHasMore(true)
+    router.replace(`/search?q=${encodeURIComponent(s)}`, { scroll: false })
+    fetchPage(s, 1, filters, true)
+  }, [filters, fetchPage, router])
 
   // Initial load
   useEffect(() => { fetchPage(initialQ, 1, BROWSE_EMPTY, true) }, []) // eslint-disable-line
@@ -134,14 +163,17 @@ function SearchInner() {
   const sidebarNav = (
     <>
       {/* Search input */}
-      <form onSubmit={handleSearch} style={{ marginBottom: '1.5rem' }}>
+      <form onSubmit={handleSearch} style={{ marginBottom: '1.5rem', position: 'relative' }}>
         <div style={{ display: 'flex', borderBottom: '1px solid var(--color-border-mid)', paddingBottom: '0.4rem' }}>
           <input
             type="search"
             value={inputValue}
-            onChange={e => setInputValue(e.target.value)}
+            onChange={e => handleInputChange(e.target.value)}
+            onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true) }}
+            onBlur={() => { setTimeout(() => setShowSuggestions(false), 200) }}
             placeholder="Search…"
             autoFocus
+            autoComplete="off"
             style={{
               flex: 1, fontFamily: 'var(--font-sans)', fontSize: '0.8rem',
               border: 'none', outline: 'none', background: 'transparent',
@@ -156,6 +188,33 @@ function SearchInner() {
             →
           </button>
         </div>
+        {showSuggestions && suggestions.length > 0 && (
+          <ul style={{
+            position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50,
+            background: 'var(--color-white)', border: '1px solid var(--color-border)',
+            listStyle: 'none', maxHeight: '200px', overflowY: 'auto',
+          }}>
+            {suggestions.map(s => (
+              <li key={s}>
+                <button
+                  type="button"
+                  onMouseDown={() => handleSuggestionClick(s)}
+                  style={{
+                    width: '100%', textAlign: 'left', padding: '0.5rem 0.6rem',
+                    fontFamily: 'var(--font-sans)', fontSize: '0.75rem',
+                    textTransform: 'uppercase', letterSpacing: '0.04em',
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    color: 'var(--color-black)', borderBottom: '1px solid var(--color-border)',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-gray-50)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                >
+                  {s}
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
       </form>
 
       {/* Category list */}

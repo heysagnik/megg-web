@@ -6,6 +6,7 @@ import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ProgressBar from '@/components/layout/ProgressBar'
 import AppBottomSheet from '@/components/layout/AppBottomSheet'
+import ScrollRestoration from '@/components/layout/ScrollRestoration'
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
 // next/font handles subsetting, self-hosting, and zero layout shift automatically.
@@ -30,40 +31,22 @@ export const metadata: Metadata = {
     'MEGG is India\'s curated men\'s fashion platform — handpicked T-shirts, shirts, jeans, shoes, jackets & more from top brands. Quality over quantity, always.',
 
   keywords: [
-    // Brand
-    'MEGG', 'MEGG fashion', 'meggfashion', 'MEGG app', 'megg fashion India',
-    // Core head terms
-    'men fashion India', 'men clothing online India', 'men fashion online India',
-    'buy men clothes online India', 'best men fashion site India',
-    // Categories
-    'men T-shirts online India', 'men shirts online India', 'men jeans online India',
-    'men shoes online India', 'men jackets online India', 'men hoodies online India',
-    'men sweatshirts India', 'men accessories India', 'men innerwear India',
-    'men track pants India', 'men perfume India', 'men ethnic wear India',
-    'men sweaters online India', 'men joggers India',
-    // Occasion / intent clusters
-    'men casual wear India', 'men office wear India', 'men gym wear India',
-    'men party wear India', 'men streetwear India', 'men ethnic wear online',
-    // Price / value
-    'affordable men fashion India', 'men fashion under 699', 'men clothing under 1000 India',
-    'budget men fashion India', 'men clothes deals India',
-    // Discovery
-    'curated men fashion India', 'trending men outfits India', 'men outfit ideas India',
+    'MEGG', 'MEGG fashion', 'meggfashion', 'MEGG app',
+    'men fashion India', 'men clothing online India',
+    'curated men fashion India', 'best men fashion site India',
+    'trending men outfits India', 'men outfit ideas India',
     'men fashion trends India', 'new arrivals men fashion India',
-    'men wardrobe essentials India', 'men fashion inspiration India',
-    // Long-tail commercial
-    'best men T-shirts online India', 'men slim fit jeans India',
-    'men sneakers online India', 'men formal shirts India',
-    'men winter jackets India', 'men bomber jacket India',
-    'men cotton shirts online India', 'men ethnic kurta online India',
-    'men oversized hoodie India', 'men track pants online India',
+    'men wardrobe essentials India',
   ],
 
   authors: [{ name: 'MEGG', url: BASE_URL }],
   creator: 'MEGG',
 
-  // Canonical
-  alternates: { canonical: BASE_URL },
+  // Canonical + hreflang
+  alternates: {
+    canonical: BASE_URL,
+    languages: { 'en-IN': BASE_URL, 'x-default': BASE_URL },
+  },
 
   // Open Graph
   openGraph: {
@@ -78,6 +61,7 @@ export const metadata: Metadata = {
   // Twitter / X
   twitter: {
     card: 'summary_large_image',
+    site: '@meggfashion',
     title: 'MEGG — Curated Fashion',
     description: 'Curated fashion picks, outfits, and trending products for men.',
   },
@@ -125,6 +109,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/logo.png" />
+        <link rel="manifest" href="/manifest.json" />
         {/* Preload the custom font — eliminates FOUT and helps CLS score */}
         <link
           rel="preload"
@@ -149,8 +134,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         />
         <ProgressBar />
         <AppBottomSheet />
+        <ScrollRestoration />
         <Header />
-        <div id="page-wrapper" style={{ minHeight: '100vh' }}>{children}</div>
+        <div id="page-wrapper" style={{ minHeight: '100vh', textTransform: 'uppercase' }}>{children}</div>
         <Footer />
         {/* GA — afterInteractive: injected after hydration, never blocks navigationStart */}
         <Script

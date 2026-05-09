@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Image from 'next/image'
 
 /* ─── Data ───────────────────────────────────────────── */
 const SHOP_LINKS = [
@@ -24,7 +23,7 @@ const DISCOVER_LINKS = [
   { label: 'All Products',  href: '/products' },
   { label: 'Under Rs. 699', href: '/under699' },
   { label: 'Search',        href: '/search' },
-  { label: 'New Arrivals',  href: '/' },
+  { label: 'New Arrivals',  href: '/#new-arrivals' },
 ]
 
 const INFO_LINKS = [
@@ -177,7 +176,7 @@ export default function Footer() {
           <div className="f-brand-col">
             <Link href="/download" className="f-app-card">
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.875rem' }}>
-                <Image
+                <img
                   src="/logo.png"
                   alt="Megg"
                   width={20}
@@ -291,7 +290,7 @@ export default function Footer() {
             textTransform: 'uppercase',
             letterSpacing: '0.08em',
           }}>
-            © 2026 MEGG. All rights reserved.
+            © {new Date().getFullYear()} MEGG. All rights reserved.
           </p>
           <p style={{
             fontFamily: 'var(--font-sans)',

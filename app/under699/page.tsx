@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import { getUnder699 } from '@/lib/api'
 import Under699Client from './Under699Client'
 
@@ -31,11 +32,32 @@ export default async function Under699Page() {
     availableFilters: { subcategories: [], colors: [], brands: [], categories: [] },
   }))
 
+  const products = data.products ?? []
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: "Men's Fashion Under ₹699 — MEGG",
+    url: 'https://www.meggfashion.in/under699',
+    description: "Shop curated men's fashion under ₹699 on MEGG.",
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: products.slice(0, 10).map((p, i) => ({
+        '@type': 'ListItem',
+        position: i + 1,
+        url: `https://www.meggfashion.in/product/${p.id}`,
+        name: p.name,
+      })),
+    },
+  }
+
   return (
-    <Under699Client
-      initialProducts={data.products ?? []}
-      total={data.total ?? 0}
-      availableFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}
-    />
+    <>
+      <Script id="under699-jsonld" type="application/ld+json" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <Under699Client
+        initialProducts={products}
+        total={data.total ?? 0}
+        availableFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}
+      />
+    </>
   )
 }

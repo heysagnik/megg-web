@@ -25,8 +25,8 @@ export default function OffersSection() {
   return (
     <section
       style={{
-        paddingTop: 'var(--space-xl)',
-        paddingBottom: 'var(--space-xl)',
+        paddingTop: 'var(--space-md)',
+        paddingBottom: 'var(--space-md)',
       }}
     >
       <style>{`

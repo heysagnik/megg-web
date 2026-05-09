@@ -106,7 +106,7 @@ export default function HeroSection() {
               loop
               playsInline
               preload={idx === 0 ? 'metadata' : 'none'}
-              aria-label="Fashion editorial video"
+              aria-label={`MEGG curated fashion editorial ${idx === 0 ? 'left' : 'right'} panel`}
               style={{
                 position: 'absolute',
                 inset: 0,

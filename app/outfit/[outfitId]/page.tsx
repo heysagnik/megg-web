@@ -43,8 +43,39 @@ export default async function OutfitPage({ params }: Props) {
     .filter((r): r is PromiseFulfilledResult<Product> => r.status === 'fulfilled')
     .map((r) => r.value)
 
+  const outfitUrl = `https://www.meggfashion.in/outfit/${outfitId}`
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'CollectionPage',
+        name: outfit.name,
+        url: outfitUrl,
+        description: `Shop the ${outfit.name} outfit on MEGG — curated men's fashion India.`,
+        image: outfit.model_image || undefined,
+        mainEntity: {
+          '@type': 'ItemList',
+          itemListElement: products.map((p, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            url: `https://www.meggfashion.in/product/${p.id}`,
+            name: p.name,
+          })),
+        },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.meggfashion.in' },
+          { '@type': 'ListItem', position: 2, name: outfit.name, item: outfitUrl },
+        ],
+      },
+    ],
+  }
+
   return (
     <div>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* Hero */}
       <div
         style={{
