@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Script from 'next/script'
 import { getUnder699 } from '@/lib/api'
 import Under699Client from './Under699Client'
 
@@ -54,7 +53,7 @@ export default async function Under699Page() {
 
   return (
     <>
-      <Script id="under699-jsonld" type="application/ld+json" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Under699Client
         initialProducts={products}
         total={data.total ?? 0}

@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: 'Privacy Policy',
   description: 'Privacy Policy for MEGG — India\'s curated men\'s fashion platform.',
   alternates: { canonical: 'https://www.meggfashion.in/privacy' },
-  robots: { index: false, follow: false },
+  robots: { index: true, follow: true },
 }
 
 const sectionStyle = {

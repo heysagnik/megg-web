@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Script from 'next/script'
 import { listProducts } from '@/lib/api'
 import { getCategoryDisplay } from '@/lib/utils'
 import ProductsClient from './ProductsClient'
@@ -78,7 +77,7 @@ export default async function ProductsPage({ searchParams }: Props) {
 
   return (
     <>
-      <Script id="products-jsonld" type="application/ld+json" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <ProductsClient
         initialCategory={category}
         initialProducts={products}

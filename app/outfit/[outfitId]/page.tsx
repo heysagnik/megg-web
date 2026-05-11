@@ -22,7 +22,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       twitter: { card: 'summary_large_image', title: `${outfit.name} — MEGG`, description },
     }
   } catch {
-    return { title: 'Outfit', alternates: { canonical: url } }
+    return {
+      title: 'Outfit',
+      alternates: { canonical: url },
+      robots: { index: true, follow: true },
+    }
   }
 }
 

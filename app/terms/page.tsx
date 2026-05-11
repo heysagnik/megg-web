@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: 'Terms & Conditions',
   description: 'Terms and Conditions for using MEGG — India\'s curated men\'s fashion platform.',
   alternates: { canonical: 'https://www.meggfashion.in/terms' },
-  robots: { index: false, follow: false },
+  robots: { index: true, follow: true },
 }
 
 const sectionStyle = {

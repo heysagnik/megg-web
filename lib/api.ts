@@ -141,18 +141,36 @@ export interface SearchParams {
 // ─── Fetch Helper ─────────────────────────────────────────
 
 async function fetchJSON<T>(path: string): Promise<T> {
-  const controller = new AbortController()
-  const timer = setTimeout(() => controller.abort(), 10_000)
-  try {
-    const res = await fetch(`${BASE_URL}${path}`, {
-      next: { revalidate: 60 },
-      signal: controller.signal,
-    })
-    if (!res.ok) throw new Error(`API error ${res.status}: ${path}`)
-    return res.json() as Promise<T>
-  } finally {
-    clearTimeout(timer)
+  let lastErr: unknown
+  for (let attempt = 0; attempt < 2; attempt++) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 15_000)
+    try {
+      const res = await fetch(`${BASE_URL}${path}`, {
+        next: { revalidate: 60 },
+        signal: controller.signal,
+      })
+      // Retry only on server errors / aborts; 4xx is final
+      if (!res.ok) {
+        if (res.status >= 500 && attempt === 0) {
+          lastErr = new Error(`API error ${res.status}: ${path}`)
+          continue
+        }
+        throw new Error(`API error ${res.status}: ${path}`)
+      }
+      return res.json() as Promise<T>
+    } catch (err) {
+      lastErr = err
+      if (attempt === 0) {
+        await new Promise((r) => setTimeout(r, 200))
+        continue
+      }
+      throw err
+    } finally {
+      clearTimeout(timer)
+    }
   }
+  throw lastErr ?? new Error(`API request failed: ${path}`)
 }
 
 // ─── Products ─────────────────────────────────────────────

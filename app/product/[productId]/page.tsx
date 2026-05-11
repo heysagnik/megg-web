@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Script from 'next/script'
 import { notFound } from 'next/navigation'
 import { getProduct } from '@/lib/api'
 import ProductPageClient from '@/components/product/ProductPageClient'
@@ -8,8 +7,15 @@ type Props = { params: Promise<{ productId: string }> }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { productId } = await params
+  const url = `https://www.meggfashion.in/product/${productId}`
   const product = await getProduct(productId).catch(() => null)
-  if (!product) return { title: 'Product' }
+  if (!product) {
+    return {
+      title: 'Product',
+      alternates: { canonical: url },
+      robots: { index: true, follow: true },
+    }
+  }
 
   const price = typeof product.price === 'number' ? product.price : parseFloat(String(product.price))
   const priceStr = !isNaN(price) ? `₹${price.toLocaleString('en-IN')}` : ''
@@ -28,7 +34,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ].filter(Boolean).join(' · ')
     || description.slice(0, 150)
 
-  const url = `https://www.meggfashion.in/product/${productId}`
   const ogImageUrl = `${url}/opengraph-image`
 
   const subcat = (product.subcategory as string | undefined)?.toLowerCase() ?? ''
@@ -127,10 +132,8 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <>
-      <Script
-        id={`product-jsonld-${productId}`}
+      <script
         type="application/ld+json"
-        strategy="beforeInteractive"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <ProductPageClient product={product} />

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Script from 'next/script'
 import { listProducts } from '@/lib/api'
 import { getCategoryDisplay } from '@/lib/utils'
 import CategoryPageClient from './CategoryPageClient'
@@ -200,7 +199,7 @@ export default async function CategoryPage({ params }: Props) {
 
   return (
     <>
-      <Script id={`cat-jsonld-${slug}`} type="application/ld+json" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <CategoryPageClient
         category={slug}
         displayName={name}
