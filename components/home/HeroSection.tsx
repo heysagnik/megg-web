@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useCallback } from 'react'
+import { getCdnVideoUrl } from '@/lib/image'
 
 // q_auto:low — reduces bitrate ~60-70% vs original; vc_auto serves WebM to Chrome
 const PANELS = [
@@ -116,8 +117,8 @@ export default function HeroSection() {
                 display: 'block',
               }}
             >
-              <source src={`${src}.webm`} type="video/webm" />
-              <source src={`${src}.mp4`} type="video/mp4" />
+              <source src={getCdnVideoUrl(`${src}.webm`)} type="video/webm" />
+              <source src={getCdnVideoUrl(`${src}.mp4`)} type="video/mp4" />
             </video>
           </div>
         ))}

@@ -107,35 +107,106 @@ export interface ProductsResponse {
   availableFilters?: AvailableFilters;
 }
 
+export type SearchSort =
+  | 'relevance'
+  | 'price_asc'
+  | 'price_desc'
+  | 'newest'
+  | 'oldest'
+  | 'popularity';
+
+export type SearchMode = 'hybrid' | 'keyword' | 'browse' | 'empty';
+
+export interface PriceFilterOption {
+  label:    string;
+  value:    string;            // e.g. "under699"
+  maxPrice: number | string;
+  count:    number;
+}
+
+export interface FilterVisibility {
+  showCategories:    boolean;
+  showSubcategories: boolean;
+  showColors:        boolean;
+  showBrands:        boolean;
+}
+
 export interface SearchFilters {
-  categories: { name: string; count: number }[];
-  subcategories: { name: string; count: number }[];
-  colors: { name: string; count: number }[];
-  brands: { name: string; count: number }[];
-  priceRange: { min: number; max: number };
-  priceFilters: { label: string; min: number; max: number }[];
+  categories:    FilterOption[];
+  subcategories: FilterOption[];
+  colors:        FilterOption[];
+  brands:        FilterOption[];
+  priceRange:    { min: number; max: number };
+  priceFilters:  PriceFilterOption[];
+  visibility:    FilterVisibility;
+}
+
+export interface SearchBanner {
+  id:            string;
+  banner_image:  string;
+  link?:         string;
+  display_order?: number;
+}
+
+export interface AppliedFilters {
+  query?:         string;
+  category?:      string | null;
+  subcategories?: string[];
+  colors?:        string[];
+  brands?:        string[];
+  sort?:          SearchSort;
+  extractedConstraints: { minPrice?: number; maxPrice?: number | string } | null;
+  searchMode:     SearchMode;
+}
+
+export interface SuggestedFilters {
+  category?:    string;
+  subcategory?: string[];
+  colors?:      string[];
+  brands?:      string[];
 }
 
 export interface SearchResult {
-  products: Product[];
-  banners: Offer[];
-  total: number;
-  page: number;
-  limit: number;
-  totalPages: number;
-  searchMode: string;
-  appliedFilters: Record<string, unknown>;
+  products:         Product[];
+  banners:          SearchBanner[];
+  total:            number;
+  page:             number;
+  limit:            number;
+  totalPages:       number;
+  searchMode:       SearchMode;
+  appliedFilters:   AppliedFilters;
   availableFilters: SearchFilters;
+  suggestedFilters: SuggestedFilters | null;
 }
 
 export interface SearchParams {
-  q: string;
-  page?: number;
-  limit?: number;
-  category?: string;
-  minPrice?: number;
-  maxPrice?: number;
-  sort?: 'price_asc' | 'price_desc' | 'newest' | 'popular';
+  query?:        string;
+  page?:         number;
+  limit?:        number;
+  category?:     string;
+  subcategory?:  string | string[];
+  color?:        string | string[];
+  brand?:        string | string[];
+  minPrice?:     number | string;
+  maxPrice?:     number | string;
+  sort?:         SearchSort;
+}
+
+export type SuggestionType = 'brand' | 'category' | 'subcategory' | 'multi';
+
+export interface SuggestionFilters {
+  category?:    string;
+  subcategory?: string;
+  color?:       string;
+  brand?:       string;
+  [key: string]: string | undefined;
+}
+
+export interface SearchSuggestion {
+  type?:    SuggestionType;
+  value:    string;
+  count?:   number;
+  filters?: SuggestionFilters;
 }
 
 // ─── Fetch Helper ─────────────────────────────────────────
@@ -279,31 +350,69 @@ export async function getProductRecommendations(productId: string): Promise<Prod
 
 // ─── Search ───────────────────────────────────────────────
 
+/** Build a URLSearchParams instance, repeating keys for array values. */
+function buildSearchParams(params: SearchParams): URLSearchParams {
+  const p = new URLSearchParams();
+  const append = (key: string, value: string | number | undefined | null) => {
+    if (value == null || value === '') return;
+    p.append(key, String(value));
+  };
+  const appendMulti = (key: string, value: string | string[] | undefined) => {
+    if (value == null) return;
+    if (Array.isArray(value)) value.forEach(v => v && p.append(key, v));
+    else if (value !== '') p.append(key, value);
+  };
+  append('query',    params.query);
+  append('page',     params.page);
+  append('limit',    params.limit);
+  append('category', params.category);
+  appendMulti('subcategory', params.subcategory);
+  appendMulti('color',       params.color);
+  appendMulti('brand',       params.brand);
+  append('minPrice', params.minPrice);
+  append('maxPrice', params.maxPrice);
+  append('sort',     params.sort);
+  return p;
+}
+
 /** Full-text search — GET /search */
 export async function searchProducts(params: SearchParams): Promise<SearchResult> {
-  const p = new URLSearchParams({ query: params.q });
-  if (params.page) p.set('page', String(params.page));
-  if (params.limit) p.set('limit', String(params.limit));
-  if (params.category) p.set('category', params.category);
-  if (params.minPrice != null) p.set('minPrice', String(params.minPrice));
-  if (params.maxPrice != null) p.set('maxPrice', String(params.maxPrice));
-  if (params.sort) p.set('sort', params.sort);
+  const p = buildSearchParams(params);
   const raw = await fetchJSON<{ success: boolean; data: SearchResult }>(`/search?${p}`);
   return raw.data;
 }
 
-/** Search filters — GET /search/filters */
-export async function getSearchFilters(): Promise<SearchFilters> {
-  const raw = await fetchJSON<{ success: boolean; data: SearchFilters }>('/search/filters');
+/** Same as searchProducts, but accepts a prebuilt URLSearchParams (e.g. from the URL). */
+export async function searchProductsRaw(params: URLSearchParams): Promise<SearchResult> {
+  const raw = await fetchJSON<{ success: boolean; data: SearchResult }>(`/search?${params}`);
   return raw.data;
 }
 
-/** Search suggestions — GET /search/suggestions */
-export async function getSearchSuggestions(q: string): Promise<string[]> {
-  const raw = await fetchJSON<{ success: boolean; data: { suggestions: string[] } }>(
-    `/search/suggestions?q=${encodeURIComponent(q)}`,
+/** Search filters — GET /search/filters (accepts the same filter params as /search) */
+export async function getSearchFilters(params: SearchParams = {}): Promise<SearchFilters> {
+  const p = buildSearchParams(params);
+  const qs = p.toString();
+  const raw = await fetchJSON<{ success: boolean; data: SearchFilters }>(
+    `/search/filters${qs ? `?${qs}` : ''}`,
   );
-  return raw.data?.suggestions ?? [];
+  return raw.data;
+}
+
+/** Autocomplete suggestions — GET /autocomplete?query=... (min 2 chars) */
+export async function getSearchSuggestions(query: string): Promise<SearchSuggestion[]> {
+  if (query.trim().length < 2) return [];
+  const raw = await fetchJSON<
+    SearchSuggestion[] |
+    { success: boolean; data: SearchSuggestion[] } |
+    { success: boolean; data: { suggestions: SearchSuggestion[] } }
+  >(`/autocomplete?query=${encodeURIComponent(query)}`);
+  if (Array.isArray(raw)) return raw;
+  if ('data' in raw) {
+    const d = raw.data;
+    if (Array.isArray(d)) return d;
+    if (d && typeof d === 'object' && 'suggestions' in d) return (d as { suggestions: SearchSuggestion[] }).suggestions ?? [];
+  }
+  return [];
 }
 
 // ─── Categories ───────────────────────────────────────────
@@ -393,6 +502,42 @@ export async function getOffers(): Promise<Offer[]> {
 export async function getDailyDrops(): Promise<DailyDrop[]> {
   const raw = await fetchJSON<{ success: boolean; data: { daily: DailyDrop[] } }>('/daily');
   return raw.data?.daily ?? [];
+}
+
+// ─── Wishlist ─────────────────────────────────────────────
+
+export interface WishlistItem {
+  wishlist_id: string;
+  added_at: string;
+  id: string;
+  name: string;
+  price: number;
+  brand: string;
+  images: string[];
+  category: string;
+  subcategory?: string;
+  color?: string;
+  affiliate_link?: string;
+  is_active?: boolean;
+}
+
+export interface WishlistCollection {
+  id: string;
+  name: string;
+  description?: string | null;
+  created_at: string;
+  updated_at: string;
+  item_count?: number;
+}
+
+/** GET /api/wishlist/collections/:id — public, no auth required */
+export async function getPublicCollection(
+  id: string,
+): Promise<WishlistCollection & { items: WishlistItem[] }> {
+  const raw = await fetchJSON<{ collection: WishlistCollection & { items: WishlistItem[] } }>(
+    `/wishlist/collections/${id}`,
+  )
+  return raw.collection
 }
 
 // ─── Utils ────────────────────────────────────────────────

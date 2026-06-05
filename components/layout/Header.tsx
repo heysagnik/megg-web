@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import NavSidebar from './NavSidebar'
-import { getSearchSuggestions } from '@/lib/api'
+import { getSearchSuggestions, type SearchSuggestion } from '@/lib/api'
 
 export default function Header() {
   const pathname = usePathname()
@@ -14,12 +14,16 @@ export default function Header() {
   const [searchOpen, setSearchOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [headerVisible, setHeaderVisible] = useState(true)
-  const [suggestions, setSuggestions] = useState<string[]>([])
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
+  const [focusedIdx, setFocusedIdx] = useState(-1)
 
   const searchInputRef = useRef<HTMLInputElement>(null)
   const suggestTimer = useRef<ReturnType<typeof setTimeout>>(undefined)
   const isHomePage = pathname === '/'
+
+  // Reset keyboard focus when suggestion list changes
+  useEffect(() => { setFocusedIdx(-1) }, [suggestions])
 
   /* ── Close sidebar on route change ─────────────────── */
   useEffect(() => {
@@ -34,8 +38,6 @@ export default function Header() {
       return
     }
 
-    // Use IntersectionObserver instead of a scroll listener —
-    // zero main-thread scroll cost, no setState on every frame.
     const sentinel = document.createElement('div')
     sentinel.style.cssText = 'position:absolute;top:80vh;height:1px;width:1px;pointer-events:none'
     document.body.prepend(sentinel)
@@ -67,7 +69,7 @@ export default function Header() {
       const q = searchQuery.trim()
       if (!q) return
       setShowSuggestions(false)
-      router.push(`/search?q=${encodeURIComponent(q)}`)
+      router.push(`/search?query=${encodeURIComponent(q)}`)
       setSearchOpen(false)
       setSearchQuery('')
     },
@@ -87,12 +89,45 @@ export default function Header() {
     }, 300)
   }, [])
 
-  const handleSuggestionClick = useCallback((s: string) => {
+  const handleSuggestionClick = useCallback((s: SearchSuggestion) => {
     setShowSuggestions(false)
+    setFocusedIdx(-1)
     setSearchQuery('')
     setSearchOpen(false)
-    router.push(`/search?q=${encodeURIComponent(s)}`)
+    if (s.filters && Object.keys(s.filters).length > 0) {
+      const p = new URLSearchParams()
+      for (const [k, v] of Object.entries(s.filters)) {
+        if (v) p.set(k, v)
+      }
+      router.push(`/search?${p.toString()}`)
+    } else {
+      router.push(`/search?query=${encodeURIComponent(s.value)}`)
+    }
   }, [router])
+
+  const handleInputKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showSuggestions || suggestions.length === 0) return
+    if (e.key === 'ArrowDown') {
+      e.preventDefault()
+      setFocusedIdx(i => Math.min(i + 1, suggestions.length - 1))
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault()
+      setFocusedIdx(i => Math.max(i - 1, -1))
+    } else if (e.key === 'Enter' && focusedIdx >= 0) {
+      e.preventDefault()
+      handleSuggestionClick(suggestions[focusedIdx])
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false)
+      setFocusedIdx(-1)
+    }
+  }, [showSuggestions, suggestions, focusedIdx, handleSuggestionClick])
+
+  const closeSearch = useCallback(() => {
+    setSearchOpen(false)
+    setSearchQuery('')
+    setShowSuggestions(false)
+    setFocusedIdx(-1)
+  }, [])
 
   const toggleSearch = () => setSearchOpen((prev) => !prev)
 
@@ -104,18 +139,15 @@ export default function Header() {
           position: 'sticky',
           top: 0,
           zIndex: 100,
-          /* Visibility driven by scroll (homepage) or always visible (other pages) */
           opacity: headerVisible ? 1 : 0,
           pointerEvents: headerVisible ? 'auto' : 'none',
           transition: 'opacity 0.4s ease',
-          /* Frosted glass */
           backgroundColor: 'rgba(255,255,255,0.97)',
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
           borderBottom: '1px solid var(--color-border)',
         }}
         aria-hidden={!headerVisible}
-        // inert removes the header from tab order when invisible
         {...(!headerVisible ? { inert: true } : {}) as React.HTMLAttributes<HTMLElement>}
       >
         {/* ── Three-zone bar ─────────────────────────────── */}
@@ -130,7 +162,7 @@ export default function Header() {
             paddingRight: '1.25rem',
           }}
         >
-          {/* LEFT — Hamburger ─────────────────────────────── */}
+          {/* LEFT — Hamburger */}
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
@@ -138,69 +170,32 @@ export default function Header() {
             aria-expanded={sidebarOpen}
             aria-controls="nav-sidebar"
             style={{
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'flex-start',
-              gap: '5px',
-              width: '28px',
-              height: '28px',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              padding: '3px 0',
-              flexShrink: 0,
+              display: 'flex', flexDirection: 'column', justifyContent: 'center',
+              alignItems: 'flex-start', gap: '5px', width: '28px', height: '28px',
+              background: 'none', border: 'none', cursor: 'pointer',
+              padding: '3px 0', flexShrink: 0,
             }}
           >
-            <span
-              style={{
-                display: 'block',
-                width: '22px',
-                height: '1px',
-                backgroundColor: 'var(--color-black)',
-              }}
-            />
-            <span
-              style={{
-                display: 'block',
-                width: '22px',
-                height: '1px',
-                backgroundColor: 'var(--color-black)',
-              }}
-            />
-            <span
-              style={{
-                display: 'block',
-                width: '22px',
-                height: '1px',
-                backgroundColor: 'var(--color-black)',
-              }}
-            />
+            <span style={{ display: 'block', width: '22px', height: '1px', backgroundColor: 'var(--color-black)' }} />
+            <span style={{ display: 'block', width: '22px', height: '1px', backgroundColor: 'var(--color-black)' }} />
+            <span style={{ display: 'block', width: '22px', height: '1px', backgroundColor: 'var(--color-black)' }} />
           </button>
 
-          {/* CENTER — Logo (absolute so it's truly centred) ── */}
+          {/* CENTER — Logo */}
           <Link
             href="/"
             aria-label="MEGG — go to homepage"
             style={{
-              position: 'absolute',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              fontFamily: 'var(--font-serif)',
-              fontSize: '1.5rem',
-              fontWeight: 400,
-              letterSpacing: '-0.04em',
-              textTransform: 'uppercase',
-              color: 'var(--color-black)',
-              lineHeight: 1,
-              whiteSpace: 'nowrap',
-              userSelect: 'none',
+              position: 'absolute', left: '50%', transform: 'translateX(-50%)',
+              fontFamily: 'var(--font-serif)', fontSize: '1.5rem', fontWeight: 400,
+              letterSpacing: '-0.04em', textTransform: 'uppercase',
+              color: 'var(--color-black)', lineHeight: 1, whiteSpace: 'nowrap', userSelect: 'none',
             }}
           >
             MEGG
           </Link>
 
-          {/* RIGHT — Search toggle ────────────────────────── */}
+          {/* RIGHT — Search toggle */}
           <button
             type="button"
             onClick={toggleSearch}
@@ -208,34 +203,15 @@ export default function Header() {
             aria-expanded={searchOpen}
             aria-controls="header-search-panel"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '28px',
-              height: '28px',
-              background: 'none',
-              border: 'none',
-              cursor: 'pointer',
-              flexShrink: 0,
-              color: 'var(--color-black)',
-              opacity: searchOpen ? 0.45 : 1,
-              transition: 'opacity 0.2s ease',
-              padding: 0,
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              width: '28px', height: '28px', background: 'none', border: 'none',
+              cursor: 'pointer', flexShrink: 0, color: 'var(--color-black)',
+              opacity: searchOpen ? 0.45 : 1, transition: 'opacity 0.2s ease', padding: 0,
             }}
           >
-            {/* Magnifying glass */}
-            <svg
-              width="17"
-              height="17"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-              focusable="false"
-            >
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+              aria-hidden="true" focusable="false">
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
@@ -248,7 +224,7 @@ export default function Header() {
           role="search"
           aria-label="Site search"
           style={{
-            overflow: 'visible',
+            overflow: searchOpen ? 'visible' : 'hidden',
             maxHeight: searchOpen ? '72px' : '0',
             transition: 'max-height 0.38s cubic-bezier(0.76,0,0.24,1)',
             borderTop: searchOpen ? '1px solid var(--color-border)' : '1px solid transparent',
@@ -258,29 +234,15 @@ export default function Header() {
           <form
             onSubmit={handleSearchSubmit}
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.875rem',
-              height: '72px',
-              paddingLeft: '1.25rem',
-              paddingRight: '1.25rem',
+              display: 'flex', alignItems: 'center', gap: '0.5rem',
+              height: '72px', paddingLeft: '1.25rem', paddingRight: '1.25rem',
               visibility: searchOpen ? 'visible' : 'hidden',
             }}
           >
-            {/* Small search icon inside input row */}
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-              focusable="false"
-              style={{ color: 'var(--color-muted)', flexShrink: 0 }}
-            >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+              aria-hidden="true" focusable="false"
+              style={{ color: 'var(--color-muted)', flexShrink: 0 }}>
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
@@ -291,105 +253,94 @@ export default function Header() {
               value={searchQuery}
               onChange={(e) => handleSearchInputChange(e.target.value)}
               onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true) }}
+              onBlur={() => setTimeout(() => { setShowSuggestions(false); setFocusedIdx(-1) }, 150)}
+              onKeyDown={handleInputKeyDown}
               placeholder="Search products…"
               tabIndex={searchOpen ? 0 : -1}
               autoComplete="off"
               style={{
-                flex: 1,
-                border: 'none',
-                outline: 'none',
-                background: 'transparent',
-                fontFamily: 'var(--font-sans)',
-                fontSize: '0.8125rem',
-                fontWeight: 400,
-                letterSpacing: '0.06em',
-                textTransform: 'uppercase',
-                color: 'var(--color-black)',
-                caretColor: 'var(--color-black)',
+                flex: 1, border: 'none', outline: 'none', background: 'transparent',
+                fontFamily: 'var(--font-sans)', fontSize: '0.8125rem', fontWeight: 400,
+                letterSpacing: '0.04em', color: 'var(--color-black)', caretColor: 'var(--color-black)',
               }}
               aria-label="Search products"
+              aria-autocomplete="list"
+              aria-expanded={showSuggestions}
             />
+
+            {/* Clear input */}
+            {searchQuery && (
+              <button
+                type="button"
+                tabIndex={searchOpen ? 0 : -1}
+                onClick={() => { setSearchQuery(''); setSuggestions([]); setShowSuggestions(false); searchInputRef.current?.focus() }}
+                aria-label="Clear search"
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem',
+                  color: 'var(--color-muted)', fontSize: '0.9rem', lineHeight: 1, flexShrink: 0,
+                  display: 'flex', alignItems: 'center',
+                }}
+              >×</button>
+            )}
 
             <button
               type="submit"
               tabIndex={searchOpen ? 0 : -1}
               style={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: '0.625rem',
-                fontWeight: 500,
-                letterSpacing: '0.13em',
-                textTransform: 'uppercase',
-                color: 'var(--color-black)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                opacity: searchQuery.trim() ? 0.85 : 0.35,
-                transition: 'opacity 0.2s',
-                flexShrink: 0,
-                padding: '0.25rem 0',
+                fontFamily: 'var(--font-sans)', fontSize: '0.625rem', fontWeight: 500,
+                letterSpacing: '0.13em', textTransform: 'uppercase',
+                color: 'var(--color-black)', background: 'none', border: 'none',
+                cursor: 'pointer', opacity: searchQuery.trim() ? 0.85 : 0.35,
+                transition: 'opacity 0.2s', flexShrink: 0, padding: '0.25rem 0',
               }}
-            >
-              Search
-            </button>
+            >Search</button>
 
-            {/* Dismiss */}
             <button
               type="button"
-              onClick={() => {
-                setSearchOpen(false)
-                setSearchQuery('')
-                setShowSuggestions(false)
-              }}
+              onClick={closeSearch}
               tabIndex={searchOpen ? 0 : -1}
               aria-label="Close search"
               style={{
-                fontFamily: 'var(--font-sans)',
-                fontSize: '0.625rem',
-                fontWeight: 400,
-                letterSpacing: '0.1em',
-                textTransform: 'uppercase',
-                color: 'var(--color-muted)',
-                background: 'none',
-                border: 'none',
-                cursor: 'pointer',
-                flexShrink: 0,
-                padding: '0.25rem 0',
-                transition: 'opacity 0.2s',
+                fontFamily: 'var(--font-sans)', fontSize: '0.625rem', fontWeight: 400,
+                letterSpacing: '0.1em', textTransform: 'uppercase',
+                color: 'var(--color-muted)', background: 'none', border: 'none',
+                cursor: 'pointer', flexShrink: 0, padding: '0.25rem 0',
               }}
-            >
-              ✕
-            </button>
+            >✕</button>
           </form>
 
-          {/* Search suggestions dropdown */}
+          {/* Suggestions dropdown */}
           {searchOpen && showSuggestions && suggestions.length > 0 && (
-            <ul style={{
-              position: 'absolute', top: '72px', left: 0, right: 0, zIndex: 101,
-              background: 'var(--color-white)',
-              borderBottom: '1px solid var(--color-border)',
-              listStyle: 'none', maxHeight: '240px', overflowY: 'auto',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-            }}>
-              {suggestions.map(s => (
-                <li key={s}>
+            <ul
+              role="listbox"
+              aria-label="Search suggestions"
+              style={{
+                position: 'absolute', top: '72px', left: 0, right: 0, zIndex: 101,
+                background: 'var(--color-white)', borderBottom: '1px solid var(--color-border)',
+                listStyle: 'none', maxHeight: '240px', overflowY: 'auto', padding: 0, margin: 0,
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+              }}
+            >
+              {suggestions.map((s, i) => (
+                <li key={`${s.value}-${i}`} role="option" aria-selected={i === focusedIdx}>
                   <button
                     type="button"
-                    onMouseDown={() => handleSuggestionClick(s)}
+                    onMouseDown={(e) => { e.preventDefault(); handleSuggestionClick(s) }}
                     style={{
-                      width: '100%', textAlign: 'left',
-                      padding: '0.65rem 1.25rem',
+                      width: '100%', textAlign: 'left', padding: '0.65rem 1.25rem',
                       fontFamily: 'var(--font-sans)', fontSize: '0.75rem',
-                      textTransform: 'uppercase', letterSpacing: '0.06em',
-                      background: 'none', border: 'none', cursor: 'pointer',
-                      color: 'var(--color-black)',
-                      borderBottom: '1px solid var(--color-border)',
+                      letterSpacing: '0.06em',
+                      background: i === focusedIdx ? 'var(--color-gray-50, #f5f5f5)' : 'none',
+                      border: 'none', borderBottom: '1px solid var(--color-border)',
+                      cursor: 'pointer', color: 'var(--color-black)',
                       display: 'flex', alignItems: 'center', gap: '0.75rem',
                     }}
-                    onMouseEnter={e => (e.currentTarget.style.background = 'var(--color-gray-50)')}
-                    onMouseLeave={e => (e.currentTarget.style.background = 'none')}
                   >
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" /></svg>
-                    {s}
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                      stroke="var(--color-muted)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />
+                    </svg>
+                    {s.value}
                   </button>
                 </li>
               ))}
@@ -398,7 +349,7 @@ export default function Header() {
         </div>
       </header>
 
-      {/* ── Nav sidebar (rendered outside <header>) ──────── */}
+      {/* ── Nav sidebar ──────────────────────────────────── */}
       <NavSidebar
         id="nav-sidebar"
         isOpen={sidebarOpen}

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react'
 import { getReels, type Reel } from '@/lib/api'
-import { getCdnImageUrl } from '@/lib/image'
+import { getCdnImageUrl, getCdnVideoUrl } from '@/lib/image'
 
 export default function ReelsSection() {
   const [reels, setReels] = useState<Reel[]>([])
@@ -135,7 +135,7 @@ export default function ReelsSection() {
                 {/* Video — autoplay on hover */}
                 <video
                   ref={(el) => { videoRefs.current[reel.id] = el }}
-                  src={reel.video_url}
+                  src={getCdnVideoUrl(reel.video_url)}
                   muted
                   loop
                   playsInline

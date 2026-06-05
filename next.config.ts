@@ -17,14 +17,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   images: {
-    remotePatterns: [
-      { protocol: 'https', hostname: 'media.meggfashion.in', pathname: '/**' },
-      { protocol: 'https', hostname: 'res.cloudinary.com',   pathname: '/**' },
-    ],
-    // Serve modern formats — reduces image payload significantly
-    formats: ['image/avif', 'image/webp'],
-    // Aggressive caching
-    minimumCacheTTL: 86400,
+    unoptimized: true,
   },
 
   async headers() {

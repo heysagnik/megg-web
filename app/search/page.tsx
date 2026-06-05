@@ -2,12 +2,12 @@ import type { Metadata } from 'next'
 import SearchClient from './SearchClient'
 
 interface Props {
-  searchParams: Promise<{ q?: string }>
+  searchParams: Promise<{ q?: string; query?: string }>
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const { q } = await searchParams
-  const query = q?.trim()
+  const sp = await searchParams
+  const query = (sp.query ?? sp.q)?.trim()
   const url = 'https://www.meggfashion.in/search'
 
   if (query) {
@@ -18,7 +18,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
       openGraph: {
         title: `${query} — Search Men's Fashion | MEGG`,
         description: `Search results for "${query}" on MEGG.`,
-        url: `${url}?q=${encodeURIComponent(query)}`,
+        url: `${url}?query=${encodeURIComponent(query)}`,
       },
       robots: { index: true, follow: true },
     }
