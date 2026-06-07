@@ -2,11 +2,15 @@ import { getCategories, listProducts, getOutfits } from '@/lib/api'
 
 const BASE = 'https://www.meggfashion.in'
 
+const TODAY = new Date().toISOString().split('T')[0]
+
 const STATIC = [
-  { url: BASE,               priority: '1.0', changefreq: 'daily'   },
-  { url: `${BASE}/products`, priority: '0.9', changefreq: 'daily'   },
-  { url: `${BASE}/under699`, priority: '0.8', changefreq: 'daily'   },
-  { url: `${BASE}/about`,    priority: '0.4', changefreq: 'monthly' },
+  { url: BASE,               priority: '1.0', changefreq: 'daily',   lastmod: TODAY },
+  { url: `${BASE}/products`, priority: '0.9', changefreq: 'daily',   lastmod: TODAY },
+  { url: `${BASE}/under699`, priority: '0.8', changefreq: 'daily',   lastmod: TODAY },
+  { url: `${BASE}/about`,    priority: '0.4', changefreq: 'monthly', lastmod: TODAY },
+  { url: `${BASE}/privacy`,  priority: '0.2', changefreq: 'yearly',  lastmod: TODAY },
+  { url: `${BASE}/terms`,    priority: '0.2', changefreq: 'yearly',  lastmod: TODAY },
 ]
 
 async function getAllProducts() {
@@ -33,18 +37,21 @@ export async function GET() {
     url: `${BASE}/category/${encodeURIComponent(c.category)}`,
     priority: '0.8',
     changefreq: 'daily',
+    lastmod: TODAY,
   }))
 
   const productUrls = products.map(p => ({
     url: `${BASE}/product/${p.id}`,
     priority: '0.9',
     changefreq: 'weekly',
+    lastmod: TODAY,
   }))
 
   const outfitUrls = outfits.map(o => ({
     url: `${BASE}/outfit/${o.id}`,
     priority: '0.7',
     changefreq: 'weekly',
+    lastmod: TODAY,
   }))
 
   const all = [...STATIC, ...catUrls, ...productUrls, ...outfitUrls]
@@ -53,6 +60,7 @@ export async function GET() {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${all.map(u => `  <url>
     <loc>${u.url}</loc>
+    <lastmod>${u.lastmod}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
   </url>`).join('\n')}

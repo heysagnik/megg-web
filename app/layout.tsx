@@ -93,8 +93,29 @@ const orgSchema = {
       name: 'MEGG',
       alternateName: ['MEGG Fashion', 'meggfashion', 'Megg India'],
       url: BASE_URL,
-      logo: { '@type': 'ImageObject', url: `${BASE_URL}/logo.png` },
-      description: 'India\'s curated men\'s fashion platform — handpicked T-shirts, shirts, jeans, shoes, jackets & more from top brands.',
+      logo: {
+        '@type': 'ImageObject',
+        '@id': `${BASE_URL}/#logo`,
+        url: `${BASE_URL}/logo.png`,
+        contentUrl: `${BASE_URL}/logo.png`,
+        caption: 'MEGG — Curated Men\'s Fashion India',
+      },
+      image: { '@id': `${BASE_URL}/#logo` },
+      description: 'MEGG is India\'s curated men\'s fashion discovery platform. We handpick T-shirts, shirts, jeans, shoes, jackets, hoodies, track pants, perfume, body care and accessories from top brands. New arrivals daily. Free to use — we redirect you to the brand\'s website to complete your purchase.',
+      foundingDate: '2023',
+      areaServed: {
+        '@type': 'Country',
+        name: 'India',
+      },
+      knowsAbout: [
+        'Men\'s fashion India',
+        'Curated menswear',
+        'Men\'s T-shirts',
+        'Men\'s streetwear India',
+        'Affordable men\'s clothing India',
+        'Men\'s shoes India',
+        'Men\'s ethnic wear India',
+      ],
       sameAs: [
         'https://www.instagram.com/meghansh07',
       ],
@@ -102,6 +123,8 @@ const orgSchema = {
         '@type': 'ContactPoint',
         email: 'meggxfashion@gmail.com',
         contactType: 'customer service',
+        areaServed: 'IN',
+        availableLanguage: 'English',
       },
     },
     {
@@ -110,13 +133,29 @@ const orgSchema = {
       url: BASE_URL,
       name: 'MEGG',
       alternateName: 'MEGG Fashion India',
-      description: 'Shop curated men\'s fashion — T-shirts, shirts, jeans, shoes, jackets, hoodies, track pants, perfume & more.',
+      description: 'Shop curated men\'s fashion — T-shirts, shirts, jeans, shoes, jackets, hoodies, track pants, perfume & more from top brands. New arrivals daily.',
       publisher: { '@id': `${BASE_URL}/#organization` },
       inLanguage: 'en-IN',
-      potentialAction: {
-        '@type': 'SearchAction',
-        target: { '@type': 'EntryPoint', urlTemplate: `${BASE_URL}/search?q={search_term_string}` },
-        'query-input': 'required name=search_term_string',
+      potentialAction: [
+        {
+          '@type': 'SearchAction',
+          target: { '@type': 'EntryPoint', urlTemplate: `${BASE_URL}/search?q={search_term_string}` },
+          'query-input': 'required name=search_term_string',
+        },
+      ],
+    },
+    {
+      '@type': 'WebPage',
+      '@id': `${BASE_URL}/#webpage`,
+      url: BASE_URL,
+      name: 'MEGG — Curated Men\'s Fashion India',
+      isPartOf: { '@id': `${BASE_URL}/#website` },
+      about: { '@id': `${BASE_URL}/#organization` },
+      description: 'India\'s #1 curated men\'s fashion platform. Handpicked T-shirts, shirts, jeans, shoes, jackets & more from top brands.',
+      inLanguage: 'en-IN',
+      speakable: {
+        '@type': 'SpeakableSpecification',
+        cssSelector: ['h1', 'h2', '.text-section'],
       },
     },
   ],
@@ -124,8 +163,10 @@ const orgSchema = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" data-scroll-behavior="smooth">
+    <html lang="en-IN" data-scroll-behavior="smooth">
       <head>
+        <meta name="geo.region" content="IN" />
+        <meta name="geo.placename" content="India" />
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/logo.png" />
         <link rel="manifest" href="/manifest.json" />

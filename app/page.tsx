@@ -67,6 +67,21 @@ export default async function HomePage() {
         name: 'What is the price range on MEGG?',
         acceptedAnswer: { '@type': 'Answer', text: 'MEGG features products across all price ranges — from budget picks under ₹699 to premium fashion. We have a dedicated "Under ₹699" section for affordable men\'s fashion.' },
       },
+      {
+        '@type': 'Question',
+        name: 'Which brands are available on MEGG?',
+        acceptedAnswer: { '@type': 'Answer', text: 'MEGG curates products from a wide range of trusted Indian and international brands including popular streetwear, athleisure, and premium fashion labels. Every brand and product is handpicked for quality, style, and value.' },
+      },
+      {
+        '@type': 'Question',
+        name: 'How does MEGG work?',
+        acceptedAnswer: { '@type': 'Answer', text: 'MEGG is a fashion discovery platform. You browse handpicked men\'s clothing and accessories on MEGG, and when you find something you like, you click through to the brand\'s official website or retailer to complete the purchase. MEGG curates — the brand delivers.' },
+      },
+      {
+        '@type': 'Question',
+        name: 'Does MEGG have a section for budget fashion?',
+        acceptedAnswer: { '@type': 'Answer', text: 'Yes. MEGG has a dedicated "Under ₹699" section where you can find curated men\'s T-shirts, track pants, innerwear, accessories and more — all priced under ₹699. New budget picks are added daily.' },
+      },
     ],
   }
 
