@@ -17,7 +17,7 @@ export default async function Image({ params }: Props) {
   const imageUrl = product?.images?.[0] ?? null
 
   const imgSrc = imageUrl
-    ? getCdnImageUrl(imageUrl, { width: 1200, height: 630, quality: 90, fit: 'cover', format: 'jpeg' })
+    ? getCdnImageUrl(imageUrl, { width: 1200, height: 630, quality: 90 })
     : null
 
   return new ImageResponse(
