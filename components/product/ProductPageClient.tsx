@@ -222,7 +222,7 @@ function VariantSelector({
           >
             {v.images[0] && (
               <img
-                src={getCdnImageUrl(v.images[0], { width: 80, quality: 95 })}
+                src={getCdnImageUrl(v.images[0], { width: 80, quality: 100 })}
                 alt={v.color}
                 style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
               />
@@ -311,6 +311,19 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
   // Active images: variant override or base product
   const activeImages = activeVariant ? activeVariant.images : product.images
   const images = activeImages.filter(Boolean)
+
+  // Preload all images in parallel as soon as the image list is known
+  useEffect(() => {
+    images.forEach((src, i) => {
+      if (i === 0) return // already loaded eagerly by the browser
+      const url = getCdnImageUrl(src, { width: 800, quality: 100 })
+      const link = document.createElement('link')
+      link.rel = 'preload'
+      link.as = 'image'
+      link.href = url
+      document.head.appendChild(link)
+    })
+  }, [images])
 
   const hasFabric = Array.isArray(product.fabric) && product.fabric.length > 0
   const variants = product.variants ?? []
@@ -457,11 +470,11 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
             {images.map((img, i) => (
               <div key={`m-${activeVariant?.id ?? 'base'}-${i}`} className="pdp-mobile-img-slide">
                 <img
-                  src={img}
+                  src={getCdnImageUrl(img, { width: 800, quality: 100 })}
                   alt={`${product.name} — view ${i + 1}`}
                   loading={i === 0 ? 'eager' : 'lazy'}
                   decoding="async"
-                  fetchPriority={i === 0 ? 'high' : 'low'}
+                  fetchPriority={i === 0 ? 'high' : 'auto'}
                   style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top', userSelect: 'none' }}
                   draggable={false}
                 />
@@ -483,11 +496,11 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                 style={{ height: '100svh', position: 'relative', overflow: 'hidden', background: 'var(--color-surface-2)' }}
               >
                 <img
-                  src={img}
+                  src={getCdnImageUrl(img, { width: 800, quality: 100 })}
                   alt={`${product.name} — view ${i + 1}`}
                   loading={i === 0 ? 'eager' : 'lazy'}
                   decoding="async"
-                  fetchPriority={i === 0 ? 'high' : 'low'}
+                  fetchPriority={i === 0 ? 'high' : 'auto'}
                   style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center', userSelect: 'none' }}
                   draggable={false}
                 />

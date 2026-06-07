@@ -16,9 +16,18 @@ export interface BrowseFilters {
   color:      string
   brand:      string
   sort:       SortOption | 'relevance' | ''
+  maxPrice:   number | null
 }
 
-export const BROWSE_EMPTY: BrowseFilters = { subcategory: '', category: '', color: '', brand: '', sort: '' }
+export const BROWSE_EMPTY: BrowseFilters = { subcategory: '', category: '', color: '', brand: '', sort: '', maxPrice: null }
+
+const PRICE_OPTIONS: { label: string; value: number }[] = [
+  { label: 'Under ₹499',  value: 499  },
+  { label: 'Under ₹699',  value: 699  },
+  { label: 'Under ₹999',  value: 999  },
+  { label: 'Under ₹1499', value: 1499 },
+  { label: 'Under ₹1999', value: 1999 },
+]
 
 const SORT_OPTIONS: { label: string; value: BrowseFilters['sort'] }[] = [
   { label: 'Relevance',         value: 'relevance'  },
@@ -78,7 +87,7 @@ function FilterPanel({
   const setSort = (s: BrowseFilters['sort']) =>
     onChange({ ...filters, sort: s })
 
-  const filterCount = [filters.color, filters.brand].filter(Boolean).length
+  const filterCount = [filters.color, filters.brand, filters.maxPrice != null ? '1' : ''].filter(Boolean).length
   const hasAny = filterCount > 0 || (filters.sort && filters.sort !== 'relevance')
 
   const row: React.CSSProperties = {
@@ -207,6 +216,30 @@ function FilterPanel({
               </div>
             </section>
           )}
+
+          {/* Price */}
+          <section style={{ marginBottom: '2rem' }}>
+            <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--color-muted)', marginBottom: '0.75rem' }}>
+              Price
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {PRICE_OPTIONS.map(o => (
+                <button key={o.value} type="button"
+                  onClick={() => onChange({ ...filters, maxPrice: filters.maxPrice === o.value ? null : o.value })}
+                  style={{
+                    ...row,
+                    color: filters.maxPrice === o.value ? 'var(--color-black)' : 'var(--color-muted)',
+                    fontWeight: filters.maxPrice === o.value ? 500 : 400,
+                    borderBottom: '1px solid var(--color-border)',
+                  }}>
+                  <span>{o.label}</span>
+                  {filters.maxPrice === o.value && (
+                    <span style={{ fontSize: '0.7rem', color: 'var(--color-black)' }}>✓</span>
+                  )}
+                </button>
+              ))}
+            </div>
+          </section>
         </div>
 
         {/* Footer */}
@@ -216,7 +249,7 @@ function FilterPanel({
         }}>
           {hasAny && (
             <button type="button"
-              onClick={() => onChange({ ...filters, color: '', brand: '', sort: '' })}
+              onClick={() => onChange({ ...filters, color: '', brand: '', sort: '', maxPrice: null })}
               style={{
                 flex: 1, fontFamily: 'var(--font-sans)', fontSize: '0.7rem', letterSpacing: '0.1em',
                 textTransform: 'uppercase', background: 'none',

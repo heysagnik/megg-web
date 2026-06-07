@@ -256,6 +256,8 @@ export interface ListParams {
   sort?: SortOption | 'relevance';
   brand?: string;
   color?: string;
+  minPrice?: number;
+  maxPrice?: number;
 }
 
 /** Product listing — GET /products/list */
@@ -277,6 +279,8 @@ export async function listProducts(params: ListParams): Promise<ProductsResponse
   if (params.sort) p.set('sort', params.sort);
   if (params.brand) p.set('brand', params.brand);
   if (params.color) p.set('color', params.color);
+  if (params.minPrice != null) p.set('minPrice', String(params.minPrice));
+  if (params.maxPrice != null) p.set('maxPrice', String(params.maxPrice));
   return fetchJSON<ProductsResponse>(`/products/list?${p}`);
 }
 

@@ -75,7 +75,7 @@ export default function AppBottomSheet() {
         {/* Icon + copy */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.875rem', marginBottom: '1.25rem' }}>
           <img
-            src={getCdnImageUrl('/logo.png', { width: 48 })}
+            src={getCdnImageUrl('https://meggfashion.in/logo.png', { width: 48 })}
             alt="Megg"
             width={48}
             height={48}

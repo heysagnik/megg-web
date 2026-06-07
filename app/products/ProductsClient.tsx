@@ -65,10 +65,12 @@ export default function ProductsClient({
         color: f.color || undefined,
         brand: f.brand || undefined,
         sort: (f.sort && f.sort !== 'relevance') ? f.sort as SortOption : undefined,
+        maxPrice: f.maxPrice ?? undefined,
       })
       const incoming = res.products ?? []
       if (res.total != null) setTotal(res.total)
-      if (res.availableFilters) setAvail(res.availableFilters)
+      const noFilters = !f.subcategory && !f.color && !f.brand && f.maxPrice == null
+      if (noFilters && res.availableFilters) setAvail(res.availableFilters)
       setProducts(prev => {
         if (reset) return incoming
         const seen = new Set(prev.map(p => p.id))
@@ -80,6 +82,7 @@ export default function ProductsClient({
   }, [])
 
   const handleFilterChange = useCallback((next: BrowseFilters) => {
+    fetchingRef.current = false
     setFilters(next); setPage(1); setHasMore(true)
     fetchPage(1, next, true)
   }, [fetchPage])
