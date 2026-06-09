@@ -6,21 +6,18 @@ export interface CdnImageOptions {
 
 export function getCdnImageUrl(
   src: string,
-  { width, height, quality = 90 }: CdnImageOptions,
+  _options?: CdnImageOptions,
 ): string {
   if (!src) return src
-  const p = new URLSearchParams({
-    url: src,
-    w: String(width),
-    q: String(quality),
-  })
-  if (height) p.set('h', String(height))
-  return `https://api.megg.workers.dev/api/optimize?${p}`
+  if (src.startsWith('http')) return src
+  if (src.startsWith('/')) return `https://media.meggfashion.in${src}`
+  return `https://media.meggfashion.in/${src}`
 }
 
 export function getProductSrcSet(src: string, quality = 90): string {
+  const url = getCdnImageUrl(src)
   return [320, 480, 640, 800]
-    .map(w => `${getCdnImageUrl(src, { width: w, quality })} ${w}w`)
+    .map(w => `${url} ${w}w`)
     .join(', ')
 }
 

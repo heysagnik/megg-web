@@ -53,10 +53,6 @@ const nextConfig: NextConfig = {
 
   // Compress responses
   compress: true,
-
-  experimental: {
-    scrollRestoration: true,
-  },
 }
 
 export default nextConfig
