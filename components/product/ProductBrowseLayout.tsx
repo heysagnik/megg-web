@@ -12,42 +12,42 @@ import type { Product } from '@/lib/api'
 
 export interface BrowseFilters {
   subcategory: string
-  category:   string
-  color:      string
-  brand:      string
-  sort:       SortOption | 'relevance' | ''
-  maxPrice:   number | null
+  category: string
+  color: string
+  brand: string
+  sort: SortOption | 'relevance' | ''
+  maxPrice: number | null
 }
 
 export const BROWSE_EMPTY: BrowseFilters = { subcategory: '', category: '', color: '', brand: '', sort: '', maxPrice: null }
 
 const PRICE_OPTIONS: { label: string; value: number }[] = [
-  { label: 'Under ₹499',  value: 499  },
-  { label: 'Under ₹699',  value: 699  },
-  { label: 'Under ₹999',  value: 999  },
+  { label: 'Under ₹499', value: 499 },
+  { label: 'Under ₹699', value: 699 },
+  { label: 'Under ₹999', value: 999 },
   { label: 'Under ₹1499', value: 1499 },
   { label: 'Under ₹1999', value: 1999 },
 ]
 
 const SORT_OPTIONS: { label: string; value: BrowseFilters['sort'] }[] = [
-  { label: 'Relevance',         value: 'relevance'  },
-  { label: 'Price: Low → High', value: 'price_asc'  },
+  { label: 'Relevance', value: 'relevance' },
+  { label: 'Price: Low → High', value: 'price_asc' },
   { label: 'Price: High → Low', value: 'price_desc' },
-  { label: 'Newest',            value: 'newest'     },
-  { label: 'Popular',           value: 'popular'    },
+  { label: 'Newest', value: 'newest' },
+  { label: 'Popular', value: 'popular' },
 ]
 
 export interface ProductBrowseLayoutProps {
   // Header
-  title:    string
-  crumb?:   ReactNode     // optional breadcrumb slot above title
+  title: string
+  crumb?: ReactNode     // optional breadcrumb slot above title
 
   // Data
-  products:  Product[]
-  total:     number
-  loading:   boolean
-  hasMore:   boolean
-  sentinel:  React.RefObject<HTMLDivElement | null>
+  products: Product[]
+  total: number
+  loading: boolean
+  hasMore: boolean
+  sentinel: React.RefObject<HTMLDivElement | null>
 
   // Sidebar nav (e.g. subcategory list)
   sidebarNav?: ReactNode
@@ -56,9 +56,9 @@ export interface ProductBrowseLayoutProps {
   mobileSubcategoryTabs?: ReactNode
 
   // Filters
-  filters:         BrowseFilters
+  filters: BrowseFilters
   availableFilters: AvailableFilters
-  onFilterChange:  (next: BrowseFilters) => void
+  onFilterChange: (next: BrowseFilters) => void
 }
 
 // ─── FilterPanel ──────────────────────────────────────────────────────────────
@@ -71,11 +71,11 @@ function FilterPanel({
   total,
   onChange,
 }: {
-  open:     boolean
-  onClose:  () => void
-  filters:  BrowseFilters
-  avail:    AvailableFilters
-  total:    number
+  open: boolean
+  onClose: () => void
+  filters: BrowseFilters
+  avail: AvailableFilters
+  total: number
   onChange: (next: BrowseFilters) => void
 }) {
   const colors = avail.colors ?? []
@@ -117,16 +117,8 @@ function FilterPanel({
         role="dialog"
         aria-modal="true"
         aria-label="Filters"
-        style={{
-          position: 'fixed', top: 0, right: 0, bottom: 0, zIndex: 300,
-          width: '340px',
-          background: 'var(--color-white)',
-          borderLeft: '1px solid var(--color-border)',
-          display: 'flex', flexDirection: 'column',
-          transform: open ? 'translateX(0)' : 'translateX(100%)',
-          transition: 'transform 0.35s cubic-bezier(0.76,0,0.24,1)',
-          willChange: 'transform',
-        }}
+        className="filter-panel"
+        data-open={open}
       >
         {/* Header */}
         <div style={{
@@ -282,6 +274,7 @@ export default function ProductBrowseLayout({
   filters, availableFilters, onFilterChange,
 }: ProductBrowseLayoutProps) {
   const [filterOpen, setFilterOpen] = useState(false)
+  const [showMbar, setShowMbar]     = useState(true)
 
   const filterCount = [filters.color, filters.brand].filter(Boolean).length
   const activeCount = [filters.subcategory, filters.color, filters.brand, filters.sort && filters.sort !== 'relevance' ? 1 : 0].filter(Boolean).length
@@ -291,6 +284,19 @@ export default function ProductBrowseLayout({
     const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setFilterOpen(false) }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
+  }, [])
+
+  // Auto-hide mobile bar on scroll down
+  useEffect(() => {
+    let lastY = window.scrollY
+    const handleScroll = () => {
+      const y = window.scrollY
+      if (y > lastY && y > 100) setShowMbar(false) // scrolling down
+      else if (y < lastY) setShowMbar(true)        // scrolling up
+      lastY = y
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   const sideNavBtn = (active: boolean): React.CSSProperties => ({
@@ -310,10 +316,38 @@ export default function ProductBrowseLayout({
           padding: 2rem 1.5rem 4rem;
           align-items: stretch;
         }
-        @media (max-width: 900px)  { .browse-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; padding: 1rem; align-items: stretch; } }
-        .browse-mobile-filter { display: none; }
-        .browse-mobile-subcats { display: none; }
-        @media (max-width: 600px)  { .browse-sidebar { display: none !important; } .browse-mobile-filter { display: flex; align-items: center; gap: 0.4rem; } .browse-grid { gap: 0.5rem; padding: 0.75rem 0.5rem; align-items: stretch; } .browse-mobile-subcats { display: flex; } }
+        .browse-mobile-filter { display: none !important; }
+        .browse-mobile-subcats { display: none !important; }
+        .browse-mbar { display: none; }
+        
+        .filter-panel {
+          position: fixed; top: 0; right: 0; bottom: 0; z-index: 300;
+          width: 340px; background: var(--color-white);
+          border-left: 1px solid var(--color-border);
+          display: flex; flex-direction: column;
+          transition: transform 0.35s cubic-bezier(0.76,0,0.24,1);
+          will-change: transform;
+        }
+        .filter-panel[data-open="false"] { transform: translateX(100%); }
+        .filter-panel[data-open="true"] { transform: translateX(0); }
+        
+        @media (max-width: 900px) { 
+          .browse-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; padding: 1rem 1rem 5rem; } 
+          .browse-sidebar { display: none !important; } 
+          .browse-mobile-subcats { display: flex !important; } 
+          .browse-mbar { display: flex !important; }
+          
+          .filter-panel {
+            top: auto; left: 0; right: 0; bottom: 0;
+            width: 100%; height: auto; max-height: 85vh;
+            border-left: none; border-top: 1px solid var(--color-border);
+          }
+          .filter-panel[data-open="false"] { transform: translateY(100%); }
+          .filter-panel[data-open="true"] { transform: translateY(0); }
+        }
+        @media (max-width: 600px) { 
+          .browse-grid { gap: 0.5rem; padding: 0.75rem 0.5rem 5rem; } 
+        }
       `}</style>
 
       {/* ── Left sidebar ────────────────────────────── */}
@@ -440,6 +474,27 @@ export default function ProductBrowseLayout({
         <div style={{ padding: '0 1.5rem' }}>
           <EndOfFeed loading={loading} hasMore={hasMore} count={products.length} />
         </div>
+      </div>
+
+      {/* Mobile sticky bar */}
+      <div className="browse-mbar" style={{
+        position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 200,
+        background: 'rgba(255,255,255,0.97)',
+        backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
+        borderTop: '1px solid var(--color-border)',
+        padding: '0.6rem 0.75rem', gap: '0.5rem',
+        transform: showMbar ? 'translateY(0)' : 'translateY(100%)',
+        transition: 'transform 0.3s cubic-bezier(0.33, 1, 0.68, 1)',
+      }}>
+        <button type="button" onClick={() => setFilterOpen(true)} style={{
+          flex: 1, fontFamily: 'var(--font-sans)', fontSize: '0.7rem',
+          letterSpacing: '0.12em', textTransform: 'uppercase',
+          background: 'var(--color-black)', border: '1px solid var(--color-black)',
+          padding: '0.7rem 0', cursor: 'pointer', color: 'var(--color-white)',
+          width: '100%',
+        }}>
+          Filters{filterCount > 0 ? ` (${filterCount})` : ''}
+        </button>
       </div>
 
       {/* ── Right filter panel ───────────────────────── */}

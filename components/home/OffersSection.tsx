@@ -97,7 +97,7 @@ export default function OffersSection() {
               <div
                 style={{
                   position: 'relative',
-                  aspectRatio: '4 / 3',
+                  aspectRatio: '16 / 9',
                   overflow: 'hidden',
                   background: 'var(--color-surface)',
                 }}

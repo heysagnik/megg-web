@@ -1,23 +1,38 @@
-export interface CdnImageOptions {
-  width: number
+export type CdnImageOptions = {
+  width?: number
   height?: number
   quality?: number
+  format?: 'webp' | 'jpeg' | 'png'
+  forceOptimization?: boolean
 }
 
 export function getCdnImageUrl(
   src: string,
-  _options?: CdnImageOptions,
+  { width = 1080, height, quality = 90, format, forceOptimization }: CdnImageOptions = {},
 ): string {
   if (!src) return src
-  if (src.startsWith('http')) return src
-  if (src.startsWith('/')) return `https://media.meggfashion.in${src}`
-  return `https://media.meggfashion.in/${src}`
+  let fullUrl = src
+  if (src.startsWith('/')) fullUrl = `https://media.meggfashion.in${src}`
+  else if (!src.startsWith('http')) fullUrl = `https://media.meggfashion.in/${src}`
+  
+  // The custom worker is slow, so we only use it if format conversion is strictly required (e.g. Satori)
+  if (forceOptimization || format) {
+    const p = new URLSearchParams({
+      url: fullUrl,
+      w: String(width),
+      q: String(quality),
+    })
+    if (format) p.set('f', format)
+    return `https://api.megg.workers.dev/api/optimize?${p}`
+  }
+
+  // Otherwise, serve the direct R2 URL (blazing fast)
+  return fullUrl
 }
 
 export function getProductSrcSet(src: string, quality = 90): string {
-  const url = getCdnImageUrl(src)
   return [320, 480, 640, 800]
-    .map(w => `${url} ${w}w`)
+    .map(w => `${getCdnImageUrl(src, { width: w, quality })} ${w}w`)
     .join(', ')
 }
 

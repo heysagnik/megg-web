@@ -6,37 +6,15 @@ import { usePathname } from 'next/navigation'
 export default function ScrollRestoration() {
   const pathname = usePathname()
 
+  // Always open to top on route change, even on back button
   useEffect(() => {
-    const key = `scroll_${pathname}`
-    const saved = sessionStorage.getItem(key)
-
-    if (saved) {
-      const y = parseInt(saved, 10)
-      const tryRestore = () => {
-        if (document.body.scrollHeight >= y + window.innerHeight * 0.5) {
-          window.scrollTo(0, y)
-          return true
-        }
-        return false
-      }
-
-      if (!tryRestore()) {
-        let attempts = 0
-        const interval = setInterval(() => {
-          attempts++
-          if (tryRestore() || attempts > 20) clearInterval(interval)
-        }, 100)
-        return () => clearInterval(interval)
-      }
+    // Disable native browser scroll restoration
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual'
     }
-  }, [pathname])
 
-  useEffect(() => {
-    const handleScroll = () => {
-      sessionStorage.setItem(`scroll_${pathname}`, String(window.scrollY))
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    // Force scroll to top
+    window.scrollTo(0, 0)
   }, [pathname])
 
   return null

@@ -417,6 +417,20 @@ export default function SearchLayout({
 }: SearchLayoutProps) {
   const [catOpen, setCatOpen] = useState(false)
   const [filOpen, setFilOpen] = useState(false)
+  const [showMbar, setShowMbar] = useState(true)
+
+  // Auto-hide mobile bar on scroll down
+  useEffect(() => {
+    let lastY = window.scrollY
+    const handleScroll = () => {
+      const y = window.scrollY
+      if (y > lastY && y > 100) setShowMbar(false) // scrolling down
+      else if (y < lastY) setShowMbar(true)        // scrolling up
+      lastY = y
+    }
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -718,13 +732,14 @@ export default function SearchLayout({
         </div>
       </div>
 
-      {/* Mobile sticky bar */}
       <div className="srch-mbar" style={{
         position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 200,
         background: 'rgba(255,255,255,0.97)',
         backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
         borderTop: '1px solid var(--color-border)',
         padding: '0.6rem 0.75rem', gap: '0.5rem',
+        transform: showMbar ? 'translateY(0)' : 'translateY(100%)',
+        transition: 'transform 0.3s cubic-bezier(0.33, 1, 0.68, 1)',
       }}>
         {(categoriesLoading || categories.length > 0) && (
           <button type="button" onClick={() => setCatOpen(true)} style={{

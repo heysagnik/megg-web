@@ -2,6 +2,8 @@ import { ImageResponse } from 'next/og'
 
 import { getProduct } from '@/lib/api'
 
+import { getCdnImageUrl } from '@/lib/image'
+
 export const alt = 'Product image'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/jpeg'
@@ -13,14 +15,10 @@ export default async function Image({ params }: Props) {
   const { productId } = await params
 
   const product = await getProduct(productId).catch(() => null)
-
   const imageUrl = product?.images?.[0] ?? null
 
   const imgSrc = imageUrl
-    ? `https://api.megg.workers.dev/api/optimize?${new URLSearchParams({
-        url: imageUrl,
-        f: 'jpeg',
-      })}`
+    ? getCdnImageUrl(imageUrl, { width: 1200, format: 'jpeg' })
     : null
 
   return new ImageResponse(

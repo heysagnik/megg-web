@@ -26,7 +26,6 @@ const nextConfig: NextConfig = {
         source: '/(.*)',
         headers: securityHeaders,
       },
-      // Fonts in public/ — immutable, 1-year cache + CORS so browsers can load cross-origin
       {
         source: '/:path*\\.ttf',
         headers: [
