@@ -7,25 +7,36 @@ import { getCdnImageUrl, getCdnVideoUrl } from '@/lib/image'
 export default function ReelsSection() {
   const [reels, setReels] = useState<Reel[]>([])
   const [playing, setPlaying] = useState<string | null>(null)
+  const [loadedReels, setLoadedReels] = useState<Set<string>>(new Set())
   const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
 
   useEffect(() => {
-    getReels(12).then(setReels).catch(() => {})
+    getReels(10).then(setReels).catch(() => {})
   }, [])
 
   if (reels.length === 0) return null
 
   const handlePlay = (id: string) => {
+    setLoadedReels((prev) => {
+      if (prev.has(id)) return prev
+      const next = new Set(prev)
+      next.add(id)
+      return next
+    })
+
     // pause any currently playing reel
     if (playing && playing !== id) {
       const prev = videoRefs.current[playing]
       if (prev) { prev.pause(); prev.currentTime = 0 }
     }
+    
+    // Play the current one. Note: if it's the first time hovering, 
+    // the video element might not be in the DOM yet, so we also auto-play it in its ref callback.
     const vid = videoRefs.current[id]
     if (vid) {
       vid.play().catch(() => {})
-      setPlaying(id)
     }
+    setPlaying(id)
   }
 
   const handlePause = (id: string) => {
@@ -133,23 +144,28 @@ export default function ReelsSection() {
                 )}
 
                 {/* Video — autoplay on hover */}
-                <video
-                  ref={(el) => { videoRefs.current[reel.id] = el }}
-                  src={getCdnVideoUrl(reel.video_url)}
-                  muted
-                  loop
-                  playsInline
-                  preload="none"
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                    opacity: isPlaying ? 1 : 0,
-                    transition: 'opacity 0.3s',
-                  }}
-                />
+                {loadedReels.has(reel.id) && (
+                  <video
+                    ref={(el) => { 
+                      videoRefs.current[reel.id] = el
+                      if (el && isPlaying) el.play().catch(() => {})
+                    }}
+                    src={getCdnVideoUrl(reel.video_url)}
+                    muted
+                    loop
+                    playsInline
+                    preload="none"
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      opacity: isPlaying ? 1 : 0,
+                      transition: 'opacity 0.3s',
+                    }}
+                  />
+                )}
 
                 {/* Play icon overlay (hidden on hover) */}
                 {!isPlaying && (
