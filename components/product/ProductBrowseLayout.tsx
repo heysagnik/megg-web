@@ -286,17 +286,30 @@ export default function ProductBrowseLayout({
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  // Auto-hide mobile bar on scroll down
+  // Auto-hide mobile bar on scroll down, show when scroll stops
   useEffect(() => {
     let lastY = window.scrollY
+    let scrollTimeout: ReturnType<typeof setTimeout>
     const handleScroll = () => {
       const y = window.scrollY
-      if (y > lastY && y > 100) setShowMbar(false) // scrolling down
-      else if (y < lastY) setShowMbar(true)        // scrolling up
+      if (y > lastY && y > 100) {
+        setShowMbar(false) // scrolling down
+      } else if (y < lastY) {
+        setShowMbar(true) // scrolling up
+      }
       lastY = y
+
+      // Show bar when scrolling stops
+      clearTimeout(scrollTimeout)
+      scrollTimeout = setTimeout(() => {
+        setShowMbar(true)
+      }, 150)
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      clearTimeout(scrollTimeout)
+    }
   }, [])
 
   const sideNavBtn = (active: boolean): React.CSSProperties => ({
