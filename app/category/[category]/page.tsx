@@ -136,7 +136,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   let description = `Shop curated ${name} for men online India on MEGG. Browse trending styles, top brands, new arrivals. Quality over quantity.`
   if (brands.length && minPrice !== null) {
-    description = `Buy ${name} for men online India from ${brands.join(', ')} & more on MEGG. Starting ₹${minPrice.toLocaleString('en-IN')}. Trending styles, new arrivals daily, fast delivery.`
+    description = `Buy ${name} for men online India from ${brands.join(', ')} & more on MEGG. Starting Rs ${minPrice.toLocaleString('en-IN')}. Trending styles, new arrivals daily, fast delivery.`
   } else if (brands.length) {
     description = `Shop ${name} for men online India from ${brands.join(', ')} & more on MEGG. Curated picks, trending styles, new arrivals daily.`
   }

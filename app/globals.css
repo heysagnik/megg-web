@@ -8,14 +8,7 @@
   font-display: swap;
 }
 
-/* Fallback for ₹ (U+20B9) which Futura doesn't include */
-@font-face {
-  font-family: 'FuturaCyrillic';
-  src: local('Arial'), local('Helvetica Neue');
-  font-weight: 400;
-  font-style: normal;
-  unicode-range: U+20B9;
-}
+/* Fallback for Rupee symbol (U+20B9) which Futura doesn't include — using "Rs" text instead */
 
 /* ─── Tailwind v4 Theme ──────────────────────────────────────────────────── */
 @theme {

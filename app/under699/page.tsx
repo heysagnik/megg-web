@@ -3,8 +3,8 @@ import { getUnder699 } from '@/lib/api'
 import Under699Client from './Under699Client'
 
 export const metadata: Metadata = {
-  title: 'Men\'s Fashion Under ₹699 — Buy T-Shirts, Shirts, Jeans & More',
-  description: 'Shop men\'s T-shirts, shirts, jeans, shoes, hoodies, track pants & accessories under ₹699 on MEGG. Best budget men\'s fashion online India — top brands, trending styles, new arrivals daily.',
+  title: 'Men\'s Fashion Under Rs 699 — Buy T-Shirts, Shirts, Jeans & More',
+  description: 'Shop men\'s T-shirts, shirts, jeans, shoes, hoodies, track pants & accessories under Rs 699 on MEGG. Best budget men\'s fashion online India — top brands, trending styles, new arrivals daily.',
   keywords: [
     'men fashion under 699', 'men clothes under 699 India', 'men T-shirts under 699',
     'men shirts under 699 India', 'men jeans under 699', 'men shoes under 699',
@@ -20,8 +20,8 @@ export const metadata: Metadata = {
   alternates: { canonical: 'https://www.meggfashion.in/under699' },
   openGraph: {
     type: 'website',
-    title: 'Men\'s Fashion Under ₹699 — MEGG',
-    description: 'Shop curated men\'s T-shirts, shirts, jeans & accessories under ₹699 on MEGG. New styles added daily.',
+    title: 'Men\'s Fashion Under Rs 699 — MEGG',
+    description: 'Shop curated men\'s T-shirts, shirts, jeans & accessories under Rs 699 on MEGG. New styles added daily.',
     url: 'https://www.meggfashion.in/under699',
   },
 }
@@ -37,9 +37,9 @@ export default async function Under699Page() {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: "Men's Fashion Under ₹699 — MEGG",
+    name: "Men's Fashion Under Rs 699 — MEGG",
     url: 'https://www.meggfashion.in/under699',
-    description: "Shop curated men's fashion under ₹699 on MEGG.",
+    description: "Shop curated men's fashion under Rs 699 on MEGG.",
     mainEntity: {
       '@type': 'ItemList',
       itemListElement: products.slice(0, 10).map((p, i) => ({

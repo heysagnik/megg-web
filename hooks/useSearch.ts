@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
+import { useScrollRestoration } from './useScrollRestoration'
 import {
   searchProductsRaw,
   type SearchResult,
@@ -39,10 +40,38 @@ export function useSearch() {
   const [data, setData]    = useState<SearchResult | null>(null)
   const [loading, setLoad] = useState(false)
   const accumulated        = useRef<SearchResult['products']>([])
+  const restoredPageRef    = useRef<number | null>(null)
+  const isMountedRef       = useRef(false)
 
-  useEffect(() => { setPage(1); accumulated.current = [] }, [filterKey])
+  useScrollRestoration<SearchResult>({
+    key: 'search',
+    data,
+    page,
+    onRestore: useCallback((cachedData: SearchResult, cachedPage: number) => {
+      restoredPageRef.current = cachedPage
+      accumulated.current = cachedData.products
+      setData(cachedData)
+      setPage(cachedPage)
+    }, []),
+  })
 
   useEffect(() => {
+    if (isMountedRef.current) {
+      setPage(1)
+      accumulated.current = []
+    } else {
+      isMountedRef.current = true
+    }
+  }, [filterKey])
+
+  useEffect(() => {
+    if (restoredPageRef.current !== null) {
+      if (restoredPageRef.current === page) {
+        restoredPageRef.current = null
+      }
+      return
+    }
+
     const ctrl = new AbortController()
     setLoad(true)
     const p = new URLSearchParams(params)

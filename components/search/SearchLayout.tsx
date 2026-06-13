@@ -468,9 +468,9 @@ export default function SearchLayout({
   const priceChipLabel = (() => {
     const pf = af?.priceFilters?.find(p => p.value === filters.maxPrice)
     if (pf)                                  return pf.label
-    if (filters.minPrice && filters.maxPrice) return `₹${filters.minPrice}–₹${filters.maxPrice}`
-    if (filters.maxPrice)                     return `Up to ₹${filters.maxPrice}`
-    if (filters.minPrice)                     return `From ₹${filters.minPrice}`
+    if (filters.minPrice && filters.maxPrice) return `Rs ${filters.minPrice}–Rs ${filters.maxPrice}`
+    if (filters.maxPrice)                     return `Up to Rs ${filters.maxPrice}`
+    if (filters.minPrice)                     return `From Rs ${filters.minPrice}`
     return null
   })()
 

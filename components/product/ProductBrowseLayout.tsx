@@ -22,11 +22,11 @@ export interface BrowseFilters {
 export const BROWSE_EMPTY: BrowseFilters = { subcategory: '', category: '', color: '', brand: '', sort: '', maxPrice: null }
 
 const PRICE_OPTIONS: { label: string; value: number }[] = [
-  { label: 'Under ₹499', value: 499 },
-  { label: 'Under ₹699', value: 699 },
-  { label: 'Under ₹999', value: 999 },
-  { label: 'Under ₹1499', value: 1499 },
-  { label: 'Under ₹1999', value: 1999 },
+  { label: 'Under Rs 499', value: 499 },
+  { label: 'Under Rs 699', value: 699 },
+  { label: 'Under Rs 999', value: 999 },
+  { label: 'Under Rs 1499', value: 1499 },
+  { label: 'Under Rs 1999', value: 1999 },
 ]
 
 const SORT_OPTIONS: { label: string; value: BrowseFilters['sort'] }[] = [
@@ -275,6 +275,8 @@ export default function ProductBrowseLayout({
 }: ProductBrowseLayoutProps) {
   const [filterOpen, setFilterOpen] = useState(false)
   const [showMbar, setShowMbar]     = useState(true)
+  const [showSubcats, setShowSubcats] = useState(true)
+  const [footerIntersecting, setFooterIntersecting] = useState(false)
 
   const filterCount = [filters.color, filters.brand].filter(Boolean).length
   const activeCount = [filters.subcategory, filters.color, filters.brand, filters.sort && filters.sort !== 'relevance' ? 1 : 0].filter(Boolean).length
@@ -286,23 +288,30 @@ export default function ProductBrowseLayout({
     return () => window.removeEventListener('keydown', onKey)
   }, [])
 
-  // Auto-hide mobile bar on scroll down, show when scroll stops
+  // Auto-hide mobile bar on scroll down, show when scroll stops; handle sticky subcategory bar hide/show
   useEffect(() => {
     let lastY = window.scrollY
     let scrollTimeout: ReturnType<typeof setTimeout>
     const handleScroll = () => {
       const y = window.scrollY
+      
+      // Bottom filter bar: hide on scroll down, show on scroll up
       if (y > lastY && y > 100) {
-        setShowMbar(false) // scrolling down
+        setShowMbar(false)
       } else if (y < lastY) {
-        setShowMbar(true) // scrolling up
+        setShowMbar(true)
       }
+      
+      // Upper subcategory bar: hide immediately on scroll
+      setShowSubcats(false)
+      
       lastY = y
 
-      // Show bar when scrolling stops
+      // Show both when scrolling stops
       clearTimeout(scrollTimeout)
       scrollTimeout = setTimeout(() => {
         setShowMbar(true)
+        setShowSubcats(true)
       }, 150)
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -310,6 +319,22 @@ export default function ProductBrowseLayout({
       window.removeEventListener('scroll', handleScroll)
       clearTimeout(scrollTimeout)
     }
+  }, [])
+
+  // Hide bottom sticky filter bar when footer is visible
+  useEffect(() => {
+    const footer = document.querySelector('footer')
+    if (!footer) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setFooterIntersecting(entry.isIntersecting)
+      },
+      { threshold: 0 }
+    )
+
+    observer.observe(footer)
+    return () => observer.disconnect()
   }, [])
 
   const sideNavBtn = (active: boolean): React.CSSProperties => ({
@@ -452,11 +477,26 @@ export default function ProductBrowseLayout({
 
         {/* Mobile subcategory tabs */}
         {mobileSubcategoryTabs && (
-          <div className="browse-mobile-subcats" style={{
-            overflowX: 'auto', scrollbarWidth: 'none',
-            gap: 0, borderBottom: '1px solid var(--color-border)',
-            padding: '0 0.75rem',
-          }}>
+          <div
+            className="browse-mobile-subcats"
+            style={{
+              position: 'sticky',
+              top: 'var(--header-height)',
+              zIndex: 90,
+              backgroundColor: 'rgba(255, 255, 255, 0.97)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+              overflowX: 'auto',
+              scrollbarWidth: 'none',
+              gap: 0,
+              borderBottom: '1px solid var(--color-border)',
+              padding: '0 0.75rem',
+              opacity: showSubcats ? 1 : 0,
+              transform: showSubcats ? 'translateY(0)' : 'translateY(-10px)',
+              pointerEvents: showSubcats ? 'auto' : 'none',
+              transition: 'opacity 0.25s ease, transform 0.25s ease-out',
+            }}
+          >
             {mobileSubcategoryTabs}
           </div>
         )}
@@ -496,7 +536,7 @@ export default function ProductBrowseLayout({
         backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)',
         borderTop: '1px solid var(--color-border)',
         padding: '0.6rem 0.75rem', gap: '0.5rem',
-        transform: showMbar ? 'translateY(0)' : 'translateY(100%)',
+        transform: (showMbar && !footerIntersecting) ? 'translateY(0)' : 'translateY(100%)',
         transition: 'transform 0.3s cubic-bezier(0.33, 1, 0.68, 1)',
       }}>
         <button type="button" onClick={() => setFilterOpen(true)} style={{

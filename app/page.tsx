@@ -10,7 +10,7 @@ import NewArrivalsSection from '@/components/home/NewArrivalsSection'
 
 export const metadata: Metadata = {
   title: { absolute: 'MEGG — Shop Men\'s T-Shirts, Shirts, Jeans, Shoes & More Online India' },
-  description: 'Shop curated men\'s fashion on MEGG — buy T-shirts, shirts, jeans, shoes, jackets, hoodies, track pants, perfume & accessories online India. Top brands, trending styles, new arrivals daily. Starting ₹299. Free fashion discovery.',
+  description: 'Shop curated men\'s fashion on MEGG — buy T-shirts, shirts, jeans, shoes, jackets, hoodies, track pants, perfume & accessories online India. Top brands, trending styles, new arrivals daily. Starting Rs 299. Free fashion discovery.',
   keywords: [
     'shop men fashion India', 'buy men clothes online India', 'men clothing brands India',
     'men T-shirts online India', 'buy T-shirts for men India', 'men shirts online India',
@@ -65,7 +65,7 @@ export default async function HomePage() {
       {
         '@type': 'Question',
         name: 'What is the price range on MEGG?',
-        acceptedAnswer: { '@type': 'Answer', text: 'MEGG features products across all price ranges — from budget picks under ₹699 to premium fashion. We have a dedicated "Under ₹699" section for affordable men\'s fashion.' },
+        acceptedAnswer: { '@type': 'Answer', text: 'MEGG features products across all price ranges — from budget picks under Rs 699 to premium fashion. We have a dedicated "Under Rs 699" section for affordable men\'s fashion.' },
       },
       {
         '@type': 'Question',
@@ -80,7 +80,7 @@ export default async function HomePage() {
       {
         '@type': 'Question',
         name: 'Does MEGG have a section for budget fashion?',
-        acceptedAnswer: { '@type': 'Answer', text: 'Yes. MEGG has a dedicated "Under ₹699" section where you can find curated men\'s T-shirts, track pants, innerwear, accessories and more — all priced under ₹699. New budget picks are added daily.' },
+        acceptedAnswer: { '@type': 'Answer', text: 'Yes. MEGG has a dedicated "Under Rs 699" section where you can find curated men\'s T-shirts, track pants, innerwear, accessories and more — all priced under Rs 699. New budget picks are added daily.' },
       },
     ],
   }

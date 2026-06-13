@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useCallback, useRef } from 'react'
-import type { CSSProperties, MouseEvent } from 'react'
+import type { CSSProperties, MouseEvent, TouchEvent } from 'react'
 import type { Product } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
 import { getCdnImageUrl, getProductSrcSet } from '@/lib/image'
@@ -123,6 +123,9 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
   const isHigh = fetchPriority === 'high'
   const [hovered, setHovered] = useState(false)
   const isTouchRef = useRef(false)
+  const [isTouch, setIsTouch] = useState(false)
+  const touchStartXRef = useRef<number | null>(null)
+  const touchStartYRef = useRef<number | null>(null)
   const [imgIdx, setImgIdx] = useState(0)
   const [slideDir, setSlideDir] = useState<'left' | 'right'>('right')
   // High-priority cards start visible — no fade-in delay for above-fold images
@@ -195,6 +198,42 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
     [images.length],
   )
 
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    isTouchRef.current = true
+    setIsTouch(true)
+    touchStartXRef.current = e.touches[0].clientX
+    touchStartYRef.current = e.touches[0].clientY
+  }, [])
+
+  const handleTouchEnd = useCallback(
+    (e: TouchEvent) => {
+      if (touchStartXRef.current === null || touchStartYRef.current === null) return
+      const touchEndX = e.changedTouches[0].clientX
+      const touchEndY = e.changedTouches[0].clientY
+      const diffX = touchStartXRef.current - touchEndX
+      const diffY = touchStartYRef.current - touchEndY
+
+      const minSwipeDistance = 50
+      // Check if horizontal swipe is dominant and exceeds minimum distance
+      if (Math.abs(diffX) > minSwipeDistance && Math.abs(diffX) > Math.abs(diffY)) {
+        e.preventDefault()
+        e.stopPropagation()
+        retryRef.current = 0
+        setImgLoaded(false)
+        if (diffX > 0) {
+          setSlideDir('right')
+          setImgIdx((i) => (i + 1) % images.length)
+        } else {
+          setSlideDir('left')
+          setImgIdx((i) => (i - 1 + images.length) % images.length)
+        }
+      }
+      touchStartXRef.current = null
+      touchStartYRef.current = null
+    },
+    [images.length],
+  )
+
   // ── Styles ──
 
   const wrapperStyle: CSSProperties = {
@@ -221,7 +260,6 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
       tabIndex={0}
       style={wrapperStyle}
       onClick={handleClick}
-      onTouchStart={() => { isTouchRef.current = true }}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onKeyDown={(e) => {
@@ -233,7 +271,11 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
       aria-label={`${product.brand} — ${product.name}`}
     >
       {/* ── Image Area ── */}
-      <div style={imageAreaStyle}>
+      <div
+        style={imageAreaStyle}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
+      >
         {!isHigh && !imgLoaded && (
           <div className="skeleton" style={{ position: 'absolute', inset: 0 }} />
         )}
@@ -269,12 +311,18 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
           />
         )}
 
-        {/* Carousel controls — only when hovered and multi-image */}
-        {hovered && hasMultiple && (
+        {/* Carousel controls — chevrons on hover, dots on hover or touch */}
+        {hasMultiple && (
           <>
-            <ChevronButton dir="left" onClick={handleLeft} />
-            <ChevronButton dir="right" onClick={handleRight} />
-            <DotIndicators count={images.length} active={imgIdx} />
+            {hovered && (
+              <>
+                <ChevronButton dir="left" onClick={handleLeft} />
+                <ChevronButton dir="right" onClick={handleRight} />
+              </>
+            )}
+            {(hovered || isTouch) && (
+              <DotIndicators count={images.length} active={imgIdx} />
+            )}
           </>
         )}
       </div>

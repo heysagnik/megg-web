@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 
   const price = typeof product.price === 'number' ? product.price : parseFloat(String(product.price))
-  const priceStr = !isNaN(price) ? `₹${price.toLocaleString('en-IN')}` : ''
+  const priceStr = !isNaN(price) ? `Rs ${price.toLocaleString('en-IN')}` : ''
   const brand = product.brand as string | undefined
   const cat = (product.category as string | undefined)?.toLowerCase() ?? 'clothing'
 
@@ -90,7 +90,7 @@ export default async function ProductPage({ params }: Props) {
   }
 
   const price = typeof product.price === 'number' ? product.price : parseFloat(String(product.price))
-  const priceStr = !isNaN(price) ? ` at ₹${price.toLocaleString('en-IN')}` : ''
+  const priceStr = !isNaN(price) ? ` at Rs ${price.toLocaleString('en-IN')}` : ''
 
   const canonicalUrl = `https://www.meggfashion.in/product/${productId}`
   const description = product.description?.trim()

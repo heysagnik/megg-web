@@ -402,21 +402,15 @@ export async function getSearchFilters(params: SearchParams = {}): Promise<Searc
   return raw.data;
 }
 
-/** Autocomplete suggestions — GET /autocomplete?query=... (min 2 chars) */
+/** Autocomplete suggestions — GET /api/autocomplete?query=... (min 2 chars) */
 export async function getSearchSuggestions(query: string): Promise<SearchSuggestion[]> {
   if (query.trim().length < 2) return [];
-  const raw = await fetchJSON<
-    SearchSuggestion[] |
-    { success: boolean; data: SearchSuggestion[] } |
-    { success: boolean; data: { suggestions: SearchSuggestion[] } }
-  >(`/autocomplete?query=${encodeURIComponent(query)}`);
-  if (Array.isArray(raw)) return raw;
-  if ('data' in raw) {
-    const d = raw.data;
-    if (Array.isArray(d)) return d;
-    if (d && typeof d === 'object' && 'suggestions' in d) return (d as { suggestions: SearchSuggestion[] }).suggestions ?? [];
-  }
-  return [];
+  const res = await fetch(`/api/autocomplete?query=${encodeURIComponent(query)}`, {
+    next: { revalidate: 60 },
+  });
+  if (!res.ok) return [];
+  const data = await res.json();
+  return Array.isArray(data) ? data : [];
 }
 
 // ─── Categories ───────────────────────────────────────────

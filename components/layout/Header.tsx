@@ -277,10 +277,10 @@ export default function Header() {
                 aria-label="Clear search"
                 style={{
                   background: 'none', border: 'none', cursor: 'pointer', padding: '0.25rem',
-                  color: 'var(--color-muted)', fontSize: '0.9rem', lineHeight: 1, flexShrink: 0,
+                  color: 'var(--color-muted)', fontSize: '1rem', lineHeight: 1, flexShrink: 0,
                   display: 'flex', alignItems: 'center',
                 }}
-              >×</button>
+              >✕</button>
             )}
 
             <button
@@ -295,18 +295,7 @@ export default function Header() {
               }}
             >Search</button>
 
-            <button
-              type="button"
-              onClick={closeSearch}
-              tabIndex={searchOpen ? 0 : -1}
-              aria-label="Close search"
-              style={{
-                fontFamily: 'var(--font-sans)', fontSize: '0.625rem', fontWeight: 400,
-                letterSpacing: '0.1em', textTransform: 'uppercase',
-                color: 'var(--color-muted)', background: 'none', border: 'none',
-                cursor: 'pointer', flexShrink: 0, padding: '0.25rem 0',
-              }}
-            >✕</button>
+
           </form>
 
           {/* Suggestions dropdown */}

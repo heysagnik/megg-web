@@ -4,6 +4,15 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { getUnder699, type Product, type AvailableFilters, type SortOption } from '@/lib/api'
 import ProductBrowseLayout, { BROWSE_EMPTY, type BrowseFilters } from '@/components/product/ProductBrowseLayout'
+import { useScrollRestoration } from '@/hooks/useScrollRestoration'
+
+interface CachedBrowseState {
+  products: Product[]
+  total: number
+  hasMore: boolean
+  filters: BrowseFilters
+  avail: AvailableFilters
+}
 
 const PAGE_SIZE = 20
 
@@ -24,6 +33,26 @@ export default function Under699Client({ initialProducts = [], total: initialTot
 
   const sentinelRef = useRef<HTMLDivElement>(null)
   const fetchingRef = useRef(false)
+
+  useScrollRestoration<CachedBrowseState>({
+    key: 'under699',
+    data: {
+      products,
+      total,
+      hasMore,
+      filters,
+      avail,
+    },
+    page,
+    onRestore: useCallback((cached, cachedPage) => {
+      setProducts(cached.products)
+      setTotal(cached.total)
+      setHasMore(cached.hasMore)
+      setFilters(cached.filters)
+      setAvail(cached.avail)
+      setPage(cachedPage)
+    }, []),
+  })
 
   const fetchPage = useCallback(async (pageNum: number, f: BrowseFilters, reset: boolean) => {
     if (fetchingRef.current) return
