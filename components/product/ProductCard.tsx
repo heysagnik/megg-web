@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import type { CSSProperties, MouseEvent, UIEvent } from 'react'
 import type { Product } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
@@ -127,6 +127,13 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
 
   const images = product.images ?? []
   const hasMultiple = images.length > 1
+  const extendedImages = hasMultiple ? [images[images.length - 1], ...images, images[0]] : images
+
+  useEffect(() => {
+    if (hasMultiple && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollLeft = scrollContainerRef.current.clientWidth
+    }
+  }, [hasMultiple])
 
   // ── Handlers ──
 
@@ -148,16 +155,45 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
     }
   }, [images])
 
-  const handleMouseLeave = useCallback(() => {
+  const [isResetting, setIsResetting] = useState(false)
+
+  const resetCard = useCallback(() => {
     setHovered(false)
     isTouchRef.current = false
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({ left: 0, behavior: 'auto' })
+    setImgIdx(0)
+    setIsResetting(true)
+    
+    requestAnimationFrame(() => {
+      if (scrollContainerRef.current) {
+        const targetScroll = hasMultiple ? scrollContainerRef.current.clientWidth : 0
+        scrollContainerRef.current.style.scrollSnapType = 'none'
+        scrollContainerRef.current.scrollTo({ left: targetScroll, behavior: 'instant' } as ScrollToOptions)
+        scrollContainerRef.current.scrollLeft = targetScroll
+      }
+      setTimeout(() => setIsResetting(false), 50)
+    })
+  }, [hasMultiple])
+
+  const handleMouseLeave = useCallback(() => {
+    resetCard()
+  }, [resetCard])
+
+  useEffect(() => {
+    const handleOutsideTouch = (e: TouchEvent) => {
+      if (scrollContainerRef.current && !scrollContainerRef.current.contains(e.target as Node)) {
+        const targetScroll = hasMultiple ? scrollContainerRef.current.clientWidth : 0
+        if (isTouchRef.current || scrollContainerRef.current.scrollLeft !== targetScroll) {
+          resetCard()
+        }
+      }
     }
-  }, [])
+    document.addEventListener('touchstart', handleOutsideTouch, { passive: true })
+    return () => document.removeEventListener('touchstart', handleOutsideTouch)
+  }, [hasMultiple, resetCard])
 
   const handleLeft = useCallback((e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
+    e.preventDefault()
     if (scrollContainerRef.current) {
       const width = scrollContainerRef.current.clientWidth
       scrollContainerRef.current.scrollBy({ left: -width, behavior: 'smooth' })
@@ -166,6 +202,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
 
   const handleRight = useCallback((e: MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation()
+    e.preventDefault()
     if (scrollContainerRef.current) {
       const width = scrollContainerRef.current.clientWidth
       scrollContainerRef.current.scrollBy({ left: width, behavior: 'smooth' })
@@ -174,11 +211,31 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
 
   const handleScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget
-    const idx = Math.round(el.scrollLeft / el.clientWidth)
-    if (idx !== imgIdx) {
-      setImgIdx(idx)
+    const width = el.clientWidth
+    const scrollLeft = el.scrollLeft
+    
+    if (!hasMultiple || width === 0) return
+
+    let realIdx = Math.round(scrollLeft / width) - 1
+    if (realIdx < 0) realIdx = images.length - 1
+    if (realIdx >= images.length) realIdx = 0
+
+    if (realIdx !== imgIdx) {
+      setImgIdx(realIdx)
     }
-  }, [imgIdx])
+
+    if (scrollLeft <= 1) {
+      el.style.scrollSnapType = 'none'
+      el.scrollLeft = images.length * width
+      void el.offsetHeight // force reflow
+      if (!isResetting) el.style.scrollSnapType = 'x mandatory'
+    } else if (scrollLeft >= (extendedImages.length - 1) * width - 1) {
+      el.style.scrollSnapType = 'none'
+      el.scrollLeft = width
+      void el.offsetHeight // force reflow
+      if (!isResetting) el.style.scrollSnapType = 'x mandatory'
+    }
+  }, [images.length, extendedImages.length, imgIdx, hasMultiple, isResetting])
 
   const handleTouchStart = useCallback(() => {
     isTouchRef.current = true
@@ -207,7 +264,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
     height: '100%',
     overflowX: 'auto',
     overflowY: 'hidden',
-    scrollSnapType: 'x mandatory',
+    scrollSnapType: isResetting ? 'none' : 'x mandatory',
     scrollbarWidth: 'none',
     display: 'flex',
     flexDirection: 'row',
@@ -241,29 +298,32 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
           className="hide-scrollbar"
         >
           <style dangerouslySetInnerHTML={{ __html: '.hide-scrollbar::-webkit-scrollbar { display: none; }' }} />
-          {images.slice(0, 5).map((img, i) => (
-            <div key={i} style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start', position: 'relative' }}>
-              <img
-                src={getCdnImageUrl(img, { width: 480, quality: 95 })}
-                srcSet={getProductSrcSet(img)}
-                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                alt={`${product.brand} ${product.name}`}
-                width={480}
-                height={640}
-                loading={isHigh && i === 0 ? 'eager' : 'lazy'}
-                decoding={isHigh && i === 0 ? 'sync' : 'async'}
-                fetchPriority={i === 0 ? fetchPriority : 'auto'}
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                }}
-                draggable={false}
-              />
-            </div>
-          ))}
+          {extendedImages.map((img, i) => {
+            const isClone = hasMultiple && (i === 0 || i === extendedImages.length - 1)
+            return (
+              <div key={i} style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start', position: 'relative' }}>
+                <img
+                  src={getCdnImageUrl(img, { width: 480, quality: 95 })}
+                  srcSet={getProductSrcSet(img)}
+                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                  alt={`${product.brand} ${product.name}`}
+                  width={480}
+                  height={640}
+                  loading={isHigh && !isClone && i === 1 ? 'eager' : 'lazy'}
+                  decoding={isHigh && !isClone && i === 1 ? 'sync' : 'async'}
+                  fetchPriority={!isClone && i === 1 ? fetchPriority : 'auto'}
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                  }}
+                  draggable={false}
+                />
+              </div>
+            )
+          })}
         </div>
 
         {/* Carousel controls — chevrons on hover, dots on touch or hover */}
@@ -276,7 +336,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
               </>
             )}
             {(hovered || isTouchRef.current) && (
-              <DotIndicators count={Math.min(images.length, 5)} active={imgIdx} />
+              <DotIndicators count={images.length} active={imgIdx} />
             )}
           </>
         )}
