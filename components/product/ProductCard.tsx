@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useCallback, useRef } from 'react'
-import type { CSSProperties, MouseEvent, TouchEvent } from 'react'
+import type { CSSProperties, MouseEvent, UIEvent } from 'react'
 import type { Product } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
 import { getCdnImageUrl, getProductSrcSet } from '@/lib/image'
@@ -30,8 +30,6 @@ function ChevronButton({ dir, onClick }: ChevronButtonProps) {
     cursor: 'pointer',
     color: 'var(--color-black)',
     animation: 'card-fade-in 180ms ease both',
-    // Subtle frosted backing so the icon is readable over light images
-    // but kept minimal so it doesn't clash with the card background
     backdropFilter: 'none',
   }
 
@@ -123,31 +121,12 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
   const isHigh = fetchPriority === 'high'
   const [hovered, setHovered] = useState(false)
   const isTouchRef = useRef(false)
-  const [isTouch, setIsTouch] = useState(false)
-  const touchStartXRef = useRef<number | null>(null)
-  const touchStartYRef = useRef<number | null>(null)
+  
   const [imgIdx, setImgIdx] = useState(0)
-  const [slideDir, setSlideDir] = useState<'left' | 'right'>('right')
-  // High-priority cards start visible — no fade-in delay for above-fold images
-  const [imgLoaded, setImgLoaded] = useState(isHigh)
-  const [retrySeed, setRetrySeed] = useState(0)
-  const retryRef = useRef(0)
-
-  const handleImgLoad = useCallback(() => {
-    retryRef.current = 0
-    setImgLoaded(true)
-  }, [])
-
-  const handleImgError = useCallback(() => {
-    if (retryRef.current >= 3) return
-    const delay = 1000 * 2 ** retryRef.current
-    retryRef.current += 1
-    setTimeout(() => setRetrySeed(s => s + 1), delay)
-  }, [])
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
 
   const images = product.images ?? []
   const hasMultiple = images.length > 1
-  const currentSrc = images[imgIdx] ?? null
 
   // ── Handlers ──
 
@@ -170,69 +149,40 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
   }, [images])
 
   const handleMouseLeave = useCallback(() => {
-    if (isTouchRef.current) return
     setHovered(false)
-    setSlideDir('right')
-    setImgIdx(0)
+    isTouchRef.current = false
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTo({ left: 0, behavior: 'auto' })
+    }
   }, [])
 
-  const handleLeft = useCallback(
-    (e: MouseEvent<HTMLButtonElement>) => {
-      e.stopPropagation()
-      retryRef.current = 0
-      setImgLoaded(false)
-      setSlideDir('left')
-      setImgIdx((i) => (i - 1 + images.length) % images.length)
-    },
-    [images.length],
-  )
+  const handleLeft = useCallback((e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+    if (scrollContainerRef.current) {
+      const width = scrollContainerRef.current.clientWidth
+      scrollContainerRef.current.scrollBy({ left: -width, behavior: 'smooth' })
+    }
+  }, [])
 
-  const handleRight = useCallback(
-    (e: MouseEvent<HTMLButtonElement>) => {
-      e.stopPropagation()
-      retryRef.current = 0
-      setImgLoaded(false)
-      setSlideDir('right')
-      setImgIdx((i) => (i + 1) % images.length)
-    },
-    [images.length],
-  )
+  const handleRight = useCallback((e: MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
+    if (scrollContainerRef.current) {
+      const width = scrollContainerRef.current.clientWidth
+      scrollContainerRef.current.scrollBy({ left: width, behavior: 'smooth' })
+    }
+  }, [])
 
-  const handleTouchStart = useCallback((e: TouchEvent) => {
+  const handleScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
+    const el = e.currentTarget
+    const idx = Math.round(el.scrollLeft / el.clientWidth)
+    if (idx !== imgIdx) {
+      setImgIdx(idx)
+    }
+  }, [imgIdx])
+
+  const handleTouchStart = useCallback(() => {
     isTouchRef.current = true
-    setIsTouch(true)
-    touchStartXRef.current = e.touches[0].clientX
-    touchStartYRef.current = e.touches[0].clientY
   }, [])
-
-  const handleTouchEnd = useCallback(
-    (e: TouchEvent) => {
-      if (touchStartXRef.current === null || touchStartYRef.current === null) return
-      const touchEndX = e.changedTouches[0].clientX
-      const touchEndY = e.changedTouches[0].clientY
-      const diffX = touchStartXRef.current - touchEndX
-      const diffY = touchStartYRef.current - touchEndY
-
-      const minSwipeDistance = 50
-      // Check if horizontal swipe is dominant and exceeds minimum distance
-      if (Math.abs(diffX) > minSwipeDistance && Math.abs(diffX) > Math.abs(diffY)) {
-        e.preventDefault()
-        e.stopPropagation()
-        retryRef.current = 0
-        setImgLoaded(false)
-        if (diffX > 0) {
-          setSlideDir('right')
-          setImgIdx((i) => (i + 1) % images.length)
-        } else {
-          setSlideDir('left')
-          setImgIdx((i) => (i - 1 + images.length) % images.length)
-        }
-      }
-      touchStartXRef.current = null
-      touchStartYRef.current = null
-    },
-    [images.length],
-  )
 
   // ── Styles ──
 
@@ -244,12 +194,23 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
     color: 'var(--color-black)',
   }
 
-  const imageAreaStyle: CSSProperties = {
+  const imageWrapperStyle: CSSProperties = {
     position: 'relative',
     width: '100%',
     aspectRatio: '3 / 4',
     background: 'var(--color-gray-50)',
     overflow: 'hidden',
+  }
+
+  const imageAreaStyle: CSSProperties = {
+    width: '100%',
+    height: '100%',
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    scrollSnapType: 'x mandatory',
+    scrollbarWidth: 'none',
+    display: 'flex',
+    flexDirection: 'row',
   }
 
   // ── Render ──
@@ -262,6 +223,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onTouchStart={handleTouchStart}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
@@ -270,48 +232,41 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
       }}
       aria-label={`${product.brand} — ${product.name}`}
     >
-      {/* ── Image Area ── */}
-      <div
-        style={imageAreaStyle}
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
-      >
-        {!isHigh && !imgLoaded && (
-          <div className="skeleton" style={{ position: 'absolute', inset: 0 }} />
-        )}
-        {currentSrc && (
-          <img
-            key={`${imgIdx}-${retrySeed}`}
-            // Serve a 480 px fallback; srcSet lets the browser pick the right size
-            src={getCdnImageUrl(currentSrc, { width: 480, quality: 95 })}
-            srcSet={getProductSrcSet(currentSrc)}
-            // Card occupies ~50 vw on mobile, ~33 vw on tablet, ~25 vw on desktop
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            alt={`${product.brand} ${product.name}`}
-            width={480}
-            height={640}
-            loading={isHigh ? 'eager' : 'lazy'}
-            decoding={isHigh ? 'sync' : 'async'}
-            fetchPriority={fetchPriority}
-            onLoad={handleImgLoad}
-            onError={handleImgError}
-            style={{
-              position: 'absolute',
-              inset: 0,
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              opacity: imgLoaded ? 1 : 0,
-              transition: isHigh ? 'none' : 'opacity 300ms ease',
-              animation: (!isHigh && imgLoaded)
-                ? `${slideDir === 'right' ? 'card-img-in' : 'card-img-in-left'} 280ms cubic-bezier(0.25,0.46,0.45,0.94) both`
-                : 'none',
-            }}
-            draggable={false}
-          />
-        )}
+      {/* ── Image Area Wrapper ── */}
+      <div style={imageWrapperStyle}>
+        <div
+          ref={scrollContainerRef}
+          onScroll={handleScroll}
+          style={imageAreaStyle}
+          className="hide-scrollbar"
+        >
+          <style dangerouslySetInnerHTML={{ __html: '.hide-scrollbar::-webkit-scrollbar { display: none; }' }} />
+          {images.slice(0, 5).map((img, i) => (
+            <div key={i} style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start', position: 'relative' }}>
+              <img
+                src={getCdnImageUrl(img, { width: 480, quality: 95 })}
+                srcSet={getProductSrcSet(img)}
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                alt={`${product.brand} ${product.name}`}
+                width={480}
+                height={640}
+                loading={isHigh && i === 0 ? 'eager' : 'lazy'}
+                decoding={isHigh && i === 0 ? 'sync' : 'async'}
+                fetchPriority={i === 0 ? fetchPriority : 'auto'}
+                style={{
+                  position: 'absolute',
+                  inset: 0,
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                }}
+                draggable={false}
+              />
+            </div>
+          ))}
+        </div>
 
-        {/* Carousel controls — chevrons on hover, dots on hover or touch */}
+        {/* Carousel controls — chevrons on hover, dots on touch or hover */}
         {hasMultiple && (
           <>
             {hovered && (
@@ -320,8 +275,8 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
                 <ChevronButton dir="right" onClick={handleRight} />
               </>
             )}
-            {(hovered || isTouch) && (
-              <DotIndicators count={images.length} active={imgIdx} />
+            {(hovered || isTouchRef.current) && (
+              <DotIndicators count={Math.min(images.length, 5)} active={imgIdx} />
             )}
           </>
         )}
