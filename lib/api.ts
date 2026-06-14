@@ -18,6 +18,8 @@ export interface Product {
   name: string;
   description?: string;
   price: string | number;
+  mrp?: string | number;
+  sizes?: { label: string; available: boolean }[];
   brand: string;
   images: string[];
   category: string;

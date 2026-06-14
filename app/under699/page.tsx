@@ -26,6 +26,8 @@ export const metadata: Metadata = {
   },
 }
 
+import { Suspense } from 'react'
+
 export default async function Under699Page() {
   const data = await getUnder699(1, 20).catch(() => ({
     products: [],
@@ -54,11 +56,13 @@ export default async function Under699Page() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <Under699Client
-        initialProducts={products}
-        total={data.total ?? 0}
-        availableFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}
-      />
+      <Suspense fallback={null}>
+        <Under699Client
+          initialProducts={products}
+          total={data.total ?? 0}
+          availableFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}
+        />
+      </Suspense>
     </>
   )
 }

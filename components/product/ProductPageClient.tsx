@@ -305,6 +305,7 @@ export interface ProductPageClientProps {
 
 export default function ProductPageClient({ product }: ProductPageClientProps) {
   const [activeVariant, setActiveVariant] = useState<ProductVariant | null>(null)
+  const [activeSize, setActiveSize] = useState<string | null>(null)
   const [scrollProgress, setScrollProgress] = useState(0)
   const imgRefs = useRef<(HTMLDivElement | null)[]>([])
 
@@ -330,14 +331,20 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
   const moreFromBrand = product.more_from_brand ?? []
   const recommended = product.recommended ?? []
 
-  const price = typeof product.price === 'number'
-    ? `Rs. ${product.price.toLocaleString('en-IN')}`
-    : formatPrice(product.price)
+  const numericPrice = typeof product.price === 'number' ? product.price : parseFloat(String(product.price || 0));
+  const numericMrp = product.mrp ? (typeof product.mrp === 'number' ? product.mrp : parseFloat(String(product.mrp))) : 0;
+  
+  const hasDiscount = numericMrp > numericPrice;
+  const discountPercent = hasDiscount ? Math.round(((numericMrp - numericPrice) / numericMrp) * 100) : 0;
+
+  const price = `Rs. ${numericPrice.toLocaleString('en-IN')}`;
+  const mrpStr = hasDiscount ? `Rs. ${numericMrp.toLocaleString('en-IN')}` : '';
 
   useEffect(() => {
     window.scrollTo(0, 0)
     setScrollProgress(0)
     setActiveVariant(null)
+    setActiveSize(null)
   }, [product.id])
 
   const setImgRef = useCallback((el: HTMLDivElement | null, i: number) => {
@@ -525,9 +532,24 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
 
             {/* Price + Share */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-sm)' }}>
-              <p style={{ ...T, fontSize: '1.4rem', fontWeight: 500, color: 'var(--color-black)', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em', textTransform: 'none' } as CSSProperties}>
-                {price}
-              </p>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.75rem', flexWrap: 'wrap' }}>
+                <p style={{ ...T, fontSize: '1.4rem', fontWeight: 500, color: 'var(--color-black)', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em', textTransform: 'none' } as CSSProperties}>
+                  {price}
+                </p>
+                {hasDiscount && (
+                  <>
+                    <div style={{ position: 'relative', display: 'inline-block' }}>
+                      <p style={{ ...T, fontSize: '1rem', color: 'var(--color-muted)', fontVariantNumeric: 'tabular-nums', letterSpacing: '-0.01em' } as CSSProperties}>
+                        {mrpStr}
+                      </p>
+                      <div style={{ position: 'absolute', top: '50%', left: '-5%', width: '110%', height: '1.5px', background: 'currentColor', transform: 'rotate(-12deg)', color: 'var(--color-muted)' }} />
+                    </div>
+                    <p style={{ ...T, fontSize: '0.875rem', color: '#ff3e6c', fontWeight: 600, letterSpacing: '0.02em', textTransform: 'uppercase' } as CSSProperties}>
+                      ({discountPercent}% OFF)
+                    </p>
+                  </>
+                )}
+              </div>
               <InlineShareButton name={product.name as string} brand={product.brand as string} price={price} />
             </div>
 
@@ -548,6 +570,49 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
               activeId={activeVariant?.id ?? null}
               onSelect={v => setActiveVariant(prev => prev?.id === v.id ? null : v)}
             />
+
+            {/* Sizes */}
+            {product.sizes && product.sizes.length > 0 && (
+              <div style={{ marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.6rem' }}>
+                  <p style={{ ...T, fontSize: '0.7rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: 'var(--color-muted)' }}>
+                    Sizes
+                  </p>
+                </div>
+                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {product.sizes.map((size, i) => {
+                    const isSelected = activeSize === size.label;
+                    return (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => size.available && setActiveSize(size.label)}
+                      style={{
+                        padding: '0.4rem 0.8rem',
+                        border: isSelected ? '1px solid var(--color-black)' : size.available ? '1px solid var(--color-border-mid)' : '1px dotted var(--color-muted)',
+                        color: isSelected ? 'var(--color-white)' : (size.available ? 'var(--color-black)' : 'var(--color-muted)'),
+                        backgroundColor: isSelected ? 'var(--color-black)' : (size.available ? 'var(--color-surface)' : 'var(--color-surface-2)'),
+                        opacity: size.available ? 1 : 0.6,
+                        ...T,
+                        fontSize: '0.75rem',
+                        fontWeight: size.available ? 500 : 400,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: '2.5rem',
+                        cursor: size.available ? 'pointer' : 'not-allowed',
+                        outline: 'none',
+                        transition: 'all 150ms ease-out'
+                      }}
+                      title={size.available ? `Size ${size.label} is available` : `Size ${size.label} is out of stock`}
+                    >
+                      {size.label}
+                    </button>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
 
             {/* Accordions */}
             {product.description && (
