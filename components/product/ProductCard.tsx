@@ -9,6 +9,9 @@ import { getCdnImageUrl, getProductSrcSet } from '@/lib/image'
 
 // ─── Internal: Chevron Button ──────────────────────────────────────────────────
 
+const CAROUSEL_GAP = 2;
+
+
 interface ChevronButtonProps {
   dir: 'left' | 'right'
   onClick: (e: MouseEvent<HTMLButtonElement>) => void
@@ -131,7 +134,8 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
 
   useEffect(() => {
     if (hasMultiple && scrollContainerRef.current) {
-      scrollContainerRef.current.scrollLeft = scrollContainerRef.current.clientWidth
+      const el = scrollContainerRef.current
+      el.scrollLeft = el.clientWidth + CAROUSEL_GAP
     }
   }, [hasMultiple])
 
@@ -165,7 +169,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
     
     requestAnimationFrame(() => {
       if (scrollContainerRef.current) {
-        const targetScroll = hasMultiple ? scrollContainerRef.current.clientWidth : 0
+        const targetScroll = hasMultiple ? scrollContainerRef.current.clientWidth + CAROUSEL_GAP : 0
         scrollContainerRef.current.style.scrollSnapType = 'none'
         scrollContainerRef.current.scrollTo({ left: targetScroll, behavior: 'instant' } as ScrollToOptions)
         scrollContainerRef.current.scrollLeft = targetScroll
@@ -181,7 +185,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
   useEffect(() => {
     const handleOutsideTouch = (e: TouchEvent) => {
       if (scrollContainerRef.current && !scrollContainerRef.current.contains(e.target as Node)) {
-        const targetScroll = hasMultiple ? scrollContainerRef.current.clientWidth : 0
+        const targetScroll = hasMultiple ? scrollContainerRef.current.clientWidth + CAROUSEL_GAP : 0
         if (isTouchRef.current || scrollContainerRef.current.scrollLeft !== targetScroll) {
           resetCard()
         }
@@ -195,7 +199,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
     e.stopPropagation()
     e.preventDefault()
     if (scrollContainerRef.current) {
-      const width = scrollContainerRef.current.clientWidth
+      const width = scrollContainerRef.current.clientWidth + CAROUSEL_GAP
       scrollContainerRef.current.scrollBy({ left: -width, behavior: 'smooth' })
     }
   }, [])
@@ -204,7 +208,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
     e.stopPropagation()
     e.preventDefault()
     if (scrollContainerRef.current) {
-      const width = scrollContainerRef.current.clientWidth
+      const width = scrollContainerRef.current.clientWidth + CAROUSEL_GAP
       scrollContainerRef.current.scrollBy({ left: width, behavior: 'smooth' })
     }
   }, [])
@@ -212,11 +216,12 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
   const handleScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
     const el = e.currentTarget
     const width = el.clientWidth
+    const snapWidth = width + CAROUSEL_GAP
     const scrollLeft = el.scrollLeft
     
     if (!hasMultiple || width === 0) return
 
-    let realIdx = Math.round(scrollLeft / width) - 1
+    let realIdx = Math.round(scrollLeft / snapWidth) - 1
     if (realIdx < 0) realIdx = images.length - 1
     if (realIdx >= images.length) realIdx = 0
 
@@ -226,12 +231,12 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
 
     if (scrollLeft <= 1) {
       el.style.scrollSnapType = 'none'
-      el.scrollLeft = images.length * width
+      el.scrollLeft = images.length * snapWidth
       void el.offsetHeight // force reflow
       if (!isResetting) el.style.scrollSnapType = 'x mandatory'
-    } else if (scrollLeft >= (extendedImages.length - 1) * width - 1) {
+    } else if (scrollLeft >= (extendedImages.length - 1) * snapWidth - 1) {
       el.style.scrollSnapType = 'none'
-      el.scrollLeft = width
+      el.scrollLeft = snapWidth
       void el.offsetHeight // force reflow
       if (!isResetting) el.style.scrollSnapType = 'x mandatory'
     }
@@ -249,13 +254,13 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
     textTransform: 'uppercase',
     letterSpacing: 'normal',
     color: 'var(--color-black)',
+    outline: 'none',
   }
 
   const imageWrapperStyle: CSSProperties = {
     position: 'relative',
     width: '100%',
     aspectRatio: '3 / 4',
-    background: 'var(--color-gray-50)',
     overflow: 'hidden',
   }
 
@@ -268,6 +273,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
     scrollbarWidth: 'none',
     display: 'flex',
     flexDirection: 'row',
+    gap: `${CAROUSEL_GAP}px`,
   }
 
   // ── Render ──
@@ -301,7 +307,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
           {extendedImages.map((img, i) => {
             const isClone = hasMultiple && (i === 0 || i === extendedImages.length - 1)
             return (
-              <div key={i} style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start', position: 'relative' }}>
+              <div key={i} style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start', position: 'relative', background: 'var(--color-gray-50)' }}>
                 <img
                   src={getCdnImageUrl(img, { width: 480, quality: 95 })}
                   srcSet={getProductSrcSet(img)}
