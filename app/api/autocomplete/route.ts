@@ -1,7 +1,7 @@
 export const runtime = 'edge'
 export const dynamic = 'force-dynamic'
 
-const BASE_URL = 'https://api.megg.workers.dev/api'
+const BASE_URL = 'https://edge.meggfashion.in/api'
 
 const typeMap: Record<string, 'brand' | 'category' | 'subcategory' | 'multi'> = {
   brands: 'brand',

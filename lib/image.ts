@@ -23,7 +23,7 @@ export function getCdnImageUrl(
       q: String(quality),
     })
     if (format) p.set('f', format)
-    return `https://api.megg.workers.dev/api/optimize?${p}`
+    return `https://edge.meggfashion.in/api/optimize?${p}`
   }
 
   // Otherwise, serve the direct R2 URL (blazing fast)

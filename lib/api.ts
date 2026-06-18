@@ -1,9 +1,9 @@
 /* =====================================================
    MEGG API — Typed Fetch Helpers
-   Base URL: https://api.megg.workers.dev/api
+   Base URL: https://edge.meggfashion.in/api
    ===================================================== */
 
-const BASE_URL = 'https://api.megg.workers.dev/api';
+const BASE_URL = 'https://edge.meggfashion.in/api';
 
 // ─── Types ────────────────────────────────────────────────
 

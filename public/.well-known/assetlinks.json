@@ -1,0 +1,16 @@
+[
+  {
+    "relation": [
+      "delegate_permission/common.handle_all_urls",
+      "delegate_permission/common.get_login_creds"
+    ],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.megg.megg",
+      "sha256_cert_fingerprints": [
+        "15:DB:3F:BD:73:0A:5F:34:10:BE:EB:69:00:B2:59:59:1C:3C:00:8B:4A:A2:56:4D:85:90:94:A8:BD:1A:A1:A2",
+        "F6:79:10:69:39:80:5D:93:F2:16:9C:42:D8:99:A1:86:24:83:FA:53:78:D5:87:B7:9E:F6:48:B9:CE:44:FE:22"
+      ]
+    }
+  }
+]

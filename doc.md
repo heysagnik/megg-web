@@ -1,6 +1,6 @@
 # megg-api — endpoint reference
 
-Production base URL: **`https://api.megg.workers.dev`**
+Production base URL: **`https://edge.meggfashion.in`**
 Preview base URL: **`https://megg-api-edge.megg.workers.dev`**
 
 > Both URLs go through the **Cloudflare Worker** (`cloudflare-worker/`),
@@ -13,7 +13,7 @@ Preview base URL: **`https://megg-api-edge.megg.workers.dev`**
 ## 1. Topology
 
 ```
-client ──► api.megg.workers.dev (Worker)
+client ──► edge.meggfashion.in (Worker)
               │
               ├─► routes/* in worker          (90% of traffic)
               │       categories, products, search, reels, daily,
@@ -119,7 +119,7 @@ Change `agent: role === 'admin'` to `agent: true`. Takes effect on next login or
 
 ## 3. Endpoint catalogue
 
-Convention: paths are relative to the base URL (`https://api.megg.workers.dev`).
+Convention: paths are relative to the base URL (`https://edge.meggfashion.in`).
 Auth column: ✅ required, ☑ optional, ⬜ public.
 
 ### 3.1 Auth (proxied to Vercel auth-service)
@@ -333,7 +333,7 @@ auth-service for the proxied paths. Mobile apps don't trigger CORS.
 ### Sign in (mobile Google)
 
 ```bash
-curl -X POST https://api.megg.workers.dev/api/auth/mobile/google \
+curl -X POST https://edge.meggfashion.in/api/auth/mobile/google \
   -H 'Content-Type: application/json' \
   -d '{"idToken":"<google-id-token>"}'
 # → { "success": true, "data": { "user": { "id": "...", "email": "...", "role": "user", "features": { "agent": false } }, "tokens": { "access_token": "...", "refresh_token": "..." }, "session": { ... } } }
@@ -342,26 +342,26 @@ curl -X POST https://api.megg.workers.dev/api/auth/mobile/google \
 ### List products (Shoes, sorted cheapest first)
 
 ```bash
-curl 'https://api.megg.workers.dev/api/products/list?category=Shoes&sort=price_asc&page=1&limit=20'
+curl 'https://edge.meggfashion.in/api/products/list?category=Shoes&sort=price_asc&page=1&limit=20'
 ```
 
 ### Search with hybrid intent extraction
 
 ```bash
-curl 'https://api.megg.workers.dev/api/search?query=nike+air+jordan+red+shoes'
+curl 'https://edge.meggfashion.in/api/search?query=nike+air+jordan+red+shoes'
 ```
 
 ### Add to wishlist
 
 ```bash
-curl -X POST https://api.megg.workers.dev/api/wishlist/<productId> \
+curl -X POST https://edge.meggfashion.in/api/wishlist/<productId> \
   -H "Authorization: Bearer $TOKEN"
 ```
 
 ### Track a click (anonymous)
 
 ```bash
-curl -X POST https://api.megg.workers.dev/api/products/<productId>/click \
+curl -X POST https://edge.meggfashion.in/api/products/<productId>/click \
   -H 'Content-Type: application/json' \
   -d '{"source":"search","session_id":"abc","affiliate_clicked":false}'
 ```
@@ -369,7 +369,7 @@ curl -X POST https://api.megg.workers.dev/api/products/<productId>/click \
 ### Refresh expired access token
 
 ```bash
-curl -X POST https://api.megg.workers.dev/api/auth/refresh \
+curl -X POST https://edge.meggfashion.in/api/auth/refresh \
   -H 'Content-Type: application/json' \
   -d '{"refresh_token":"<refresh>"}'
 ```
@@ -377,7 +377,7 @@ curl -X POST https://api.megg.workers.dev/api/auth/refresh \
 ### Health check
 
 ```bash
-curl https://api.megg.workers.dev/api/health
+curl https://edge.meggfashion.in/api/health
 ```
 
 ### Send a message to the stylist agent

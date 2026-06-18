@@ -6,9 +6,9 @@ import sys
 # ==========================================
 # CONFIGURATION
 # ==========================================
-API_BASE_URL = "https://api.megg.workers.dev/api"
+API_BASE_URL = "https://edge.meggfashion.in/api"
 CDN_BASE_URL = "https://media.meggfashion.in"
-WORKER_PROXY_URL = "https://api.megg.workers.dev/api/optimize"
+WORKER_PROXY_URL = "https://edge.meggfashion.in/api/optimize"
 CONCURRENCY = 20
 
 # Standard sizes used in srcset across the site
