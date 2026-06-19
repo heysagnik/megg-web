@@ -28,7 +28,7 @@ export default async function Image({ params }: Props) {
           // eslint-disable-next-line @next/next/no-img-element
           <img src={imgSrc} alt={product?.name ?? ''} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         ) : (
-          <div style={{ color: '#fff', fontSize: 64, margin: 'auto', letterSpacing: '-2px' }}>MEGG</div>
+          <div style={{ color: '#F3F3F3', fontSize: 64, margin: 'auto', letterSpacing: '-2px' }}>MEGG</div>
         )}
       </div>
     ),
