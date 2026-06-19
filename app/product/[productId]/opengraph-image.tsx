@@ -5,7 +5,7 @@ import { getProduct } from '@/lib/api'
 import { getCdnImageUrl } from '@/lib/image'
 
 export const alt = 'Product image'
-export const size = { width: 1200, height: 630 }
+export const size = { width: 1200, height: 900 }
 export const contentType = 'image/jpeg'
 export const revalidate = 86400
 
@@ -23,7 +23,7 @@ export default async function Image({ params }: Props) {
 
   return new ImageResponse(
     (
-      <div style={{ width: '100%', height: '100%', display: 'flex', background: '#0a0a0a' }}>
+      <div style={{ width: '100%', height: '100%', display: 'flex', background: '#ffffff' }}>
         {imgSrc ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={imgSrc} alt={product?.name ?? ''} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
