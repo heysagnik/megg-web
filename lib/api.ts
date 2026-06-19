@@ -213,16 +213,22 @@ export interface SearchSuggestion {
 
 // ─── Fetch Helper ─────────────────────────────────────────
 
-async function fetchJSON<T>(path: string): Promise<T> {
+async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
   let lastErr: unknown
   for (let attempt = 0; attempt < 2; attempt++) {
     const controller = new AbortController()
     const timer = setTimeout(() => controller.abort(), 15_000)
     try {
-      const res = await fetch(`${BASE_URL}${path}`, {
+      const fetchOptions: RequestInit = {
         next: { revalidate: 60 },
         signal: controller.signal,
-      })
+        ...options,
+      }
+      if (options?.cache === 'no-store' || options?.cache === 'no-cache') {
+        delete (fetchOptions as any).next
+      }
+
+      const res = await fetch(`${BASE_URL}${path}`, fetchOptions)
       // Retry only on server errors / aborts; 4xx is final
       if (!res.ok) {
         if (res.status >= 500 && attempt === 0) {
@@ -462,7 +468,7 @@ export async function getOutfits(page = 1, limit = 20): Promise<Outfit[]> {
   const raw = await fetchJSON<
     { success: boolean; data: Outfit[] } |
     { success: boolean; data: { outfits: Outfit[] }; pagination: unknown }
-  >(`/outfits?page=${page}&limit=${limit}`);
+  >(`/outfits?page=${page}&limit=${limit}`, { cache: 'no-store' });
 
   if ('data' in raw) {
     const d = raw.data;
