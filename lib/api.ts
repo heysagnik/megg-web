@@ -120,94 +120,94 @@ export type SearchSort =
 export type SearchMode = 'hybrid' | 'keyword' | 'browse' | 'empty';
 
 export interface PriceFilterOption {
-  label:    string;
-  value:    string;            // e.g. "under699"
+  label: string;
+  value: string;            // e.g. "under699"
   maxPrice: number | string;
-  count:    number;
+  count: number;
 }
 
 export interface FilterVisibility {
-  showCategories:    boolean;
+  showCategories: boolean;
   showSubcategories: boolean;
-  showColors:        boolean;
-  showBrands:        boolean;
+  showColors: boolean;
+  showBrands: boolean;
 }
 
 export interface SearchFilters {
-  categories:    FilterOption[];
+  categories: FilterOption[];
   subcategories: FilterOption[];
-  colors:        FilterOption[];
-  brands:        FilterOption[];
-  priceRange:    { min: number; max: number };
-  priceFilters:  PriceFilterOption[];
-  visibility:    FilterVisibility;
+  colors: FilterOption[];
+  brands: FilterOption[];
+  priceRange: { min: number; max: number };
+  priceFilters: PriceFilterOption[];
+  visibility: FilterVisibility;
 }
 
 export interface SearchBanner {
-  id:            string;
-  banner_image:  string;
-  link?:         string;
+  id: string;
+  banner_image: string;
+  link?: string;
   display_order?: number;
 }
 
 export interface AppliedFilters {
-  query?:         string;
-  category?:      string | null;
+  query?: string;
+  category?: string | null;
   subcategories?: string[];
-  colors?:        string[];
-  brands?:        string[];
-  sort?:          SearchSort;
+  colors?: string[];
+  brands?: string[];
+  sort?: SearchSort;
   extractedConstraints: { minPrice?: number; maxPrice?: number | string } | null;
-  searchMode:     SearchMode;
+  searchMode: SearchMode;
 }
 
 export interface SuggestedFilters {
-  category?:    string;
+  category?: string;
   subcategory?: string[];
-  colors?:      string[];
-  brands?:      string[];
+  colors?: string[];
+  brands?: string[];
 }
 
 export interface SearchResult {
-  products:         Product[];
-  banners:          SearchBanner[];
-  total:            number;
-  page:             number;
-  limit:            number;
-  totalPages:       number;
-  searchMode:       SearchMode;
-  appliedFilters:   AppliedFilters;
+  products: Product[];
+  banners: SearchBanner[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  searchMode: SearchMode;
+  appliedFilters: AppliedFilters;
   availableFilters: SearchFilters;
   suggestedFilters: SuggestedFilters | null;
 }
 
 export interface SearchParams {
-  query?:        string;
-  page?:         number;
-  limit?:        number;
-  category?:     string;
-  subcategory?:  string | string[];
-  color?:        string | string[];
-  brand?:        string | string[];
-  minPrice?:     number | string;
-  maxPrice?:     number | string;
-  sort?:         SearchSort;
+  query?: string;
+  page?: number;
+  limit?: number;
+  category?: string;
+  subcategory?: string | string[];
+  color?: string | string[];
+  brand?: string | string[];
+  minPrice?: number | string;
+  maxPrice?: number | string;
+  sort?: SearchSort;
 }
 
 export type SuggestionType = 'brand' | 'category' | 'subcategory' | 'multi';
 
 export interface SuggestionFilters {
-  category?:    string;
+  category?: string;
   subcategory?: string;
-  color?:       string;
-  brand?:       string;
+  color?: string;
+  brand?: string;
   [key: string]: string | undefined;
 }
 
 export interface SearchSuggestion {
-  type?:    SuggestionType;
-  value:    string;
-  count?:   number;
+  type?: SuggestionType;
+  value: string;
+  count?: number;
   filters?: SuggestionFilters;
 }
 
@@ -337,10 +337,10 @@ export async function getProduct(productId: string): Promise<ProductDetail> {
   const data = await fetchJSON<{ product: Product } & Omit<ProductDetail, keyof Product>>(`/products/${productId}`);
   return {
     ...data.product,
-    variants:       data.variants,
+    variants: data.variants,
     more_from_brand: data.more_from_brand,
-    recommended:    data.recommended,
-    outfits:        data.outfits,
+    recommended: data.recommended,
+    outfits: data.outfits,
   };
 }
 
@@ -360,6 +360,15 @@ export async function getProductRecommendations(productId: string): Promise<Prod
   return Array.isArray(data) ? data : (data as { products: Product[] }).products ?? [];
 }
 
+/** Fetch multiple products by their IDs concurrently */
+export async function getProductsByIds(productIds: string[]): Promise<ProductDetail[]> {
+  if (!productIds || productIds.length === 0) return [];
+  const results = await Promise.allSettled(productIds.map(id => getProduct(id)));
+  return results
+    .filter((res): res is PromiseFulfilledResult<ProductDetail> => res.status === 'fulfilled')
+    .map(res => res.value);
+}
+
 // ─── Search ───────────────────────────────────────────────
 
 /** Build a URLSearchParams instance, repeating keys for array values. */
@@ -374,16 +383,16 @@ function buildSearchParams(params: SearchParams): URLSearchParams {
     if (Array.isArray(value)) value.forEach(v => v && p.append(key, v));
     else if (value !== '') p.append(key, value);
   };
-  append('query',    params.query);
-  append('page',     params.page);
-  append('limit',    params.limit);
+  append('query', params.query);
+  append('page', params.page);
+  append('limit', params.limit);
   append('category', params.category);
   appendMulti('subcategory', params.subcategory);
-  appendMulti('color',       params.color);
-  appendMulti('brand',       params.brand);
+  appendMulti('color', params.color);
+  appendMulti('brand', params.brand);
   append('minPrice', params.minPrice);
   append('maxPrice', params.maxPrice);
-  append('sort',     params.sort);
+  append('sort', params.sort);
   return p;
 }
 
@@ -459,6 +468,19 @@ export async function getReelsByCategory(category: string): Promise<Reel[]> {
     `/reels/category/${encodeURIComponent(category)}`,
   );
   return Array.isArray(raw) ? raw : (raw as { data: Reel[] }).data ?? [];
+}
+
+/** Single reel — GET /reels/:id (or fallback to getReels) */
+export async function getReel(id: string): Promise<Reel | undefined> {
+  try {
+    const raw = await fetchJSON<{ success: boolean; data: Reel } | Reel>(`/reels/${id}`);
+    const reel = 'data' in raw ? (raw as { data: Reel }).data : raw as Reel;
+    if (reel && reel.id) return reel;
+  } catch (err) {
+    // Ignore error and try fetching all
+  }
+  const allReels = await getReels();
+  return allReels.find(r => r.id === id);
 }
 
 // ─── Outfits ──────────────────────────────────────────────

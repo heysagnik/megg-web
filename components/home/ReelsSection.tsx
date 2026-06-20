@@ -1,10 +1,12 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { getReels, type Reel } from '@/lib/api'
 import { getCdnImageUrl, getCdnVideoUrl } from '@/lib/image'
 
 export default function ReelsSection() {
+  const router = useRouter()
   const [reels, setReels] = useState<Reel[]>([])
   const [playing, setPlaying] = useState<string | null>(null)
   const [loadedReels, setLoadedReels] = useState<Set<string>>(new Set())
@@ -111,6 +113,7 @@ export default function ReelsSection() {
               }}
               onMouseEnter={() => handlePlay(reel.id)}
               onMouseLeave={() => handlePause(reel.id)}
+              onClick={() => router.push(`/reel/${reel.id}`)}
             >
               <div
                 style={{
