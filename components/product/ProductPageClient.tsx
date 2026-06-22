@@ -9,6 +9,21 @@ import ProductCard from '@/components/product/ProductCard'
 import Section from '@/components/ui/Section'
 import SectionHeader from '@/components/ui/SectionHeader'
 
+const API_BASE = 'https://edge.meggfashion.in'
+
+const trackProductClick = async (productId: string, options: { source?: string; affiliateClicked?: boolean } = {}) => {
+  try {
+    await fetch(`${API_BASE}/api/products/${productId}/click`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        source: options.source || 'pdp',
+        affiliate_clicked: options.affiliateClicked ?? false,
+      }),
+    })
+  } catch { /* ignore */ }
+}
+
 const T: CSSProperties = {
   fontFamily: 'var(--font-sans)',
   WebkitFontSmoothing: 'antialiased',
@@ -158,13 +173,23 @@ function InlineShareButton({ name, brand, price }: { name: string; brand: string
 
 // ─── Buy Button ────────────────────────────────────────────────────────────────
 
-function BuyButton({ href }: { href?: string }) {
+function BuyButton({ 
+  href, 
+  onClick 
+}: { 
+  href?: string 
+  onClick?: () => void
+}) {
   const [hovered, setHovered] = useState(false)
   const [pressed, setPressed] = useState(false)
+  const handleClick = () => {
+    onClick?.()
+    if (href) window.open(href, '_blank', 'noopener,noreferrer')
+  }
   return (
     <button
       type="button"
-      onClick={() => href && window.open(href, '_blank', 'noopener,noreferrer')}
+      onClick={handleClick}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => { setHovered(false); setPressed(false) }}
       onMouseDown={() => setPressed(true)}
@@ -345,6 +370,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
     setScrollProgress(0)
     setActiveVariant(null)
     setActiveSize(null)
+    trackProductClick(product.id, { source: 'web-direct' })
   }, [product.id])
 
   const setImgRef = useCallback((el: HTMLDivElement | null, i: number) => {
@@ -637,7 +663,10 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
 
             <div style={{ borderTop: '1px solid var(--color-border-mid)' }} />
 
-            <BuyButton href={product.affiliate_link} />
+            <BuyButton 
+              href={product.affiliate_link} 
+              onClick={() => trackProductClick(product.id, { source: 'web-pdp', affiliateClicked: true })}
+            />
 
             <p style={{ ...T, color: 'var(--color-muted)', textAlign: 'center', fontSize: '0.75rem', marginTop: '0.6rem', textTransform: 'uppercase', letterSpacing: '0.01em', lineHeight: 1.5 }}>
               You&apos;ll be redirected to the brand&apos;s website

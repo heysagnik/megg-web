@@ -131,6 +131,8 @@ export default function Header() {
 
   const toggleSearch = () => setSearchOpen((prev) => !prev)
 
+  if (pathname.startsWith('/reel')) return null;
+
   return (
     <>
       {/* ── Header shell ─────────────────────────────────── */}

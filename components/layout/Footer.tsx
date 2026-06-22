@@ -1,4 +1,7 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 
 /* ─── Data ───────────────────────────────────────────── */
 const SHOP_LINKS = [
@@ -34,6 +37,9 @@ const INFO_LINKS = [
 
 /* ─── Footer ─────────────────────────────────────────── */
 export default function Footer() {
+  const pathname = usePathname()
+  if (pathname.startsWith('/reel')) return null;
+
   return (
     <footer style={{ backgroundColor: '#080808', color: '#fff' }}>
       <style>{`
