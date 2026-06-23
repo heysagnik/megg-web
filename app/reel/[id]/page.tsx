@@ -49,6 +49,7 @@ export default async function ReelPage({ params }: ReelPageProps) {
         brand: p.brand,
         price: typeof p.price === 'string' ? parseFloat(p.price) : p.price,
         image: getCdnImageUrl(p.images?.[0] || '', { width: 200 }),
+        affiliate_link: p.affiliate_link,
       }))}
     />
   )

@@ -20,6 +20,7 @@ interface MobileProduct {
   brand?: string
   price: number
   image: string
+  affiliate_link?: string
 }
 
 interface ReelPlayerProps {
@@ -159,7 +160,7 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
   const mobileProductCard = (p: MobileProduct) => (
     <a
       key={p.id}
-      href={`/product/${p.id}`}
+      href={p.affiliate_link || `/product/${p.id}`}
       target="_blank"
       rel="noopener noreferrer"
       style={{
