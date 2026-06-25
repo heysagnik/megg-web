@@ -1,9 +1,13 @@
 import { ImageResponse } from 'next/og'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 export const size = { width: 180, height: 180 }
 export const contentType = 'image/png'
 
-export default function AppleIcon() {
+export default async function AppleIcon() {
+  const fontData = readFileSync(join(process.cwd(), 'public', 'FuturaCyrillicBook.ttf'))
+
   return new ImageResponse(
     (
       <div
@@ -18,7 +22,7 @@ export default function AppleIcon() {
       >
         <span
           style={{
-            fontFamily: 'serif',
+            fontFamily: '"FuturaCyrillic"',
             fontSize: 110,
             fontWeight: 400,
             color: '#ffffff',
@@ -30,6 +34,16 @@ export default function AppleIcon() {
         </span>
       </div>
     ),
-    { ...size },
+    {
+      ...size,
+      fonts: [
+        {
+          name: 'FuturaCyrillic',
+          data: fontData,
+          style: 'normal',
+          weight: 400,
+        },
+      ],
+    },
   )
 }

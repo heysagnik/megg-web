@@ -1,9 +1,13 @@
 import { ImageResponse } from 'next/og'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 export const size = { width: 32, height: 32 }
 export const contentType = 'image/png'
 
-export default function Icon() {
+export default async function Icon() {
+  const fontData = readFileSync(join(process.cwd(), 'public', 'FuturaCyrillicBook.ttf'))
+
   return new ImageResponse(
     (
       <div
@@ -18,7 +22,7 @@ export default function Icon() {
       >
         <span
           style={{
-            fontFamily: 'serif',
+            fontFamily: '"FuturaCyrillic"',
             fontSize: 20,
             fontWeight: 400,
             color: '#ffffff',
@@ -30,6 +34,16 @@ export default function Icon() {
         </span>
       </div>
     ),
-    { ...size },
+    {
+      ...size,
+      fonts: [
+        {
+          name: 'FuturaCyrillic',
+          data: fontData,
+          style: 'normal',
+          weight: 400,
+        },
+      ],
+    },
   )
 }

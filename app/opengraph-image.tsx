@@ -1,10 +1,14 @@
 import { ImageResponse } from 'next/og'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 export const alt = 'MEGG — Curated Men\'s Fashion India'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/jpeg'
 
-export default function Image() {
+export default async function Image() {
+  const fontData = readFileSync(join(process.cwd(), 'public', 'FuturaCyrillicBook.ttf'))
+
   return new ImageResponse(
     (
       <div
@@ -16,12 +20,13 @@ export default function Image() {
           alignItems: 'center',
           justifyContent: 'center',
           background: '#0a0a0a',
+          fontFamily: '"FuturaCyrillic"',
         }}
       >
         <div
           style={{
             fontSize: 128,
-            fontWeight: 700,
+            fontWeight: 400,
             color: '#ffffff',
             letterSpacing: '-6px',
             lineHeight: 1,
@@ -42,6 +47,16 @@ export default function Image() {
         </div>
       </div>
     ),
-    { ...size },
+    {
+      ...size,
+      fonts: [
+        {
+          name: 'FuturaCyrillic',
+          data: fontData,
+          style: 'normal',
+          weight: 400,
+        },
+      ],
+    },
   )
 }
