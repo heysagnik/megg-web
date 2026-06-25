@@ -7,6 +7,7 @@ import Footer from '@/components/layout/Footer'
 import ProgressBar from '@/components/layout/ProgressBar'
 import AppBottomSheet from '@/components/layout/AppBottomSheet'
 import ScrollRestoration from '@/components/layout/ScrollRestoration'
+import InstagramAppRedirect from '@/components/layout/InstagramAppRedirect'
 
 // ─── Fonts ────────────────────────────────────────────────────────────────────
 // next/font handles subsetting, self-hosting, and zero layout shift automatically.
@@ -186,6 +187,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
       </head>
       <body>
+        <InstagramAppRedirect />
         <ProgressBar />
         <AppBottomSheet />
         <ScrollRestoration />
