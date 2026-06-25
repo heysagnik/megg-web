@@ -50,12 +50,13 @@ const toggleLikeApi = async (reelId: string, like: boolean) => {
 export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlayerProps) {
   const mobileVideoRef = useRef<HTMLVideoElement>(null)
   const desktopVideoRef = useRef<HTMLVideoElement>(null)
+  const mobileProgressRef = useRef<HTMLDivElement>(null)
+  const desktopProgressRef = useRef<HTMLDivElement>(null)
   const [isPaused, setIsPaused] = useState(false)
   const [showPauseIcon, setShowPauseIcon] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
   const [liked, setLiked] = useState(false)
   const [likeCount, setLikeCount] = useState(reel.likes)
-  const [progress, setProgress] = useState(0)
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const viewTrackedRef = useRef(false)
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false)
@@ -91,19 +92,25 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
   }, [])
 
   useEffect(() => {
-    const onTimeUpdate = (e: Event) => {
+    const onTimeUpdateMobile = (e: Event) => {
       const video = e.target as HTMLVideoElement;
-      if (video.duration) {
-        setProgress((video.currentTime / video.duration) * 100)
+      if (video.duration && mobileProgressRef.current) {
+        mobileProgressRef.current.style.width = `${(video.currentTime / video.duration) * 100}%`
+      }
+    }
+    const onTimeUpdateDesktop = (e: Event) => {
+      const video = e.target as HTMLVideoElement;
+      if (video.duration && desktopProgressRef.current) {
+        desktopProgressRef.current.style.width = `${(video.currentTime / video.duration) * 100}%`
       }
     }
     const mVideo = mobileVideoRef.current
     const dVideo = desktopVideoRef.current
-    if (mVideo) mVideo.addEventListener('timeupdate', onTimeUpdate)
-    if (dVideo) dVideo.addEventListener('timeupdate', onTimeUpdate)
+    if (mVideo) mVideo.addEventListener('timeupdate', onTimeUpdateMobile)
+    if (dVideo) dVideo.addEventListener('timeupdate', onTimeUpdateDesktop)
     return () => {
-      if (mVideo) mVideo.removeEventListener('timeupdate', onTimeUpdate)
-      if (dVideo) dVideo.removeEventListener('timeupdate', onTimeUpdate)
+      if (mVideo) mVideo.removeEventListener('timeupdate', onTimeUpdateMobile)
+      if (dVideo) dVideo.removeEventListener('timeupdate', onTimeUpdateDesktop)
     }
   }, [])
 
@@ -178,10 +185,15 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
     return String(n)
   }
 
-  /* ── Shared: progress bar ── */
-  const progressBar = (
+  /* ── Progress bars ── */
+  const mobileProgressBar = (
     <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'rgba(255,255,255,0.2)', zIndex: 20 }}>
-      <div style={{ height: '100%', width: `${progress}%`, background: 'var(--color-white)', transition: 'width 0.1s linear' }} />
+      <div ref={mobileProgressRef} style={{ height: '100%', width: '0%', background: 'var(--color-white)', transition: 'width 0.1s linear' }} />
+    </div>
+  )
+  const desktopProgressBar = (
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '2px', background: 'rgba(255,255,255,0.2)', zIndex: 20 }}>
+      <div ref={desktopProgressRef} style={{ height: '100%', width: '0%', background: 'var(--color-white)', transition: 'width 0.1s linear' }} />
     </div>
   )
 
@@ -256,7 +268,7 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
       <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.05) 18%, transparent 35%, transparent 55%, rgba(0,0,0,0.08) 75%, rgba(0,0,0,0.65) 100%)', pointerEvents: 'none' }} />
       {tapArea}
       {pauseIcon}
-      {progressBar}
+      {mobileProgressBar}
 
       {/* Mobile header */}
       <header style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 15, padding: 'env(safe-area-inset-top, 0px) 1.25rem 0', paddingTop: 'calc(env(safe-area-inset-top, 0px) + 1rem)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -408,7 +420,7 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
           <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.3) 0%, transparent 20%, transparent 80%, rgba(0,0,0,0.4) 100%)', pointerEvents: 'none' }} />
           {tapArea}
           {pauseIcon}
-          {progressBar}
+          {desktopProgressBar}
 
           {/* Desktop header inside video */}
           <header style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 15, padding: '1.25rem 1.25rem 0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -492,9 +504,7 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
           scroll-snap-align: start;
           display: flex;
           height: 96px;
-          background: rgba(255, 255, 255, 0.94);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
+          background: rgba(255, 255, 255, 0.98);
           overflow: hidden;
           border: 1px solid rgba(255, 255, 255, 0.7);
           box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.12);
