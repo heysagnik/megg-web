@@ -3,7 +3,7 @@ import { readFileSync } from 'fs'
 import { join } from 'path'
 
 export const alt = 'MEGG — Curated Men\'s Fashion India'
-export const size = { width: 1200, height: 630 }
+export const size = { width: 1200, height: 1200 }
 export const contentType = 'image/jpeg'
 
 export default async function Image() {
