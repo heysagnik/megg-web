@@ -16,9 +16,6 @@ export async function generateMetadata({ params }: ReelPageProps): Promise<Metad
   return {
     title: `Style Reel — ${reel.category} | MEGG`,
     description: `Watch this style reel featuring the latest trends in ${reel.category}. Shop the look at MEGG.`,
-    openGraph: {
-      images: [reel.thumbnail_url],
-    },
   }
 }
 
