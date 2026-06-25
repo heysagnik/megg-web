@@ -48,7 +48,8 @@ const toggleLikeApi = async (reelId: string, like: boolean) => {
 }
 
 export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlayerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const mobileVideoRef = useRef<HTMLVideoElement>(null)
+  const desktopVideoRef = useRef<HTMLVideoElement>(null)
   const [isPaused, setIsPaused] = useState(false)
   const [showPauseIcon, setShowPauseIcon] = useState(false)
   const [isMuted, setIsMuted] = useState(true)
@@ -59,36 +60,50 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
   const viewTrackedRef = useRef(false)
 
   useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
-    const onTimeUpdate = () => {
+    const onTimeUpdate = (e: Event) => {
+      const video = e.target as HTMLVideoElement;
       if (video.duration) {
         setProgress((video.currentTime / video.duration) * 100)
       }
     }
-    video.addEventListener('timeupdate', onTimeUpdate)
-    return () => video.removeEventListener('timeupdate', onTimeUpdate)
+    const mVideo = mobileVideoRef.current
+    const dVideo = desktopVideoRef.current
+    if (mVideo) mVideo.addEventListener('timeupdate', onTimeUpdate)
+    if (dVideo) dVideo.addEventListener('timeupdate', onTimeUpdate)
+    return () => {
+      if (mVideo) mVideo.removeEventListener('timeupdate', onTimeUpdate)
+      if (dVideo) dVideo.removeEventListener('timeupdate', onTimeUpdate)
+    }
   }, [])
 
   useEffect(() => {
-    const video = videoRef.current
-    if (!video || viewTrackedRef.current) return
     const onPlay = () => {
+      if (viewTrackedRef.current) return
       viewTrackedRef.current = true
       trackView(reel.id)
     }
-    video.addEventListener('play', onPlay)
-    return () => video.removeEventListener('play', onPlay)
+    const mVideo = mobileVideoRef.current
+    const dVideo = desktopVideoRef.current
+    if (mVideo) mVideo.addEventListener('play', onPlay)
+    if (dVideo) dVideo.addEventListener('play', onPlay)
+    return () => {
+      if (mVideo) mVideo.removeEventListener('play', onPlay)
+      if (dVideo) dVideo.removeEventListener('play', onPlay)
+    }
   }, [reel.id])
 
   const togglePlay = useCallback(() => {
-    const video = videoRef.current
-    if (!video) return
-    if (video.paused) {
-      video.play().catch(() => {})
+    const mVideo = mobileVideoRef.current
+    const dVideo = desktopVideoRef.current
+    const isCurrentlyPaused = (window.innerWidth < 768 ? mVideo : dVideo)?.paused
+    
+    if (isCurrentlyPaused) {
+      if (mVideo) mVideo.play().catch(() => {})
+      if (dVideo) dVideo.play().catch(() => {})
       setIsPaused(false)
     } else {
-      video.pause()
+      if (mVideo) mVideo.pause()
+      if (dVideo) dVideo.pause()
       setIsPaused(true)
     }
     setShowPauseIcon(true)
@@ -97,11 +112,13 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
   }, [])
 
   const toggleMute = useCallback(() => {
-    const video = videoRef.current
-    if (!video) return
-    video.muted = !video.muted
-    setIsMuted((m) => !m)
-  }, [])
+    const mVideo = mobileVideoRef.current
+    const dVideo = desktopVideoRef.current
+    const newMuted = !isMuted
+    if (mVideo) mVideo.muted = newMuted
+    if (dVideo) dVideo.muted = newMuted
+    setIsMuted(newMuted)
+  }, [isMuted])
 
   const toggleLike = useCallback(() => {
     const newLiked = !liked
@@ -196,7 +213,7 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
   const mobileView = (
     <div style={{ position: 'relative', width: '100%', height: '100dvh', background: 'var(--color-black)', overflow: 'hidden' }}>
       <video
-        ref={videoRef}
+        ref={mobileVideoRef}
         style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
         src={reel.videoUrl}
         poster={reel.thumbnailUrl}
@@ -264,7 +281,7 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
       <div style={{ flex: '1 1 30%', position: 'relative', minWidth: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000' }}>
         <div style={{ position: 'relative', height: '100%', aspectRatio: '9 / 16', maxHeight: '100%', overflow: 'hidden' }}>
           <video
-            ref={videoRef}
+            ref={desktopVideoRef}
             style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
             src={reel.videoUrl}
             poster={reel.thumbnailUrl}
