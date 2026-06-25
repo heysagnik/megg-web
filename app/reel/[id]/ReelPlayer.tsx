@@ -58,6 +58,37 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
   const [progress, setProgress] = useState(0)
   const pauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const viewTrackedRef = useRef(false)
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false)
+  const touchStartYRef = useRef(0)
+  const touchStartXRef = useRef(0)
+  const sheetTouchStartYRef = useRef(0)
+  const sheetTouchStartXRef = useRef(0)
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartYRef.current = e.touches[0].clientY
+    touchStartXRef.current = e.touches[0].clientX
+  }, [])
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    const deltaY = touchStartYRef.current - e.changedTouches[0].clientY
+    const deltaX = Math.abs(touchStartXRef.current - e.changedTouches[0].clientX)
+    if (deltaY > 50 && deltaY > deltaX) {
+      setIsBottomSheetOpen(true)
+    }
+  }, [])
+
+  const handleSheetTouchStart = useCallback((e: React.TouchEvent) => {
+    sheetTouchStartYRef.current = e.touches[0].clientY
+    sheetTouchStartXRef.current = e.touches[0].clientX
+  }, [])
+
+  const handleSheetTouchEnd = useCallback((e: React.TouchEvent) => {
+    const deltaY = e.changedTouches[0].clientY - sheetTouchStartYRef.current
+    const deltaX = Math.abs(e.changedTouches[0].clientX - sheetTouchStartXRef.current)
+    if (deltaY > 50 && deltaY > deltaX) {
+      setIsBottomSheetOpen(false)
+    }
+  }, [])
 
   useEffect(() => {
     const onTimeUpdate = (e: Event) => {
@@ -180,29 +211,29 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
       href={p.affiliate_link || `/product/${p.id}`}
       target="_blank"
       rel="noopener noreferrer"
-      style={{
-        flexShrink: 0,
-        width: 'clamp(260px, 72vw, 320px)',
-        scrollSnapAlign: 'start',
-        display: 'flex',
-        height: '88px',
-        background: 'rgba(255,255,255,0.95)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        overflow: 'hidden',
-        transition: 'transform 0.2s',
-      }}
+      className="reel-mobile-product-card"
     >
-      <div style={{ width: '88px', height: '100%', flexShrink: 0, background: 'var(--color-gray-50)', overflow: 'hidden' }}>
-        <img src={p.image} alt={p.name} loading="lazy" decoding="async" draggable={false} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+      <div style={{ width: '96px', height: '100%', flexShrink: 0, background: 'var(--color-gray-50)', overflow: 'hidden', position: 'relative' }}>
+        <img
+          src={p.image}
+          alt={p.name}
+          loading="lazy"
+          decoding="async"
+          draggable={false}
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover'
+          }}
+        />
       </div>
-      <div style={{ flex: 1, padding: '0.875rem 1rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.3rem', minWidth: 0, color: 'var(--color-black)' }}>
-        {p.brand && <span style={{ fontSize: '0.55rem', letterSpacing: '0.14em', color: 'var(--color-muted)', fontWeight: 500, lineHeight: 1.2 }}>{p.brand}</span>}
-        <h3 style={{ fontSize: '0.7rem', fontWeight: 500, letterSpacing: '0.06em', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{p.name}</h3>
-        <span style={{ fontSize: '0.7rem', fontWeight: 600, letterSpacing: '0.04em' }}>Rs {p.price.toLocaleString('en-IN')}</span>
+      <div style={{ flex: 1, padding: '0.65rem 0.875rem', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '0.2rem', minWidth: 0, color: 'var(--color-black)' }}>
+        {p.brand && <span style={{ fontSize: '0.625rem', letterSpacing: '0.12em', color: 'var(--color-muted)', fontWeight: 600, lineHeight: 1.2 }}>{p.brand}</span>}
+        <h3 style={{ fontSize: '0.75rem', fontWeight: 500, letterSpacing: '0.04em', lineHeight: 1.3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', margin: 0 }}>{p.name}</h3>
+        <span style={{ fontSize: '0.8rem', fontWeight: 600, letterSpacing: '0.02em', color: 'var(--color-black)' }}>Rs {p.price.toLocaleString('en-IN')}</span>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', paddingRight: '1rem', color: 'var(--color-black)', opacity: 0.3 }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="square"><polyline points="9 18 15 12 9 6" /></svg>
+      <div style={{ display: 'flex', alignItems: 'center', paddingRight: '0.875rem', color: 'var(--color-black)', opacity: 0.6 }}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
       </div>
     </a>
   )
@@ -259,16 +290,100 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
 
       {/* Mobile bottom product carousel */}
       {mobileProducts.length > 0 && (
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 15, paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-          <div style={{ padding: '0 1.25rem 0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.55rem', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{mobileProducts.length} {mobileProducts.length === 1 ? 'product' : 'products'}</span>
-            <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.15)' }} />
+        <div 
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          style={{ position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 15, paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        >
+          {/* Visual indicator for drag/swipe up */}
+          <div 
+            onClick={() => setIsBottomSheetOpen(true)}
+            style={{ padding: '0.5rem 1.25rem 0.75rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}
+          >
+            <div style={{ width: '36px', height: '4px', borderRadius: '2px', background: 'rgba(255,255,255,0.4)', marginBottom: '0.25rem' }} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%' }}>
+              <span style={{ fontSize: '0.55rem', letterSpacing: '0.16em', color: 'rgba(255,255,255,0.6)', fontWeight: 500 }}>{mobileProducts.length} {mobileProducts.length === 1 ? 'product' : 'products'}</span>
+              <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.15)' }} />
+              <span style={{ fontSize: '0.55rem', letterSpacing: '0.08em', color: 'rgba(255,255,255,0.5)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                Swipe up for more
+                <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15" /></svg>
+              </span>
+            </div>
           </div>
-          <div className="reel-product-scroll" style={{ display: 'flex', gap: '0.625rem', overflowX: 'auto', scrollSnapType: 'x mandatory', paddingLeft: '1.25rem', paddingRight: '1.25rem', paddingBottom: '1rem' }}>
+          <div className="reel-product-scroll" style={{ display: 'flex', gap: '0.625rem', overflowX: 'auto', scrollSnapType: 'x mandatory', paddingLeft: '1.25rem', paddingRight: '1.25rem', paddingTop: '0.5rem', paddingBottom: '1rem' }}>
             {mobileProducts.map((p) => mobileProductCard(p))}
           </div>
         </div>
       )}
+
+      {/* Mobile Bottom Sheet Overlay */}
+      {isBottomSheetOpen && (
+        <div 
+          onClick={() => setIsBottomSheetOpen(false)}
+          style={{
+            position: 'absolute',
+            inset: 0,
+            zIndex: 30,
+            background: 'rgba(0, 0, 0, 0.5)',
+            backdropFilter: 'blur(4px)',
+            WebkitBackdropFilter: 'blur(4px)',
+            animation: 'fade-in 0.2s ease-out',
+          }}
+        />
+      )}
+
+      {/* Mobile Bottom Sheet Container */}
+      <div 
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 40,
+          background: 'var(--color-white)',
+          borderTopLeftRadius: '20px',
+          borderTopRightRadius: '20px',
+          height: '70vh',
+          display: 'flex',
+          flexDirection: 'column',
+          transform: isBottomSheetOpen ? 'translateY(0)' : 'translateY(100%)',
+          transition: 'transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
+          color: 'var(--color-black)',
+          boxShadow: '0 -10px 30px rgba(0, 0, 0, 0.3)',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Drag Handle & Header */}
+        <div 
+          onTouchStart={handleSheetTouchStart}
+          onTouchEnd={handleSheetTouchEnd}
+          style={{
+            flexShrink: 0,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            padding: '0.75rem 1.25rem 1rem',
+            borderBottom: '1px solid var(--color-border)',
+            cursor: 'pointer',
+          }}
+          onClick={() => setIsBottomSheetOpen(false)}
+        >
+          <div style={{ width: '40px', height: '4px', borderRadius: '2px', background: 'var(--color-gray-200)', marginBottom: '0.75rem' }} />
+          <div style={{ display: 'flex', width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+            <span style={{ fontSize: '0.75rem', letterSpacing: '0.14em', color: 'var(--color-muted)', fontWeight: 600 }}>Shop the reel</span>
+          </div>
+        </div>
+
+        {/* Scrollable Product Grid */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '1.25rem', scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <style dangerouslySetInnerHTML={{ __html: '.reel-sheet-products::-webkit-scrollbar { display: none; }' }} />
+          <div className="reel-sheet-products" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.25rem 0.875rem' }}>
+            {products.map((product) => (
+              <ProductCard key={product.id} product={product} />
+            ))}
+          </div>
+        </div>
+      </div>
     </div>
   )
 
@@ -354,16 +469,8 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
           `}</style>
           <div className="reel-desktop-products" style={{ padding: '1rem 1.25rem', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.75rem', alignContent: 'start' }}>
             {products.map((product) => (
-              <div key={product.id} className="reel-card-compact" style={{ position: 'relative' }}>
+              <div key={product.id} className="reel-card-compact">
                 <ProductCard product={product} />
-                <a
-                  href={`/product/${product.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  style={{ position: 'absolute', inset: 0, zIndex: 1 }}
-                  aria-label={`Open ${product.name} in new tab`}
-                />
               </div>
             ))}
           </div>
@@ -379,6 +486,29 @@ export default function ReelPlayer({ reel, products, mobileProducts }: ReelPlaye
         .reel-product-scroll::-webkit-scrollbar { display: none; }
         .reel-action-btn { transition: transform 0.15s ease, opacity 0.2s; }
         .reel-action-btn:active { transform: scale(0.88); }
+        .reel-mobile-product-card {
+          flex-shrink: 0;
+          width: clamp(260px, 72vw, 320px);
+          scroll-snap-align: start;
+          display: flex;
+          height: 96px;
+          background: rgba(255, 255, 255, 0.94);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          overflow: hidden;
+          border: 1px solid rgba(255, 255, 255, 0.7);
+          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18), 0 2px 8px rgba(0, 0, 0, 0.12);
+          transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, background-color 0.2s ease;
+        }
+        .reel-mobile-product-card:active {
+          transform: scale(0.96);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.08);
+          background: rgba(255, 255, 255, 0.98);
+        }
+        @keyframes fade-in {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
         @media (max-width: 767px) { .reel-desktop-view { display: none !important; } .reel-mobile-view { display: block !important; } }
         @media (min-width: 768px) { .reel-mobile-view { display: none !important; } .reel-desktop-view { display: flex !important; } }
       `}</style>
