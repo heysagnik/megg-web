@@ -5,12 +5,11 @@ import { useState, useCallback, useRef, useEffect } from 'react'
 import type { CSSProperties, MouseEvent, UIEvent } from 'react'
 import type { Product } from '@/lib/api'
 import { formatPrice } from '@/lib/utils'
-import { getCdnImageUrl, getProductSrcSet } from '@/lib/image'
+import { getCdnImageUrl } from '@/lib/image'
 
 // ─── Internal: Chevron Button ──────────────────────────────────────────────────
 
 const CAROUSEL_GAP = 2;
-
 
 interface ChevronButtonProps {
   dir: 'left' | 'right'
@@ -112,6 +111,48 @@ function DotIndicators({ count, active }: DotIndicatorsProps) {
   )
 }
 
+// ─── Image slot ───────────────────────────────────────────────────────────────
+//
+// Renders a single image inside the carousel slide.
+// - <picture> with AVIF + WebP sources, JPEG <img> fallback.
+// - Width/height attrs match the visual aspect ratio so layout is reserved
+//   before the image loads (no CLS).
+// - Lazy by default, eager + high priority only when `priority` is set AND
+//   this is the very first slide.
+
+interface ProductImageProps {
+  src: string
+  alt: string
+  priority: boolean
+  priorityIndex: number
+  slideIndex: number
+}
+
+function ProductImage({ src, alt, priority, priorityIndex, slideIndex }: ProductImageProps) {
+  const isPrimary = priority && slideIndex === priorityIndex
+  const url = getCdnImageUrl(src)
+
+  return (
+    <img
+      src={url}
+      alt={alt}
+      width={800}
+      height={1066}
+      loading={isPrimary ? 'eager' : 'lazy'}
+      decoding={isPrimary ? 'sync' : 'async'}
+      fetchPriority={isPrimary ? 'high' : 'auto'}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover',
+      }}
+      draggable={false}
+    />
+  )
+}
+
 // ─── ProductCard ───────────────────────────────────────────────────────────────
 
 export interface ProductCardProps {
@@ -124,7 +165,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
   const isHigh = fetchPriority === 'high'
   const [hovered, setHovered] = useState(false)
   const isTouchRef = useRef(false)
-  
+
   const [imgIdx, setImgIdx] = useState(0)
   const scrollContainerRef = useRef<HTMLDivElement>(null)
 
@@ -145,20 +186,6 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
     router.push(`/product/${product.id}`)
   }, [router, product.id])
 
-  const handleMouseEnter = useCallback(() => {
-    if (isTouchRef.current) return
-    setHovered(true)
-    if (images.length > 1 && images[1]) {
-      const link = document.createElement('link')
-      link.rel = 'preload'
-      link.as = 'image'
-      link.href = getCdnImageUrl(images[1], { width: 480, quality: 95 })
-      link.setAttribute('imagesrcset', getProductSrcSet(images[1]))
-      link.setAttribute('imagesizes', '(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw')
-      document.head.appendChild(link)
-    }
-  }, [images])
-
   const [isResetting, setIsResetting] = useState(false)
 
   const resetCard = useCallback(() => {
@@ -166,7 +193,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
     isTouchRef.current = false
     setImgIdx(0)
     setIsResetting(true)
-    
+
     requestAnimationFrame(() => {
       if (scrollContainerRef.current) {
         const targetScroll = hasMultiple ? scrollContainerRef.current.clientWidth + CAROUSEL_GAP : 0
@@ -218,7 +245,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
     const width = el.clientWidth
     const snapWidth = width + CAROUSEL_GAP
     const scrollLeft = el.scrollLeft
-    
+
     if (!hasMultiple || width === 0) return
 
     let realIdx = Math.round(scrollLeft / snapWidth) - 1
@@ -232,18 +259,23 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
     if (scrollLeft <= 1) {
       el.style.scrollSnapType = 'none'
       el.scrollLeft = images.length * snapWidth
-      void el.offsetHeight // force reflow
+      void el.offsetHeight
       if (!isResetting) el.style.scrollSnapType = 'x mandatory'
     } else if (scrollLeft >= (extendedImages.length - 1) * snapWidth - 1) {
       el.style.scrollSnapType = 'none'
       el.scrollLeft = snapWidth
-      void el.offsetHeight // force reflow
+      void el.offsetHeight
       if (!isResetting) el.style.scrollSnapType = 'x mandatory'
     }
   }, [images.length, extendedImages.length, imgIdx, hasMultiple, isResetting])
 
   const handleTouchStart = useCallback(() => {
     isTouchRef.current = true
+  }, [])
+
+  const handleMouseEnter = useCallback(() => {
+    if (isTouchRef.current) return
+    setHovered(true)
   }, [])
 
   // ── Styles ──
@@ -307,32 +339,22 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
           {extendedImages.map((img, i) => {
             const isClone = hasMultiple && (i === 0 || i === extendedImages.length - 1)
             return (
-              <div key={i} style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start', position: 'relative', background: 'var(--color-gray-50)' }}>
-                <img
-                  src={getCdnImageUrl(img, { width: 480, quality: 95 })}
-                  srcSet={getProductSrcSet(img)}
-                  sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              <div
+                key={i}
+                style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start', position: 'relative', background: 'var(--color-gray-50)' }}
+              >
+                <ProductImage
+                  src={img}
                   alt={`${product.brand} ${product.name}`}
-                  width={480}
-                  height={640}
-                  loading={isHigh && !isClone && i === 1 ? 'eager' : 'lazy'}
-                  decoding={isHigh && !isClone && i === 1 ? 'sync' : 'async'}
-                  fetchPriority={!isClone && i === 1 ? fetchPriority : 'auto'}
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover',
-                  }}
-                  draggable={false}
+                  priority={isHigh}
+                  priorityIndex={1}
+                  slideIndex={i}
                 />
               </div>
             )
           })}
         </div>
 
-        {/* Carousel controls — chevrons on hover, dots on touch or hover */}
         {hasMultiple && (
           <>
             {hovered && (

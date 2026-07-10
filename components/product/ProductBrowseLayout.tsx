@@ -78,16 +78,22 @@ function FilterPanel({
   total: number
   onChange: (next: BrowseFilters) => void
 }) {
-  const colors = avail.colors ?? []
-  const brands = avail.brands ?? []
+  const categories    = avail.categories    ?? []
+  const subcategories = avail.subcategories ?? []
+  const colors        = avail.colors        ?? []
+  const brands        = avail.brands        ?? []
 
+  const setCategory = (value: string) =>
+    onChange({ ...filters, subcategory: value })
+  const setSubcategory = (value: string) =>
+    onChange({ ...filters, subcategory: filters.subcategory === value ? '' : value })
   const toggle = (key: 'color' | 'brand', value: string) =>
     onChange({ ...filters, [key]: filters[key] === value ? '' : value })
 
   const setSort = (s: BrowseFilters['sort']) =>
     onChange({ ...filters, sort: s })
 
-  const filterCount = [filters.color, filters.brand, filters.maxPrice != null ? '1' : ''].filter(Boolean).length
+  const filterCount = [filters.subcategory, filters.color, filters.brand, filters.maxPrice != null ? '1' : ''].filter(Boolean).length
   const hasAny = filterCount > 0 || (filters.sort && filters.sort !== 'relevance')
 
   const row: React.CSSProperties = {
@@ -160,6 +166,76 @@ function FilterPanel({
               ))}
             </div>
           </section>
+
+          {/* Subcategory */}
+          {subcategories.length > 0 && (
+            <section style={{ marginBottom: '2rem' }}>
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--color-muted)', marginBottom: '0.75rem' }}>
+                Subcategory
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <button
+                  type="button"
+                  onClick={() => setSubcategory('')}
+                  style={{
+                    ...row,
+                    color: !filters.subcategory ? 'var(--color-black)' : 'var(--color-muted)',
+                    fontWeight: !filters.subcategory ? 500 : 400,
+                    borderBottom: '1px solid var(--color-border)',
+                  }}
+                >
+                  <span>All</span>
+                </button>
+                {subcategories.map(s => (
+                  <button
+                    key={s.name}
+                    type="button"
+                    onClick={() => setSubcategory(s.name)}
+                    style={{
+                      ...row,
+                      color: filters.subcategory === s.name ? 'var(--color-black)' : 'var(--color-muted)',
+                      fontWeight: filters.subcategory === s.name ? 500 : 400,
+                      borderBottom: '1px solid var(--color-border)',
+                    }}
+                  >
+                    <span>{s.name}</span>
+                    <span style={{ fontSize: '0.75rem', color: filters.subcategory === s.name ? 'var(--color-black)' : 'var(--color-muted)' }}>
+                      {filters.subcategory === s.name ? '✓' : s.count}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
+
+          {/* Category (only when more than one) */}
+          {categories.length > 1 && (
+            <section style={{ marginBottom: '2rem' }}>
+              <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.65rem', letterSpacing: '0.15em', textTransform: 'uppercase', color: 'var(--color-muted)', marginBottom: '0.75rem' }}>
+                Category
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
+                {categories.map(c => (
+                  <button
+                    key={c.name}
+                    type="button"
+                    onClick={() => setCategory(c.name)}
+                    style={{
+                      ...row,
+                      color: filters.subcategory === c.name ? 'var(--color-black)' : 'var(--color-muted)',
+                      fontWeight: filters.subcategory === c.name ? 500 : 400,
+                      borderBottom: '1px solid var(--color-border)',
+                    }}
+                  >
+                    <span>{c.name}</span>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--color-muted)' }}>
+                      {c.count}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
 
           {/* Colour */}
           {colors.length > 0 && (
@@ -505,7 +581,13 @@ export default function ProductBrowseLayout({
         <div className="browse-grid">
           {loading && products.length === 0
             ? Array.from({ length: 20 }).map((_, i) => <CardSkeleton key={i} />)
-            : products.map(p => <ProductCard key={p.id} product={p} />)
+            : products.map((p, i) => (
+                <ProductCard
+                  key={p.id}
+                  product={p}
+                  fetchPriority={i === 0 ? 'high' : 'auto'}
+                />
+              ))
           }
           {loading && products.length > 0 &&
             Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={`m${i}`} />)

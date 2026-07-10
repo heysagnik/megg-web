@@ -47,8 +47,12 @@ export default function ProductGrid({
   // ── Populated grid ──
   return (
     <div className={gridClass}>
-      {products.map((product) => (
-        <ProductCard key={product.id} product={product} />
+      {products.map((product, i) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          fetchPriority={i === 0 ? 'high' : 'auto'}
+        />
       ))}
     </div>
   )

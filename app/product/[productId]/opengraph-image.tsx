@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og'
 
 import { getProduct } from '@/lib/api'
 
-import { getCdnImageUrl } from '@/lib/image'
+import { getOptimizedImageUrl } from '@/lib/image'
 
 export const alt = 'Product image'
 export const size = { width: 1200, height: 900 }
@@ -18,7 +18,7 @@ export default async function Image({ params }: Props) {
   const imageUrl = product?.images?.[0] ?? null
 
   const imgSrc = imageUrl
-    ? getCdnImageUrl(imageUrl, { width: 1200, format: 'jpeg' })
+    ? getOptimizedImageUrl(imageUrl, { width: 1200, quality: 82, format: 'jpeg' })
     : null
 
   return new ImageResponse(

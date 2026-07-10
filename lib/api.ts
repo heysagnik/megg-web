@@ -330,10 +330,16 @@ function unwrapPaginated<T>(raw: unknown): T {
 
   if ('data' in r && Array.isArray(r.data)) {
     const meta = (r.meta ?? {}) as Record<string, unknown>;
+    // Hoist meta.search.* to top-level so endpoints that nest
+    // `meta.search.availableFilters` (e.g. unauthed /api/search responses)
+    // are accessible at result.availableFilters like authed responses.
+    const search = (meta.search as Record<string, unknown> | undefined) ?? {};
+    const pagination = (meta.pagination as Record<string, unknown> | undefined) ?? {};
     return {
       products: r.data,
-      ...((meta.pagination as Record<string, unknown> | undefined) ?? {}),
+      ...pagination,
       ...meta,
+      ...search,
     } as unknown as T;
   }
 

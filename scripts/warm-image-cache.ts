@@ -1,24 +1,14 @@
 import { listProducts, type Product, type ProductsResponse } from '../lib/api';
 
-const EDGE_BASE = 'https://edge.meggfashion.in';
 const MEDIA_BASE = 'https://media.meggfashion.in';
-const WIDTHS = [240, 300, 320, 480, 640, 800];
 
 type ReelLite = { id: string; thumbnail_url?: string };
 
-function resolveUrl(src: string): string {
+function resolveMediaUrl(src: string): string {
+  if (!src) return src;
   if (src.startsWith('http')) return src;
   if (src.startsWith('/')) return `${MEDIA_BASE}${src}`;
   return `${MEDIA_BASE}/${src}`;
-}
-
-function buildWarmUrl(src: string, width: number): string {
-  const full = resolveUrl(src);
-  const u = new URL(`${EDGE_BASE}/api/optimize`);
-  u.searchParams.set('url', full);
-  u.searchParams.set('w', String(width));
-  u.searchParams.set('q', '85');
-  return u.toString();
 }
 
 async function fetchAllProducts(): Promise<Product[]> {
@@ -42,7 +32,9 @@ async function fetchReels(): Promise<ReelLite[]> {
     const res = await fetch(`${base}/reels?page=${page}&limit=100`);
     if (!res.ok) break;
     const json: unknown = await res.json();
-    const reels: ReelLite[] = Array.isArray(json) ? (json as ReelLite[]) : (json as { reels?: ReelLite[] }).reels ?? [];
+    const reels: ReelLite[] = Array.isArray(json)
+      ? (json as ReelLite[])
+      : (json as { reels?: ReelLite[] }).reels ?? [];
     if (!reels.length) break;
     out.push(...reels);
     if (reels.length < 100) break;
@@ -63,12 +55,12 @@ async function collectUrls(): Promise<string[]> {
   for (const p of products) {
     for (const img of p.images ?? []) {
       if (!img) continue;
-      for (const w of WIDTHS) set.add(buildWarmUrl(img, w));
+      set.add(resolveMediaUrl(img));
     }
   }
   for (const r of reels) {
     if (!r.thumbnail_url) continue;
-    for (const w of WIDTHS) set.add(buildWarmUrl(r.thumbnail_url, w));
+    set.add(resolveMediaUrl(r.thumbnail_url));
   }
   return Array.from(set);
 }
@@ -85,9 +77,13 @@ async function warmAll(urls: string[], max = 25): Promise<{ ok: number; fail: nu
     }
     inflight++;
     try {
-      await fetch(url);
-      ok++;
-      if (ok % 100 === 0) console.log(`warmed ${ok}/${urls.length}`);
+      const res = await fetch(url, { redirect: 'follow' });
+      if (!res.ok) {
+        fail++;
+      } else {
+        ok++;
+        if (ok % 100 === 0) console.log(`warmed ${ok}/${urls.length}`);
+      }
     } catch {
       fail++;
     } finally {

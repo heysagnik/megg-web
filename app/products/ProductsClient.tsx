@@ -18,25 +18,6 @@ interface CachedBrowseState {
 
 const PAGE_SIZE = 20
 
-const CATEGORIES = [
-  { label: 'All',              slug: '' },
-  { label: 'Shirts',           slug: 'Shirt' },
-  { label: 'T-Shirts',         slug: 'Tshirt' },
-  { label: 'Jeans',            slug: 'Jeans' },
-  { label: 'Shoes',            slug: 'Shoes' },
-  { label: 'Jackets',          slug: 'Jacket' },
-  { label: 'Hoodies',          slug: 'Hoodies' },
-  { label: 'Sweatshirts',      slug: 'Sweatshirt' },
-  { label: 'Sweaters',         slug: 'Sweater' },
-  { label: 'Track Pants',      slug: 'Trackpants' },
-  { label: 'Accessories',      slug: 'Mens Accessories' },
-  { label: 'Innerwear',        slug: 'Innerwear' },
-  { label: 'Traditional',      slug: 'Traditional' },
-  { label: 'Perfume',          slug: 'Perfume' },
-  { label: 'Body Care',        slug: 'Body Care' },
-  { label: 'Daily Essentials', slug: 'Daily Essentials' },
-]
-
 interface Props {
   initialCategory: string
   initialProducts: Product[]
@@ -139,27 +120,112 @@ export default function ProductsClient({
     color: active ? 'var(--color-black)' : 'var(--color-muted)',
   })
 
-  const activeCategory = CATEGORIES.find(c => c.slug === filters.subcategory)
-  const title = activeCategory?.label ?? getCategoryDisplay(filters.subcategory) ?? 'All Products'
+  const activeCategory = avail.categories?.find(c => c.name === filters.subcategory)
+  const title = activeCategory?.name
+    ?? getCategoryDisplay(filters.subcategory)
+    ?? 'All Products'
 
-  const sidebarNav = (
+  const subcats = avail.subcategories ?? []
+  const showCategoriesNav = !filters.subcategory && (avail.categories?.length ?? 0) > 1
+
+  const sidebarNav = showCategoriesNav ? (
     <ul style={{ listStyle: 'none' }}>
-      {CATEGORIES.map((cat, i) => (
-        <li key={cat.slug} style={{ marginBottom: '0.5rem' }}>
+      {(avail.categories ?? []).map((cat, i) => (
+        <li key={cat.name} style={{ marginBottom: '0.5rem' }}>
           <button
             type="button"
-            onClick={() => handleFilterChange({ ...filters, subcategory: cat.slug })}
-            style={navBtn(filters.subcategory === cat.slug)}
+            onClick={() => handleFilterChange({ ...filters, subcategory: cat.name })}
+            style={navBtn(filters.subcategory === cat.name)}
           >
             <span style={{ color: 'var(--color-muted)', fontSize: '0.65rem', marginRight: '0.35rem' }}>
               |{String(i).padStart(2, '0')}|
             </span>
-            {cat.label}
+            {cat.name}
           </button>
         </li>
       ))}
     </ul>
-  )
+  ) : subcats.length > 0 ? (
+    <ul style={{ listStyle: 'none' }}>
+      <li style={{ marginBottom: '0.5rem' }}>
+        <button
+          type="button"
+          onClick={() => handleFilterChange({ ...filters, subcategory: '' })}
+          style={navBtn(!filters.subcategory)}
+        >
+          <span style={{ color: 'var(--color-muted)', fontSize: '0.65rem', marginRight: '0.35rem' }}>|00|</span>
+          All
+        </button>
+      </li>
+      {subcats.map((s, i) => (
+        <li key={s.name} style={{ marginBottom: '0.5rem' }}>
+          <button
+            type="button"
+            onClick={() => handleFilterChange({ ...filters, subcategory: filters.subcategory === s.name ? '' : s.name })}
+            style={navBtn(filters.subcategory === s.name)}
+          >
+            <span style={{ color: 'var(--color-muted)', fontSize: '0.65rem', marginRight: '0.35rem' }}>
+              |{String(i + 1).padStart(2, '0')}|
+            </span>
+            {s.name}
+          </button>
+        </li>
+      ))}
+    </ul>
+  ) : undefined
+
+  const mobileSubcategoryTabs = subcats.length > 0 ? (
+    <>
+      <button
+        type="button"
+        onClick={() => handleFilterChange({ ...filters, subcategory: '' })}
+        style={{
+          ...navBtn(!filters.subcategory),
+          flexShrink: 0, whiteSpace: 'nowrap',
+          padding: '0.7rem 0.875rem',
+          borderBottom: !filters.subcategory ? '2px solid var(--color-black)' : '2px solid transparent',
+          fontSize: '0.7rem', letterSpacing: '0.1em',
+        }}
+      >
+        All
+      </button>
+      {subcats.map(s => (
+        <button
+          key={s.name}
+          type="button"
+          onClick={() => handleFilterChange({ ...filters, subcategory: filters.subcategory === s.name ? '' : s.name })}
+          style={{
+            ...navBtn(filters.subcategory === s.name),
+            flexShrink: 0, whiteSpace: 'nowrap',
+            padding: '0.7rem 0.875rem',
+            borderBottom: filters.subcategory === s.name ? '2px solid var(--color-black)' : '2px solid transparent',
+            fontSize: '0.7rem', letterSpacing: '0.1em',
+          }}
+        >
+          {s.name}
+        </button>
+      ))}
+    </>
+  ) : (showCategoriesNav ? (
+    <>
+      {(avail.categories ?? []).map(c => (
+        <button
+          key={c.name}
+          type="button"
+          onClick={() => handleFilterChange({ ...filters, subcategory: c.name })}
+          style={{
+            ...navBtn(filters.subcategory === c.name),
+            flexShrink: 0, whiteSpace: 'nowrap',
+            padding: '0.7rem 0.875rem',
+            borderBottom: filters.subcategory === c.name ? '2px solid var(--color-black)' : '2px solid transparent',
+            fontSize: '0.7rem', letterSpacing: '0.1em',
+          }}
+        >
+          {c.name}
+        </button>
+      ))}
+    </>
+  ) : undefined)
 
   const crumb = (
     <div>
