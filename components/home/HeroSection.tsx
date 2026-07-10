@@ -106,7 +106,8 @@ export default function HeroSection() {
               muted
               loop
               playsInline
-              preload={idx === 0 ? 'metadata' : 'none'}
+              preload="none"
+              poster={`https://media.meggfashion.in/${src}.jpg`}
               aria-label={`MEGG curated fashion editorial ${idx === 0 ? 'left' : 'right'} panel`}
               style={{
                 position: 'absolute',

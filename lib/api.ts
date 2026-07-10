@@ -261,7 +261,7 @@ const HEADERS: Readonly<Record<string, string>> = Object.freeze({
   'X-API-Version': '2',
 });
 
-async function fetchJSON<T>(path: string, { revalidate = 60, ...rest }: FetchOptions = {}): Promise<T> {
+async function fetchJSON<T>(path: string, { revalidate = 600, ...rest }: FetchOptions = {}): Promise<T> {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 15_000);
 
@@ -536,7 +536,7 @@ export async function getReel(id: string): Promise<Reel | undefined> {
 export async function getOutfits(page = 1, limit = 20, scope: ScopeParams = {}): Promise<Outfit[]> {
   const p = qs({ page, limit, gender: scope.gender });
   // Outfits are dynamic — disable caching so updates flow fast without rollbacks
-  const raw = unwrap<{ outfits?: Outfit[] } | Outfit[]>(await fetchJSON(`/outfits?${p}`, { revalidate: false }));
+  const raw = unwrap<{ outfits?: Outfit[] } | Outfit[]>(await fetchJSON(`/outfits?${p}`, { revalidate: 120 }));
   return Array.isArray(raw) ? raw : (raw?.outfits ?? []);
 }
 
@@ -561,7 +561,7 @@ export async function getOffers(): Promise<Offer[]> {
 
 /** Daily drops — GET /daily */
 export async function getDailyDrops(): Promise<DailyDrop[]> {
-  return unwrap<{ daily?: DailyDrop[] }>(await fetchJSON('/daily', { revalidate: false }))?.daily ?? [];
+  return unwrap<{ daily?: DailyDrop[] }>(await fetchJSON('/daily', { revalidate: 120 }))?.daily ?? [];
 }
 
 // ─── Wishlist ─────────────────────────────────────────────

@@ -151,7 +151,7 @@ export default function ReelsSection() {
                 {/* Video — autoplay on hover */}
                 {loadedReels.has(reel.id) && (
                   <video
-                    ref={(el) => { 
+                    ref={(el) => {
                       videoRefs.current[reel.id] = el
                       if (el && isPlaying) el.play().catch(() => {})
                     }}

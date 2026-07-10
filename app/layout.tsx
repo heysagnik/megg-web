@@ -171,17 +171,16 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/logo.png" />
         <link rel="manifest" href="/manifest.json" />
-        {/* Preload the custom font — eliminates FOUT and helps CLS score */}
         <link
           rel="preload"
           href="/FuturaCyrillicBook.ttf"
           as="font"
           type="font/ttf"
           crossOrigin="anonymous"
+          fetchPriority="low"
         />
-        {/* Preconnect to CDNs — saves 100–200ms per origin */}
+        <link rel="preconnect" href="https://edge.meggfashion.in" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://media.meggfashion.in" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://res.cloudinary.com" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://cloud.umami.is" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />

@@ -8,7 +8,7 @@ export type CdnImageOptions = {
 
 export function getCdnImageUrl(
   src: string,
-  { width = 1080, height, quality = 90, format, forceOptimization }: CdnImageOptions = {},
+  { width = 1080, height, quality = 85, format, forceOptimization }: CdnImageOptions = {},
 ): string {
   if (!src) return src
 
@@ -20,15 +20,15 @@ export function getCdnImageUrl(
     url: fullUrl,
     w: String(width),
     q: String(quality),
+    f: format ?? 'webp',
   })
   if (height) p.set('h', String(height))
-  if (format) p.set('f', format)
   if (forceOptimization) p.set('o', '1')
 
   return `https://edge.meggfashion.in/api/optimize?${p}`
 }
 
-export function getProductSrcSet(src: string, quality = 90): string {
+export function getProductSrcSet(src: string, quality = 85): string {
   return [320, 480, 640, 800]
     .map(w => `${getCdnImageUrl(src, { width: w, quality })} ${w}w`)
     .join(', ')
