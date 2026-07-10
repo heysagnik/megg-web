@@ -38,15 +38,20 @@ function transform(raw: unknown) {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
   const query = searchParams.get('q') || searchParams.get('query') || ''
+  const gender = searchParams.get('gender') === 'women' ? 'women' : 'men'
 
   if (query.trim().length < 2) {
     return Response.json([], { headers: { 'Cache-Control': 'public, max-age=60' } })
   }
 
+  const params = new URLSearchParams({ query, gender })
+  const upstream = `${BASE_URL}/autocomplete?${params}`
+
   try {
-    const res = await fetch(`${BASE_URL}/autocomplete?query=${encodeURIComponent(query)}`, {
+    const res = await fetch(upstream, {
       signal: AbortSignal.timeout(3000),
-      headers: { 'Accept': 'application/json' },
+      headers: { 'Accept': 'application/json', 'X-API-Version': '2' },
+      next: { revalidate: 60 },
     })
 
     if (!res.ok) {

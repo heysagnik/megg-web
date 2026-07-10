@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getUnder699 } from '@/lib/api'
+import { getUnder699, genderFromSearchParams, type Gender } from '@/lib/api'
 import Under699Client from './Under699Client'
 
 export const metadata: Metadata = {
@@ -28,8 +28,14 @@ export const metadata: Metadata = {
 
 import { Suspense } from 'react'
 
-export default async function Under699Page() {
-  const data = await getUnder699(1, 20).catch(() => ({
+interface Props {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function Under699Page({ searchParams }: Props) {
+  const sp = await searchParams;
+  const gender: Gender = genderFromSearchParams(sp);
+  const data = await getUnder699(1, 20, undefined, undefined, { gender }).catch(() => ({
     products: [],
     total: 0,
     availableFilters: { subcategories: [], colors: [], brands: [], categories: [] },

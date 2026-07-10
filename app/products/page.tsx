@@ -1,15 +1,17 @@
 import type { Metadata } from 'next'
-import { listProducts } from '@/lib/api'
+import { listProducts, genderFromSearchParams, type Gender } from '@/lib/api'
 import { getCategoryDisplay } from '@/lib/utils'
 import ProductsClient from './ProductsClient'
 
 interface Props {
-  searchParams: Promise<{ category?: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const { category = '' } = await searchParams
+  const sp = await searchParams
   const url = 'https://www.meggfashion.in/products'
+  const rawCategory = sp.category
+  const category = typeof rawCategory === 'string' ? rawCategory : ''
 
   if (category) {
     const name = getCategoryDisplay(category)
@@ -49,9 +51,11 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function ProductsPage({ searchParams }: Props) {
-  const { category = '' } = await searchParams
+  const sp = await searchParams
+  const category = typeof sp.category === 'string' ? sp.category : ''
+  const gender: Gender = genderFromSearchParams(sp);
 
-  const data = await listProducts({ page: 1, limit: 20, category: category || undefined }).catch(() => ({
+  const data = await listProducts({ page: 1, limit: 20, category: category || undefined, gender }).catch(() => ({
     products: [],
     total: 0,
     availableFilters: { subcategories: [], colors: [], brands: [], categories: [] },

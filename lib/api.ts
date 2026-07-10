@@ -5,6 +5,8 @@
 
 const BASE_URL = 'https://edge.meggfashion.in/api';
 
+export type Gender = 'men' | 'women';
+
 // ─── Types ────────────────────────────────────────────────
 
 export interface ProductVariant {
@@ -211,52 +213,15 @@ export interface SearchSuggestion {
   filters?: SuggestionFilters;
 }
 
-// ─── Fetch Helper ─────────────────────────────────────────
+// ─── Request shaped params ───────────────────────────────────
 
-async function fetchJSON<T>(path: string, options?: RequestInit): Promise<T> {
-  let lastErr: unknown
-  for (let attempt = 0; attempt < 2; attempt++) {
-    const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), 15_000)
-    try {
-      const fetchOptions: RequestInit = {
-        next: { revalidate: 60 },
-        signal: controller.signal,
-        ...options,
-      }
-      if (options?.cache === 'no-store' || options?.cache === 'no-cache') {
-        delete (fetchOptions as any).next
-      }
-
-      const res = await fetch(`${BASE_URL}${path}`, fetchOptions)
-      // Retry only on server errors / aborts; 4xx is final
-      if (!res.ok) {
-        if (res.status >= 500 && attempt === 0) {
-          lastErr = new Error(`API error ${res.status}: ${path}`)
-          continue
-        }
-        throw new Error(`API error ${res.status}: ${path}`)
-      }
-      return res.json() as Promise<T>
-    } catch (err) {
-      lastErr = err
-      if (attempt === 0) {
-        await new Promise((r) => setTimeout(r, 200))
-        continue
-      }
-      throw err
-    } finally {
-      clearTimeout(timer)
-    }
-  }
-  throw lastErr ?? new Error(`API request failed: ${path}`)
+/** Common shaped params for listing endpoints — gender is the discriminator. */
+export interface ScopeParams {
+  gender?: Gender;
 }
 
-// ─── Products ─────────────────────────────────────────────
-
-export type SortOption = 'price_asc' | 'price_desc' | 'newest' | 'popular';
-
-export interface ListParams {
+// Extends ScopeParams on every typed list input.
+export interface ListParams extends ScopeParams {
   page?: number;
   limit?: number;
   category?: string;
@@ -268,6 +233,116 @@ export interface ListParams {
   maxPrice?: number;
 }
 
+// ─── Fetch primitives ────────────────────────────────────
+
+/**
+ * Build URL search params from a flat record, omitting empty values.
+ * Single utility so every endpoint serialises identically.
+ */
+function qs(params: Record<string, string | number | null | undefined>): URLSearchParams {
+  const p = new URLSearchParams();
+  for (const [k, v] of Object.entries(params)) {
+    if (v == null || v === '') continue;
+    p.set(k, String(v));
+  }
+  return p;
+}
+
+interface FetchOptions extends RequestInit {
+  /** ISR revalidate in seconds. 0 / 'no-store' disables caching. Default 60s. */
+  revalidate?: number | false;
+}
+
+/**
+ * Header bag applied to every outbound request.
+ * Single source of truth — changed in one place if the backend tightens.
+ */
+const HEADERS: Readonly<Record<string, string>> = Object.freeze({
+  'X-API-Version': '2',
+});
+
+async function fetchJSON<T>(path: string, { revalidate = 60, ...rest }: FetchOptions = {}): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 15_000);
+
+  const fetchOptions: RequestInit = {
+    ...rest,
+    headers: { ...HEADERS, ...(rest.headers ?? {}) },
+    signal: controller.signal,
+  };
+
+  if (rest.cache === 'no-store' || rest.cache === 'no-cache') {
+    fetchOptions.cache = rest.cache;
+  } else if (revalidate === false) {
+    fetchOptions.cache = 'no-store';
+  } else {
+    (fetchOptions as any).next = { revalidate, ...((rest as any).next ?? {}) };
+  }
+
+  try {
+    return await fetch(`${BASE_URL}${path}`, fetchOptions).then(async (res) => {
+      if (!res.ok) throw new Error(`API ${res.status}: ${path}`);
+      return res.json() as Promise<T>;
+    });
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * Unwrap the response envelope. Tolerant to either shape:
+ *  - Envelope: { success, data, meta }      <- preferred
+ *  - Legacy:   { success, data }
+ *  - Naked:    T                              <- fallback for plain arrays/objects
+ *
+ * Accept-only when `success === true`; surface the API's error otherwise.
+ */
+function unwrap<T>(raw: unknown): T {
+  if (raw == null) return raw as T;
+  if (typeof raw !== 'object') return raw as T;
+
+  const r = raw as { success?: unknown; data?: unknown; error?: { message?: string } };
+
+  if ('success' in r && r.success === false) {
+    throw new Error(r.error?.message ?? 'API error');
+  }
+
+  if ('data' in r && typeof r.data !== 'undefined') {
+    return r.data as T;
+  }
+
+  return raw as T;
+}
+
+function unwrapPaginated<T>(raw: unknown): T {
+  if (raw == null) return raw as T;
+  if (typeof raw !== 'object') return raw as T;
+
+  const r = raw as { success?: unknown; data?: unknown; error?: { message?: string }, meta?: any };
+
+  if ('success' in r && r.success === false) {
+    throw new Error(r.error?.message ?? 'API error');
+  }
+
+  if ('data' in r && Array.isArray(r.data)) {
+    return {
+      products: r.data,
+      ...(r.meta?.pagination || {}),
+      ...(r.meta || {})
+    } as unknown as T;
+  }
+
+  if ('data' in r && typeof r.data !== 'undefined') {
+    return r.data as T;
+  }
+
+  return raw as T;
+}
+
+// ─── Products ─────────────────────────────────────────────
+
+export type SortOption = 'price_asc' | 'price_desc' | 'newest' | 'popular';
+
 /** Product listing — GET /products/list */
 export async function getProducts(
   page = 1,
@@ -275,261 +350,218 @@ export async function getProducts(
   category?: string,
   subcategory?: string,
   sort?: SortOption,
+  scope: ScopeParams = {},
 ): Promise<ProductsResponse> {
-  return listProducts({ page, limit, category, subcategory, sort });
+  return listProducts({ page, limit, category, subcategory, sort, ...scope });
 }
 
 /** Full-featured product listing with all filter params */
 export async function listProducts(params: ListParams): Promise<ProductsResponse> {
-  const p = new URLSearchParams({ page: String(params.page ?? 1), limit: String(params.limit ?? 20) });
-  if (params.category) p.set('category', params.category);
-  if (params.subcategory) p.set('subcategory', params.subcategory);
-  if (params.sort) p.set('sort', params.sort);
-  if (params.brand) p.set('brand', params.brand);
-  if (params.color) p.set('color', params.color);
-  if (params.minPrice != null) p.set('minPrice', String(params.minPrice));
-  if (params.maxPrice != null) p.set('maxPrice', String(params.maxPrice));
-  return fetchJSON<ProductsResponse>(`/products/list?${p}`);
+  const path = `/products/list?${qs({
+    page: params.page ?? 1,
+    limit: params.limit ?? 20,
+    category: params.category,
+    subcategory: params.subcategory,
+    sort: params.sort,
+    brand: params.brand,
+    color: params.color,
+    minPrice: params.minPrice,
+    maxPrice: params.maxPrice,
+    gender: params.gender,
+  })}`;
+  return unwrapPaginated<ProductsResponse>(await fetchJSON(path));
 }
 
-/** @deprecated use getProducts with category param */
-export async function browseCategory(
-  category: string,
-  page = 1,
-  limit = 20,
-  subcategory?: string,
-  sort?: SortOption,
-): Promise<ProductsResponse> {
-  return getProducts(page, limit, category, subcategory, sort);
+/** @deprecated use listProducts with category param */
+export const browseCategory = (category: string, page = 1, limit = 20, subcategory?: string, sort?: SortOption, scope: ScopeParams = {}) =>
+  getProducts(page, limit, category, subcategory, sort, scope);
+
+/** New arrivals — GET /products/new-arrivals */
+export async function getNewArrivals(page = 1, limit = 20, scope: ScopeParams = {}): Promise<ProductsResponse> {
+  const path = `/products/new-arrivals?${qs({ page, limit, gender: scope.gender })}`;
+  return unwrapPaginated<ProductsResponse>(await fetchJSON(path));
 }
 
-/** New arrivals — GET /products/new-arrivals → {success, data: Product[]} */
-export async function getNewArrivals(
-  page = 1,
-  limit = 20,
-): Promise<ProductsResponse> {
-  const raw = await fetchJSON<
-    { success: boolean; data: Product[] } |
-    { products: Product[]; total?: number }
-  >(`/products/new-arrivals?page=${page}&limit=${limit}`);
-
-  if ('data' in raw && Array.isArray(raw.data)) {
-    return { products: raw.data, page, limit };
-  }
-  return raw as ProductsResponse;
-}
-
-/** Budget products — GET /products/under699 (supports category + sort) */
+/** Budget products — GET /products/under699 */
 export async function getUnder699(
   page = 1,
   limit = 20,
   category?: string,
   sort?: SortOption,
+  scope: ScopeParams = {},
 ): Promise<ProductsResponse> {
-  const p = new URLSearchParams({ page: String(page), limit: String(limit) });
-  if (category) p.set('category', category);
-  if (sort) p.set('sort', sort);
-  return fetchJSON<ProductsResponse>(`/products/under699?${p}`);
+  const path = `/products/under699?${qs({ page, limit, category, sort, gender: scope.gender })}`;
+  return unwrapPaginated<ProductsResponse>(await fetchJSON(path));
 }
 
-/** Single product with variants, recommendations — GET /products/:id */
+/** Single product — GET /products/:id */
 export async function getProduct(productId: string): Promise<ProductDetail> {
-  const data = await fetchJSON<{ product: Product } & Omit<ProductDetail, keyof Product>>(`/products/${productId}`);
+  const data = await fetchJSON<unknown>(`/products/${productId}`);
+  const d = unwrap<{ product: Product } & Omit<ProductDetail, keyof Product>>(data);
   return {
-    ...data.product,
-    variants: data.variants,
-    more_from_brand: data.more_from_brand,
-    recommended: data.recommended,
-    outfits: data.outfits,
+    ...d.product,
+    variants: d.variants,
+    more_from_brand: d.more_from_brand,
+    recommended: d.recommended,
+    outfits: d.outfits,
   };
 }
 
 /** Related products — GET /products/:id/related */
 export async function getRelatedProducts(productId: string): Promise<Product[]> {
-  const data = await fetchJSON<Product[] | { products: Product[] }>(
-    `/products/${productId}/related`,
-  );
-  return Array.isArray(data) ? data : (data as { products: Product[] }).products ?? [];
+  const data = await fetchJSON<unknown>(`/products/${productId}/related`);
+  return unwrap<Product[]>(data);
 }
 
 /** Recommendations — GET /products/:id/recommendations */
 export async function getProductRecommendations(productId: string): Promise<Product[]> {
-  const data = await fetchJSON<Product[] | { products: Product[] }>(
-    `/products/${productId}/recommendations`,
-  );
-  return Array.isArray(data) ? data : (data as { products: Product[] }).products ?? [];
+  const data = await fetchJSON<unknown>(`/products/${productId}/recommendations`);
+  return unwrap<Product[]>(data);
 }
 
-/** Fetch multiple products by their IDs concurrently */
+/** Fetch multiple products concurrently */
 export async function getProductsByIds(productIds: string[]): Promise<ProductDetail[]> {
-  if (!productIds || productIds.length === 0) return [];
-  const results = await Promise.allSettled(productIds.map(id => getProduct(id)));
-  return results
-    .filter((res): res is PromiseFulfilledResult<ProductDetail> => res.status === 'fulfilled')
-    .map(res => res.value);
+  if (!productIds?.length) return [];
+  const settled = await Promise.allSettled(productIds.map((id) => getProduct(id)));
+  return settled
+    .filter((r): r is PromiseFulfilledResult<ProductDetail> => r.status === 'fulfilled')
+    .map((r) => r.value);
 }
 
 // ─── Search ───────────────────────────────────────────────
 
-/** Build a URLSearchParams instance, repeating keys for array values. */
-function buildSearchParams(params: SearchParams): URLSearchParams {
+function appendMulti(p: URLSearchParams, key: string, value: string | string[] | undefined) {
+  if (value == null) return;
+  if (Array.isArray(value)) value.forEach((v) => v && p.append(key, v));
+  else if (value !== '') p.append(key, value);
+}
+
+function buildSearchParams(params: SearchParams & ScopeParams): URLSearchParams {
   const p = new URLSearchParams();
-  const append = (key: string, value: string | number | undefined | null) => {
-    if (value == null || value === '') return;
-    p.append(key, String(value));
-  };
-  const appendMulti = (key: string, value: string | string[] | undefined) => {
-    if (value == null) return;
-    if (Array.isArray(value)) value.forEach(v => v && p.append(key, v));
-    else if (value !== '') p.append(key, value);
-  };
-  append('query', params.query);
-  append('page', params.page);
-  append('limit', params.limit);
-  append('category', params.category);
-  appendMulti('subcategory', params.subcategory);
-  appendMulti('color', params.color);
-  appendMulti('brand', params.brand);
-  append('minPrice', params.minPrice);
-  append('maxPrice', params.maxPrice);
-  append('sort', params.sort);
+  for (const [k, v] of Object.entries({
+    query: params.query,
+    page: params.page,
+    limit: params.limit,
+    category: params.category,
+    minPrice: params.minPrice,
+    maxPrice: params.maxPrice,
+    sort: params.sort,
+    gender: params.gender,
+  })) {
+    if (v == null || v === '') continue;
+    p.set(k, String(v));
+  }
+  appendMulti(p, 'subcategory', params.subcategory);
+  appendMulti(p, 'color', params.color);
+  appendMulti(p, 'brand', params.brand);
   return p;
 }
 
 /** Full-text search — GET /search */
-export async function searchProducts(params: SearchParams): Promise<SearchResult> {
-  const p = buildSearchParams(params);
-  const raw = await fetchJSON<{ success: boolean; data: SearchResult }>(`/search?${p}`);
-  return raw.data;
+export async function searchProducts(params: SearchParams & ScopeParams): Promise<SearchResult> {
+  return unwrapPaginated<SearchResult>(await fetchJSON(`/search?${buildSearchParams(params)}`));
 }
 
-/** Same as searchProducts, but accepts a prebuilt URLSearchParams (e.g. from the URL). */
+/** Search via pre-built URLSearchParams (e.g. URL state in the hook). */
 export async function searchProductsRaw(params: URLSearchParams): Promise<SearchResult> {
-  const raw = await fetchJSON<{ success: boolean; data: SearchResult }>(`/search?${params}`);
-  return raw.data;
+  return unwrapPaginated<SearchResult>(await fetchJSON(`/search?${params}`));
 }
 
-/** Search filters — GET /search/filters (accepts the same filter params as /search) */
-export async function getSearchFilters(params: SearchParams = {}): Promise<SearchFilters> {
+/** Search filters — GET /search/filters */
+export async function getSearchFilters(params: SearchParams & ScopeParams = {}): Promise<SearchFilters> {
   const p = buildSearchParams(params);
   const qs = p.toString();
-  const raw = await fetchJSON<{ success: boolean; data: SearchFilters }>(
-    `/search/filters${qs ? `?${qs}` : ''}`,
-  );
-  return raw.data;
+  return unwrap<SearchFilters>(await fetchJSON(`/search/filters${qs ? `?${qs}` : ''}`));
 }
 
-/** Autocomplete suggestions — GET /api/autocomplete?query=... (min 2 chars) */
+/** Autocomplete suggestions — proxied via Next.js. */
 export async function getSearchSuggestions(query: string): Promise<SearchSuggestion[]> {
   if (query.trim().length < 2) return [];
-  const res = await fetch(`/api/autocomplete?query=${encodeURIComponent(query)}`, {
-    next: { revalidate: 60 },
-  });
+  const res = await fetch(`/api/autocomplete?query=${encodeURIComponent(query)}`, { next: { revalidate: 3600 } });
   if (!res.ok) return [];
-  const data = await res.json();
+  const data = await res.json().catch(() => null);
   return Array.isArray(data) ? data : [];
 }
 
 // ─── Categories ───────────────────────────────────────────
 
-/** All categories — GET /categories → Category[] */
-export async function getCategories(): Promise<Category[]> {
-  return fetchJSON<Category[]>('/categories');
+/** All categories — GET /categories */
+export async function getCategories(scope: ScopeParams = {}): Promise<Category[]> {
+  const p = qs({ gender: scope.gender });
+  return unwrap<Category[]>(await fetchJSON(`/categories${p.size ? `?${p}` : ''}`)) ?? [];
 }
 
 /** Subcategories — GET /subcategories */
-export async function getSubcategories(): Promise<Subcategory[]> {
-  const raw = await fetchJSON<{ success: boolean; data: { subcategories: Subcategory[] } }>(
-    '/subcategories',
-  );
-  return raw.data?.subcategories ?? [];
+export async function getSubcategories(scope: ScopeParams = {}): Promise<Subcategory[]> {
+  const p = qs({ gender: scope.gender });
+  const raw = await fetchJSON<unknown>(`/subcategories${p.size ? `?${p}` : ''}`);
+  const unwrapped = unwrap<{ subcategories?: Subcategory[] } | Subcategory[]>(raw);
+  return Array.isArray(unwrapped) ? unwrapped : (unwrapped?.subcategories ?? []);
 }
 
-/** Subcategories for a specific category — GET /subcategories/:category → {success, data: Subcategory[]} */
-export async function getCategorySubcategories(category: string): Promise<Subcategory[]> {
-  const raw = await fetchJSON<{ success: boolean; data: Subcategory[] }>(
-    `/subcategories/${encodeURIComponent(category)}`,
-  );
-  return Array.isArray(raw.data) ? raw.data : [];
+/** Subcategories for a category — GET /subcategories/:category */
+export async function getCategorySubcategories(category: string, scope: ScopeParams = {}): Promise<Subcategory[]> {
+  const p = qs({ gender: scope.gender });
+  const raw = await fetchJSON<unknown>(`/subcategories/${encodeURIComponent(category)}${p.size ? `?${p}` : ''}`);
+  return unwrap<Subcategory[]>(raw) ?? [];
 }
 
 // ─── Reels ────────────────────────────────────────────────
 
-/** All reels — GET /reels → Reel[] (plain array) */
-export async function getReels(limit?: number): Promise<Reel[]> {
-  const path = limit ? `/reels?limit=${limit}` : '/reels';
-  const raw = await fetchJSON<Reel[] | { success: boolean; data: Reel[] }>(path);
-  return Array.isArray(raw) ? raw : (raw as { data: Reel[] }).data ?? [];
+/** Reels — GET /reels */
+export async function getReels(limit?: number, scope: ScopeParams = {}): Promise<Reel[]> {
+  const p = qs({ limit, gender: scope.gender });
+  return unwrap<Reel[]>(await fetchJSON(`/reels${p.size ? `?${p}` : ''}`)) ?? [];
 }
 
 /** Reels by category — GET /reels/category/:category */
-export async function getReelsByCategory(category: string): Promise<Reel[]> {
-  const raw = await fetchJSON<Reel[] | { success: boolean; data: Reel[] }>(
-    `/reels/category/${encodeURIComponent(category)}`,
-  );
-  return Array.isArray(raw) ? raw : (raw as { data: Reel[] }).data ?? [];
+export async function getReelsByCategory(category: string, scope: ScopeParams = {}): Promise<Reel[]> {
+  const p = qs({ gender: scope.gender });
+  return unwrap<Reel[]>(await fetchJSON(`/reels/category/${encodeURIComponent(category)}${p.size ? `?${p}` : ''}`)) ?? [];
 }
 
-/** Single reel — GET /reels/:id (or fallback to getReels) */
+/** Single reel — GET /reels/:id */
 export async function getReel(id: string): Promise<Reel | undefined> {
   try {
-    const raw = await fetchJSON<{ success: boolean; data: Reel } | Reel>(`/reels/${id}`);
-    const reel = 'data' in raw ? (raw as { data: Reel }).data : raw as Reel;
-    if (reel && reel.id) return reel;
-  } catch (err) {
-    // Ignore error and try fetching all
-  }
-  const allReels = await getReels();
-  return allReels.find(r => r.id === id);
+    const reel = unwrap<Reel>(await fetchJSON(`/reels/${id}`));
+    if (reel?.id) return reel;
+  } catch {/* fall through to listing */}
+  const all = await getReels();
+  return all.find((r) => r.id === id);
 }
 
 // ─── Outfits ──────────────────────────────────────────────
 
-/** All outfits — GET /outfits → {success, data: Outfit[]} */
-export async function getOutfits(page = 1, limit = 20): Promise<Outfit[]> {
-  const raw = await fetchJSON<
-    { success: boolean; data: Outfit[] } |
-    { success: boolean; data: { outfits: Outfit[] }; pagination: unknown }
-  >(`/outfits?page=${page}&limit=${limit}`, { cache: 'no-store' });
-
-  if ('data' in raw) {
-    const d = raw.data;
-    if (Array.isArray(d)) return d;
-    if (d && typeof d === 'object' && 'outfits' in d) {
-      return (d as { outfits: Outfit[] }).outfits ?? [];
-    }
-  }
-  return [];
+/** Outfits — GET /outfits */
+export async function getOutfits(page = 1, limit = 20, scope: ScopeParams = {}): Promise<Outfit[]> {
+  const p = qs({ page, limit, gender: scope.gender });
+  // Outfits are dynamic — disable caching so updates flow fast without rollbacks
+  const raw = unwrap<{ outfits?: Outfit[] } | Outfit[]>(await fetchJSON(`/outfits?${p}`, { revalidate: false }));
+  return Array.isArray(raw) ? raw : (raw?.outfits ?? []);
 }
 
 /** Single outfit — GET /outfits/:id */
-export async function getOutfit(id: string): Promise<Outfit> {
-  const raw = await fetchJSON<{ success: boolean; data: Outfit } | Outfit>(`/outfits/${id}`);
-  return 'data' in raw ? (raw as { data: Outfit }).data : raw as Outfit;
+export async function getOutfit(id: string, scope: ScopeParams = {}): Promise<Outfit> {
+  const p = qs({ gender: scope.gender });
+  return unwrap<Outfit>(await fetchJSON(`/outfits/${id}${p.size ? `?${p}` : ''}`));
 }
 
-// ─── Trending ─────────────────────────────────────────────
+// ─── Trending / Offers / Daily ────────────────────────────
 
-/** Trending products — GET /trending/products → {success, data: Product[]} */
-export async function getTrendingProducts(): Promise<Product[]> {
-  const raw = await fetchJSON<{ success: boolean; data: Product[] }>('/trending/products');
-  return raw.data ?? [];
+/** Trending products — GET /trending/products */
+export async function getTrendingProducts(scope: ScopeParams = {}): Promise<Product[]> {
+  const p = qs({ gender: scope.gender });
+  return unwrap<Product[]>(await fetchJSON(`/trending/products${p.size ? `?${p}` : ''}`)) ?? [];
 }
 
-// ─── Offers ───────────────────────────────────────────────
-
-/** Promotional offers — GET /offers → Offer[] */
+/** Offer banners — GET /offers */
 export async function getOffers(): Promise<Offer[]> {
-  const raw = await fetchJSON<Offer[] | { success: boolean; data: Offer[] }>('/offers');
-  return Array.isArray(raw) ? raw : (raw as { data: Offer[] }).data ?? [];
+  return unwrap<Offer[]>(await fetchJSON('/offers', { revalidate: 600 })) ?? [];
 }
 
-// ─── Daily drops ──────────────────────────────────────────
-
-/** Daily drops — GET /daily → {success, data: {daily: DailyDrop[]}} */
+/** Daily drops — GET /daily */
 export async function getDailyDrops(): Promise<DailyDrop[]> {
-  const raw = await fetchJSON<{ success: boolean; data: { daily: DailyDrop[] } }>('/daily');
-  return raw.data?.daily ?? [];
+  return unwrap<{ daily?: DailyDrop[] }>(await fetchJSON('/daily', { revalidate: false }))?.daily ?? [];
 }
 
 // ─── Wishlist ─────────────────────────────────────────────
@@ -558,14 +590,12 @@ export interface WishlistCollection {
   item_count?: number;
 }
 
-/** GET /api/wishlist/collections/:id — public, no auth required */
+/** GET /wishlist/collections/:id — public, no auth required */
 export async function getPublicCollection(
   id: string,
 ): Promise<WishlistCollection & { items: WishlistItem[] }> {
-  const raw = await fetchJSON<{ collection: WishlistCollection & { items: WishlistItem[] } }>(
-    `/wishlist/collections/${id}`,
-  )
-  return raw.collection
+  const raw = await fetchJSON<unknown>(`/wishlist/collections/${id}`, { revalidate: 300 });
+  return unwrap<{ collection: WishlistCollection & { items: WishlistItem[] } }>(raw).collection;
 }
 
 // ─── Utils ────────────────────────────────────────────────
@@ -574,4 +604,39 @@ export function formatPrice(price: string): string {
   const num = parseFloat(price);
   if (isNaN(num)) return 'Rs. —';
   return `Rs. ${num.toLocaleString('en-IN')}`;
+}
+
+/** Coerce arbitrary input into a Gender value, defaulting to {@link DEFAULT_GENDER}. */
+export function parseGender(input: string | null | undefined, fallback: Gender = DEFAULT_GENDER): Gender {
+  return input === 'men' || input === 'women' ? input : fallback;
+}
+
+/**
+ * Pick the gender to scope API requests to.
+ *
+ * Resolution order:
+ *   1. Explicit `override` (e.g. server components reading `searchParams.gender`).
+ *   2. `'men'` — the documented backend default, satisfying backward compat.
+ *
+ * The default is centralised so a future flip (e.g. marketing push toward women's)
+ * only requires editing this single line.
+ */
+export const DEFAULT_GENDER: Gender = 'men';
+
+export function resolveScope(override?: Gender | null): ScopeParams {
+  return { gender: override ?? parseGender(override) };
+}
+
+/** Read gender from a Next.js `searchParams`-like object. */
+export function genderFromSearchParams(
+  sp: Record<string, string | string[] | undefined> | URLSearchParams | undefined,
+  fallback: Gender = DEFAULT_GENDER,
+): Gender {
+  if (!sp) return fallback;
+  const raw =
+    sp instanceof URLSearchParams
+      ? sp.get('gender') ?? undefined
+      : (sp.gender as string | string[] | undefined);
+  const v = Array.isArray(raw) ? raw[0] : raw;
+  return parseGender(v, fallback);
 }

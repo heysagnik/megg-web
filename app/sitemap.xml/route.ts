@@ -1,8 +1,10 @@
-import { getCategories, listProducts, getOutfits } from '@/lib/api'
+import { getCategories, listProducts, getOutfits, type ProductsResponse, type Outfit, type ScopeParams } from '@/lib/api'
 
 const BASE = 'https://www.meggfashion.in'
 
 const TODAY = new Date().toISOString().split('T')[0]
+
+const SCOPE: ScopeParams = { gender: 'men' }
 
 const STATIC = [
   { url: BASE,               priority: '1.0', changefreq: 'daily',   lastmod: TODAY },
@@ -13,12 +15,12 @@ const STATIC = [
   { url: `${BASE}/terms`,    priority: '0.2', changefreq: 'yearly',  lastmod: TODAY },
 ]
 
-async function getAllProducts() {
-  const products = []
+async function getAllProducts(): Promise<Array<ProductsResponse['products'][number]>> {
+  const products: Array<ProductsResponse['products'][number]> = []
   let page = 1
   while (true) {
-    const res = await listProducts({ page, limit: 100 }).catch(() => null)
-    if (!res || res.products.length === 0) break
+    const res = await listProducts({ page, limit: 100, gender: 'men' }).catch(() => null)
+    if (!res?.products || res.products.length === 0) break
     products.push(...res.products)
     if (products.length >= (res.total ?? products.length)) break
     page++
@@ -28,9 +30,9 @@ async function getAllProducts() {
 
 export async function GET() {
   const [categories, products, outfits] = await Promise.all([
-    getCategories().catch(() => []),
+    getCategories(SCOPE).catch(() => []),
     getAllProducts(),
-    getOutfits(1, 100).catch(() => []),
+    getOutfits(1, 100, SCOPE).catch(() => [] as Outfit[]),
   ])
 
   const catUrls = categories.map(c => ({

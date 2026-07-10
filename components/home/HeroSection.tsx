@@ -118,7 +118,6 @@ export default function HeroSection() {
               }}
             >
               <source src={getCdnVideoUrl(`${src}.webm`)} type="video/webm" />
-              <source src={getCdnVideoUrl(`${src}.mp4`)} type="video/mp4" />
             </video>
           </div>
         ))}

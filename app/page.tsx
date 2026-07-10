@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getTrendingProducts } from '@/lib/api'
+import { getTrendingProducts, genderFromSearchParams, type Gender } from '@/lib/api'
 import HeroSection from '@/components/home/HeroSection'
 import CategoryRow from '@/components/home/CategoryRow'
 import Under699Banner from '@/components/home/Under699Banner'
@@ -35,8 +35,14 @@ export const metadata: Metadata = {
   },
 }
 
-export default async function HomePage() {
-  const trending = await getTrendingProducts().catch(() => [])
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+export default async function HomePage({ searchParams }: PageProps) {
+  const sp = await searchParams;
+  const gender: Gender = genderFromSearchParams(sp);
+  const trending = await getTrendingProducts({ gender }).catch(() => [])
 
   const faqJsonLd = {
     '@context': 'https://schema.org',

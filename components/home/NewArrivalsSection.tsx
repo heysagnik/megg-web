@@ -1,7 +1,8 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { getNewArrivals, type Product } from '@/lib/api'
+import { useSearchParams } from 'next/navigation'
+import { getNewArrivals, genderFromSearchParams, type Product } from '@/lib/api'
 import ProductCard from '@/components/product/ProductCard'
 import CardSkeleton from '@/components/ui/CardSkeleton'
 import { EndOfFeed } from '@/components/ui'
@@ -11,6 +12,9 @@ const PAGE_SIZE = 12
 // ─── NewArrivalsSection ─────────────────────────────────────────────────────────
 
 export default function NewArrivalsSection() {
+  const searchParams = useSearchParams()
+  const gender = genderFromSearchParams(searchParams)
+
   const [products, setProducts] = useState<Product[]>([])
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
@@ -31,7 +35,7 @@ export default function NewArrivalsSection() {
     setError(null)
 
     try {
-      const data = await getNewArrivals(pageNum, PAGE_SIZE)
+      const data = await getNewArrivals(pageNum, PAGE_SIZE, { gender })
       const incoming = data.products ?? []
 
       setProducts((prev) => {
@@ -52,14 +56,18 @@ export default function NewArrivalsSection() {
       setLoading(false)
       fetchingRef.current = false
     }
-  }, [])
+  }, [gender])
 
-  // ── Initial load ───────────────────────────────────────────────────────────
+  // ── Initial load / reset when gender changes ────────────────────────────────
 
   useEffect(() => {
+    setProducts([])
+    setPage(1)
+    setHasMore(true)
+    fetchingRef.current = false
     fetchPage(1)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [gender])
 
   // ── IntersectionObserver — load next page when sentinel enters view ─────────
 

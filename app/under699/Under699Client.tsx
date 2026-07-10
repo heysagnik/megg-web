@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { getUnder699, type Product, type AvailableFilters, type SortOption } from '@/lib/api'
+import { useSearchParams } from 'next/navigation'
+import { getUnder699, genderFromSearchParams, type Product, type AvailableFilters, type SortOption } from '@/lib/api'
 import ProductBrowseLayout, { BROWSE_EMPTY, type BrowseFilters } from '@/components/product/ProductBrowseLayout'
 import { useScrollRestoration } from '@/hooks/useScrollRestoration'
 
@@ -23,6 +24,7 @@ interface Props {
 }
 
 export default function Under699Client({ initialProducts = [], total: initialTotal = 0, availableFilters: initialFilters }: Props) {
+  const gender = genderFromSearchParams(useSearchParams())
   const [products, setProducts] = useState<Product[]>(initialProducts)
   const [page, setPage]         = useState(1)
   const [total, setTotal]       = useState(initialTotal)
@@ -64,6 +66,7 @@ export default function Under699Client({ initialProducts = [], total: initialTot
         PAGE_SIZE,
         f.subcategory || undefined,
         (f.sort && f.sort !== 'relevance') ? f.sort as SortOption : undefined,
+        { gender },
       )
       const incoming = res.products ?? []
       if (res.total != null) setTotal(res.total)
@@ -77,7 +80,7 @@ export default function Under699Client({ initialProducts = [], total: initialTot
       setHasMore(incoming.length === PAGE_SIZE)
     } catch { setHasMore(false) }
     finally { setLoading(false); fetchingRef.current = false }
-  }, [])
+  }, [gender])
 
   const handleFilterChange = useCallback((next: BrowseFilters) => {
     fetchingRef.current = false

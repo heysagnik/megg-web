@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { listProducts } from '@/lib/api'
+import { listProducts, genderFromSearchParams, type Gender } from '@/lib/api'
 import { getCategoryDisplay } from '@/lib/utils'
 import CategoryPageClient from './CategoryPageClient'
 
@@ -116,6 +116,7 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
 
 interface Props {
   params: Promise<{ category: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -155,12 +156,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-export default async function CategoryPage({ params }: Props) {
+export default async function CategoryPage({ params, searchParams }: Props) {
   const { category } = await params
+  const sp = await searchParams;
   const slug = decodeURIComponent(category)
   const name = getCategoryDisplay(slug)
+  const gender: Gender = genderFromSearchParams(sp);
 
-  const data = await listProducts({ category: slug, page: 1, limit: 20 }).catch(() => ({
+  const data = await listProducts({ category: slug, page: 1, limit: 20, gender }).catch(() => ({
     products: [],
     total: 0,
     availableFilters: { subcategories: [], colors: [], brands: [], categories: [] },

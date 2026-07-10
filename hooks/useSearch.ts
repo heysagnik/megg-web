@@ -24,9 +24,7 @@ function normalise(p: URLSearchParams): URLSearchParams {
     out.delete('q')
   }
   return out
-}
-
-export function useSearch() {
+}export function useSearch() {
   const router   = useRouter()
   const pathname = usePathname()
   const raw      = useSearchParams()

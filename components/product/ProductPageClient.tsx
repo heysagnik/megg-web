@@ -15,13 +15,13 @@ const trackProductClick = async (productId: string, options: { source?: string; 
   try {
     await fetch(`${API_BASE}/api/products/${productId}/click`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'X-API-Version': '2' },
       body: JSON.stringify({
         source: options.source || 'pdp',
         affiliate_clicked: options.affiliateClicked ?? false,
       }),
     })
-  } catch { /* ignore */ }
+  } catch { /* fire-and-forget analytics */ }
 }
 
 const T: CSSProperties = {
