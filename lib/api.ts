@@ -248,8 +248,12 @@ function qs(params: Record<string, string | number | null | undefined>): URLSear
   return p;
 }
 
-interface FetchOptions extends RequestInit {
-  /** ISR revalidate in seconds. 0 / 'no-store' disables caching. Default 60s. */
+interface FetchNext extends Omit<RequestInit, 'next'> {
+  next?: { revalidate?: number | false; tags?: string[] };
+}
+
+interface FetchOptions extends FetchNext {
+  /** ISR revalidate in seconds. 0 / 'no-store' disables caching. Default 600s. */
   revalidate?: number | false;
 }
 
@@ -276,7 +280,7 @@ async function fetchJSON<T>(path: string, { revalidate = 600, ...rest }: FetchOp
   } else if (revalidate === false) {
     fetchOptions.cache = 'no-store';
   } else {
-    (fetchOptions as any).next = { revalidate, ...((rest as any).next ?? {}) };
+    fetchOptions.next = { revalidate, ...(rest.next ?? {}) };
   }
 
   try {
@@ -318,17 +322,18 @@ function unwrapPaginated<T>(raw: unknown): T {
   if (raw == null) return raw as T;
   if (typeof raw !== 'object') return raw as T;
 
-  const r = raw as { success?: unknown; data?: unknown; error?: { message?: string }, meta?: any };
+  const r = raw as { success?: unknown; data?: unknown; error?: { message?: string }, meta?: Record<string, unknown> };
 
   if ('success' in r && r.success === false) {
     throw new Error(r.error?.message ?? 'API error');
   }
 
   if ('data' in r && Array.isArray(r.data)) {
+    const meta = (r.meta ?? {}) as Record<string, unknown>;
     return {
       products: r.data,
-      ...(r.meta?.pagination || {}),
-      ...(r.meta || {})
+      ...((meta.pagination as Record<string, unknown> | undefined) ?? {}),
+      ...meta,
     } as unknown as T;
   }
 

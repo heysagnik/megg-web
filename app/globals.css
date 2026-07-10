@@ -1,19 +1,8 @@
 @import "tailwindcss";
 
-@font-face {
-  font-family: 'FuturaCyrillic';
-  src: url('/FuturaCyrillicBook.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-/* Fallback for Rupee symbol (U+20B9) which Futura doesn't include — using "Rs" text instead */
-
 /* ─── Tailwind v4 Theme ──────────────────────────────────────────────────── */
 @theme {
-  --font-serif: 'FuturaCyrillic', "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-sans:  'FuturaCyrillic', "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: var(--font-futura), "Helvetica Neue", Helvetica, Arial, sans-serif;  --font-sans:  'FuturaCyrillic', "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   /* Palette */
   --color-black:       #0a0a0a;
@@ -51,8 +40,7 @@
 /* ─── CSS Custom Properties ──────────────────────────────────────────────── */
 :root {
   /* Fonts — fallbacks in case next/font hasn't hydrated yet */
-  --font-serif: 'FuturaCyrillic', "Helvetica Neue", Helvetica, Arial, sans-serif;
-  --font-sans:  "FuturaCyrillic", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-serif: var(--font-futura), "Helvetica Neue", Helvetica, Arial, sans-serif;  --font-sans:  "FuturaCyrillic", "Helvetica Neue", Helvetica, Arial, sans-serif;
 
   /* Palette */
   --color-black:      #0a0a0a;

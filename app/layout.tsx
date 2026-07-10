@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import type { ReactNode } from 'react'
+import localFont from 'next/font/local'
 import Script from 'next/script'
 import './globals.css'
 import Header from '@/components/layout/Header'
@@ -9,10 +10,13 @@ import AppBottomSheet from '@/components/layout/AppBottomSheet'
 import ScrollRestoration from '@/components/layout/ScrollRestoration'
 import InstagramAppRedirect from '@/components/layout/InstagramAppRedirect'
 
-// ─── Fonts ────────────────────────────────────────────────────────────────────
-// next/font handles subsetting, self-hosting, and zero layout shift automatically.
-
-// ─── Metadata ─────────────────────────────────────────────────────────────────
+const futura = localFont({
+  src: '../public/FuturaCyrillicBook.ttf',
+  display: 'swap',
+  weight: '400',
+  fallback: ['system-ui', 'arial', 'sans-serif'],
+  preload: true,
+})
 
 const BASE_URL = 'https://www.meggfashion.in'
 
@@ -164,21 +168,13 @@ const orgSchema = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en-IN" data-scroll-behavior="smooth">
+    <html lang="en-IN" data-scroll-behavior="smooth" className={futura.className}>
       <head>
         <meta name="geo.region" content="IN" />
         <meta name="geo.placename" content="India" />
         <link rel="icon" href="/logo.png" type="image/png" />
         <link rel="apple-touch-icon" href="/logo.png" />
         <link rel="manifest" href="/manifest.json" />
-        <link
-          rel="preload"
-          href="/FuturaCyrillicBook.ttf"
-          as="font"
-          type="font/ttf"
-          crossOrigin="anonymous"
-          fetchPriority="low"
-        />
         <link rel="preconnect" href="https://edge.meggfashion.in" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://media.meggfashion.in" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
