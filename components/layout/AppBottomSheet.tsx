@@ -4,6 +4,20 @@ import { useEffect, useState } from 'react'
 import { getCdnImageUrl } from '@/lib/image'
 
 const STORAGE_KEY = 'megg_app_sheet_dismissed'
+const trackDownloadClick = () => {
+  if (typeof window === 'undefined') return
+  try {
+    if ((window as any).umami) {
+      (window as any).umami.track('download_app_click', { source: 'bottom_sheet' })
+    }
+    if ((window as any).gtag) {
+      (window as any).gtag('event', 'download_app_click', {
+        event_category: 'engagement',
+        event_label: 'bottom_sheet'
+      })
+    }
+  } catch { /* ignore */ }
+}
 
 export default function AppBottomSheet() {
   const [visible, setVisible] = useState(false)
@@ -108,7 +122,10 @@ export default function AppBottomSheet() {
             background: 'var(--color-black)', color: '#ffffff',
             padding: '0.875rem', marginBottom: '0.625rem',
           }}
-          onClick={dismiss}
+          onClick={() => {
+            trackDownloadClick()
+            dismiss()
+          }}
         >
           <span style={{ color: '#ffffff', display: 'block' }}>Download App</span>
         </a>
