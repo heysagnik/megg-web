@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
-import { listProducts, genderFromSearchParams, type Gender } from '@/lib/api'
+import { listProducts, type Gender } from '@/lib/api'
 import { getCategoryDisplay } from '@/lib/utils'
 import CategoryPageClient from './CategoryPageClient'
+
+export const revalidate = 600
+export const dynamic = 'force-static'
 
 const CATEGORY_KEYWORDS: Record<string, string[]> = {
   Tshirt: [
@@ -161,7 +164,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const sp = await searchParams;
   const slug = decodeURIComponent(category)
   const name = getCategoryDisplay(slug)
-  const gender: Gender = genderFromSearchParams(sp);
+  const gender: Gender = 'men';
 
   const data = await listProducts({ category: slug, page: 1, limit: 20, gender }).catch(() => ({
     products: [],

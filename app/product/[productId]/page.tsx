@@ -5,6 +5,10 @@ import ProductPageClient from '@/components/product/ProductPageClient'
 
 type Props = { params: Promise<{ productId: string }> }
 
+export const revalidate = 3600
+export const dynamic = 'force-static'
+export const dynamicParams = true
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { productId } = await params
   const url = `https://www.meggfashion.in/product/${productId}`

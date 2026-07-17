@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
-import { getUnder699, genderFromSearchParams, type Gender } from '@/lib/api'
+import { getUnder699, type Gender } from '@/lib/api'
 import Under699Client from './Under699Client'
+
+export const revalidate = 600
+export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
   title: 'Men\'s Fashion Under Rs 699 — Buy T-Shirts, Shirts, Jeans & More',
@@ -32,9 +35,8 @@ interface Props {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function Under699Page({ searchParams }: Props) {
-  const sp = await searchParams;
-  const gender: Gender = genderFromSearchParams(sp);
+export default async function Under699Page(_: Props) {
+  const gender: Gender = 'men';
   const data = await getUnder699(1, 20, undefined, undefined, { gender }).catch(() => ({
     products: [],
     total: 0,

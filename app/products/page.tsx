@@ -1,7 +1,10 @@
 import type { Metadata } from 'next'
-import { listProducts, genderFromSearchParams, type Gender } from '@/lib/api'
+import { listProducts, type Gender } from '@/lib/api'
 import { getCategoryDisplay } from '@/lib/utils'
 import ProductsClient from './ProductsClient'
+
+export const revalidate = 600
+export const dynamic = 'force-static'
 
 interface Props {
   searchParams: Promise<Record<string, string | string[] | undefined>>
@@ -53,7 +56,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 export default async function ProductsPage({ searchParams }: Props) {
   const sp = await searchParams
   const category = typeof sp.category === 'string' ? sp.category : ''
-  const gender: Gender = genderFromSearchParams(sp);
+  const gender: Gender = 'men';
 
   const data = await listProducts({ page: 1, limit: 20, category: category || undefined, gender }).catch(() => ({
     products: [],

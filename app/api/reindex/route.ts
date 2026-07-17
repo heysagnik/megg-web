@@ -19,6 +19,8 @@ const INDEXNOW_ENDPOINTS = [
   'https://yandex.com/indexnow',
 ]
 
+export const revalidate = 3600
+
 export async function GET() {
   const body = {
     host: HOST,
@@ -49,5 +51,9 @@ export async function GET() {
     engines: summary,
     note: 'For Google, submit the sitemap manually via Google Search Console: https://search.google.com/search-console',
     sitemap: `${BASE_URL}/sitemap.xml`,
+  }, {
+    // Explicit edge cache so identical /api/reindex calls don't reach origin.
+    // (Vercel's default for route handlers is unreliable; we pin it here.)
+    headers: { 'Cache-Control': 'public, max-age=0, s-maxage=3600, stale-while-revalidate=86400' },
   })
 }

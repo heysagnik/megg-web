@@ -407,7 +407,7 @@ export async function getUnder699(
 
 /** Single product — GET /products/:id */
 export async function getProduct(productId: string): Promise<ProductDetail> {
-  const data = await fetchJSON<unknown>(`/products/${productId}`);
+  const data = await fetchJSON<unknown>(`/products/${productId}`, { revalidate: 3600 });
   const d = unwrap<{ product: Product } & Omit<ProductDetail, keyof Product>>(data);
   return {
     ...d.product,
@@ -420,13 +420,13 @@ export async function getProduct(productId: string): Promise<ProductDetail> {
 
 /** Related products — GET /products/:id/related */
 export async function getRelatedProducts(productId: string): Promise<Product[]> {
-  const data = await fetchJSON<unknown>(`/products/${productId}/related`);
+  const data = await fetchJSON<unknown>(`/products/${productId}/related`, { revalidate: 3600 });
   return unwrap<Product[]>(data);
 }
 
 /** Recommendations — GET /products/:id/recommendations */
 export async function getProductRecommendations(productId: string): Promise<Product[]> {
-  const data = await fetchJSON<unknown>(`/products/${productId}/recommendations`);
+  const data = await fetchJSON<unknown>(`/products/${productId}/recommendations`, { revalidate: 3600 });
   return unwrap<Product[]>(data);
 }
 
@@ -546,8 +546,9 @@ export async function getReel(id: string): Promise<Reel | undefined> {
 /** Outfits — GET /outfits */
 export async function getOutfits(page = 1, limit = 20, scope: ScopeParams = {}): Promise<Outfit[]> {
   const p = qs({ page, limit, gender: scope.gender });
-  // Outfits are dynamic — disable caching so updates flow fast without rollbacks
-  const raw = unwrap<{ outfits?: Outfit[] } | Outfit[]>(await fetchJSON(`/outfits?${p}`, { revalidate: 120 }));
+  // Outfits refresh 5×/day — long enough that the homepage & category pages
+  // don't re-hit origin every 2 minutes.
+  const raw = unwrap<{ outfits?: Outfit[] } | Outfit[]>(await fetchJSON(`/outfits?${p}`, { revalidate: 300 }));
   return Array.isArray(raw) ? raw : (raw?.outfits ?? []);
 }
 
@@ -572,7 +573,7 @@ export async function getOffers(): Promise<Offer[]> {
 
 /** Daily drops — GET /daily */
 export async function getDailyDrops(): Promise<DailyDrop[]> {
-  return unwrap<{ daily?: DailyDrop[] }>(await fetchJSON('/daily', { revalidate: 120 }))?.daily ?? [];
+  return unwrap<{ daily?: DailyDrop[] }>(await fetchJSON('/daily', { revalidate: 300 }))?.daily ?? [];
 }
 
 // ─── Wishlist ─────────────────────────────────────────────

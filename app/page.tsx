@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { getTrendingProducts, genderFromSearchParams, type Gender } from '@/lib/api'
+import { getTrendingProducts, type Gender } from '@/lib/api'
 import HeroSection from '@/components/home/HeroSection'
 import CategoryRow from '@/components/home/CategoryRow'
 import Under699Banner from '@/components/home/Under699Banner'
@@ -7,6 +7,9 @@ import ReelsSection from '@/components/home/ReelsSection'
 import OffersSection from '@/components/home/OffersSection'
 import TrendingStrip from '@/components/home/TrendingStrip'
 import NewArrivalsSection from '@/components/home/NewArrivalsSection'
+
+export const revalidate = 600
+export const dynamic = 'force-static'
 
 export const metadata: Metadata = {
   title: { absolute: 'MEGG — Shop Men\'s T-Shirts, Shirts, Jeans, Shoes & More Online India' },
@@ -39,9 +42,8 @@ interface PageProps {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }
 
-export default async function HomePage({ searchParams }: PageProps) {
-  const sp = await searchParams;
-  const gender: Gender = genderFromSearchParams(sp);
+export default async function HomePage(_: PageProps) {
+  const gender: Gender = 'men'
   const trending = await getTrendingProducts({ gender }).catch(() => [])
 
   const faqJsonLd = {
