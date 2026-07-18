@@ -28,6 +28,12 @@ const HTML = `<!doctype html>
 </body>
 </html>`
 
+// Mark the route static so the build prerenders a single cached response.
+// Without this, Next.js defaults route handlers to Dynamic even when they
+// don't read the request, which would defeat the whole point of this redirect.
+export const dynamic = 'force-static'
+export const revalidate = false
+
 export function GET() {
   return new Response(HTML, {
     headers: {

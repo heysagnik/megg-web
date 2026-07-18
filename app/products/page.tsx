@@ -1,76 +1,57 @@
 import type { Metadata } from 'next'
 import { listProducts, type Gender } from '@/lib/api'
-import { getCategoryDisplay } from '@/lib/utils'
 import ProductsClient from './ProductsClient'
 
 export const revalidate = 600
 export const dynamic = 'force-static'
 
-interface Props {
-  searchParams: Promise<Record<string, string | string[] | undefined>>
+// NOTE: This page is intentionally static (force-static + revalidate). It does
+// NOT read `searchParams` on the server — that would opt the route out of the
+// edge cache and force every /products?category=… visit through the origin
+// function. Category/filter state lives entirely in the client via
+// `useSearchParams()` in ProductsClient, which fetches fresh data through the
+// already-cached /api endpoints. The server renders a single canonical HTML
+// payload for `/products` that the edge serves indefinitely (24h s-maxage,
+// 1y stale-while-revalidate — see next.config.ts).
+
+export const metadata: Metadata = {
+  title: 'Shop All Men\'s Fashion — T-Shirts, Shirts, Jeans, Shoes & More Online India',
+  description: 'Browse & buy curated men\'s clothing on MEGG — T-shirts, shirts, jeans, shoes, jackets, hoodies, track pants, perfume & more. Filter by brand, color, price. Top brands, new arrivals daily.',
+  keywords: [
+    'shop men clothes online India', 'buy men fashion online India',
+    'men fashion collection India', 'all men clothing India',
+    'curated men fashion India', 'best men clothing site India',
+    'men T-shirts shirts jeans shoes India', 'men clothing brands India',
+    'affordable men fashion India', 'new men fashion arrivals India',
+    'trending men clothing India', 'buy men outfits online India',
+    'men fashion online shopping India', 'men clothing store online India',
+  ],
+  alternates: { canonical: 'https://www.meggfashion.in/products' },
+  openGraph: {
+    type: 'website',
+    url: 'https://www.meggfashion.in/products',
+    title: 'Shop Men\'s Fashion — MEGG',
+    description: 'Browse curated men\'s clothing on MEGG — T-shirts, shirts, jeans, shoes, jackets and more.',
+  },
 }
 
-export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
-  const sp = await searchParams
-  const url = 'https://www.meggfashion.in/products'
-  const rawCategory = sp.category
-  const category = typeof rawCategory === 'string' ? rawCategory : ''
-
-  if (category) {
-    const name = getCategoryDisplay(category)
-    return {
-      title: `${name} — Shop Men's Fashion`,
-      description: `Browse curated ${name.toLowerCase()} for men on MEGG. Filter by brand, color, and price. New arrivals daily.`,
-      alternates: { canonical: url },
-      openGraph: {
-        type: 'website',
-        url: `${url}?category=${encodeURIComponent(category)}`,
-        title: `${name} — Shop Men's Fashion | MEGG`,
-        description: `Browse curated ${name.toLowerCase()} for men on MEGG.`,
-      },
-    }
-  }
-
-  return {
-    title: 'Shop All Men\'s Fashion — T-Shirts, Shirts, Jeans, Shoes & More Online India',
-    description: 'Browse & buy curated men\'s clothing on MEGG — T-shirts, shirts, jeans, shoes, jackets, hoodies, track pants, perfume & more. Filter by brand, color, price. Top brands, new arrivals daily.',
-    keywords: [
-      'shop men clothes online India', 'buy men fashion online India',
-      'men fashion collection India', 'all men clothing India',
-      'curated men fashion India', 'best men clothing site India',
-      'men T-shirts shirts jeans shoes India', 'men clothing brands India',
-      'affordable men fashion India', 'new men fashion arrivals India',
-      'trending men clothing India', 'buy men outfits online India',
-      'men fashion online shopping India', 'men clothing store online India',
-    ],
-    alternates: { canonical: url },
-    openGraph: {
-      type: 'website',
-      url,
-      title: 'Shop Men\'s Fashion — MEGG',
-      description: 'Browse curated men\'s clothing on MEGG — T-shirts, shirts, jeans, shoes, jackets and more.',
-    },
-  }
-}
-
-export default async function ProductsPage({ searchParams }: Props) {
-  const sp = await searchParams
-  const category = typeof sp.category === 'string' ? sp.category : ''
+export default async function ProductsPage() {
   const gender: Gender = 'men';
-
-  const data = await listProducts({ page: 1, limit: 20, category: category || undefined, gender }).catch(() => ({
+  // No server-side searchParams access → route stays static and edge-cacheable.
+  // The client hydrates from /products (no category) and re-fetches with the
+  // category param when the URL changes.
+  const data = await listProducts({ page: 1, limit: 20, gender }).catch(() => ({
     products: [],
     total: 0,
     availableFilters: { subcategories: [], colors: [], brands: [], categories: [] },
   }))
 
   const products = data.products ?? []
-  const name = category ? getCategoryDisplay(category) : 'All Products'
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
-    name: `${name} — MEGG`,
-    url: `https://www.meggfashion.in/products${category ? `?category=${encodeURIComponent(category)}` : ''}`,
+    name: 'All Products — MEGG',
+    url: 'https://www.meggfashion.in/products',
     mainEntity: {
       '@type': 'ItemList',
       itemListElement: products.slice(0, 10).map((p, i) => ({
@@ -86,7 +67,6 @@ export default async function ProductsPage({ searchParams }: Props) {
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <ProductsClient
-        initialCategory={category}
         initialProducts={products}
         initialTotal={data.total ?? 0}
         initialFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}

@@ -1,7 +1,9 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useLayoutEffect, useRef } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+
+const useIsoLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect
 
 export function useScrollRestoration<T>({
   key,
@@ -22,32 +24,32 @@ export function useScrollRestoration<T>({
 
   const cacheKey = `megg-scroll:${key}:${pathname}?${searchParams.toString()}`
 
-  // 1. Restore state on mount
-  useEffect(() => {
+  useIsoLayoutEffect(() => {
     if (!enabled) return
     const cached = sessionStorage.getItem(cacheKey)
-    if (cached) {
-      try {
-        const parsed = JSON.parse(cached)
-        onRestore(parsed.data, parsed.page)
-        
-        // Wait for rendering to settle (double animation frames to ensure DOM height is updated)
-        requestAnimationFrame(() => {
-          requestAnimationFrame(() => {
-            window.scrollTo(0, parsed.scrollY)
-            isRestored.current = true
-          })
-        })
-      } catch (e) {
-        console.error('Failed to restore scroll position', e)
-        isRestored.current = true
-      }
-    } else {
+    if (!cached) {
       isRestored.current = true
+      return
     }
-  }, [cacheKey, enabled]) // eslint-disable-line react-hooks/exhaustive-deps
+    try {
+      const parsed = JSON.parse(cached) as { data: T; page: number; scrollY: number }
+      onRestore(parsed.data, parsed.page)
+    } catch (e) {
+      console.error('Failed to restore scroll position', e)
+      isRestored.current = true
+      return
+    }
+    requestAnimationFrame(() => {
+      try {
+        const parsed = JSON.parse(sessionStorage.getItem(cacheKey) ?? '') as { scrollY: number }
+        window.scrollTo(0, parsed.scrollY ?? 0)
+      } catch {
+        window.scrollTo(0, 0)
+      }
+      isRestored.current = true
+    })
+  }, [cacheKey, enabled])
 
-  // 2. Save state on scroll and unmount
   useEffect(() => {
     if (!enabled || !data) return
 
@@ -57,13 +59,8 @@ export function useScrollRestoration<T>({
       if (!isRestored.current) return
       clearTimeout(timeoutId)
       timeoutId = setTimeout(() => {
-        const state = {
-          data,
-          page,
-          scrollY: window.scrollY,
-        }
-        sessionStorage.setItem(cacheKey, JSON.stringify(state))
-      }, 150)
+        sessionStorage.setItem(cacheKey, JSON.stringify({ data, page, scrollY: window.scrollY }))
+      }, 200)
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -72,12 +69,7 @@ export function useScrollRestoration<T>({
       window.removeEventListener('scroll', handleScroll)
       clearTimeout(timeoutId)
       if (isRestored.current) {
-        const state = {
-          data,
-          page,
-          scrollY: window.scrollY,
-        }
-        sessionStorage.setItem(cacheKey, JSON.stringify(state))
+        sessionStorage.setItem(cacheKey, JSON.stringify({ data, page, scrollY: window.scrollY }))
       }
     }
   }, [cacheKey, enabled, data, page])
