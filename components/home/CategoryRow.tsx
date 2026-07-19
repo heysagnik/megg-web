@@ -2,20 +2,20 @@ import Link from 'next/link'
 import { getCdnImageUrl } from '@/lib/image'
 
 const BENTO = [
-  { label: 'Shirts',           slug: 'Shirt',            keyword: "Men's Shirts Online India",        img: 'https://media.meggfashion.in/products/248e1d11-1f39-4b76-8283-d3296f6a4b16/1779441206418_0.webp' },
-  { label: 'Jeans',            slug: 'Jeans',            keyword: "Men's Jeans Online India",         img: 'https://media.meggfashion.in/products/e202976f-5721-40f7-ae81-d6d660525ec2/1775300117304_0.webp' },
-  { label: 'Shoes',            slug: 'Shoes',            keyword: "Men's Shoes Online India",         img: 'https://media.meggfashion.in/products/b1008c2a-ef3d-4187-944f-edc685e5652c/1775477873452_0.webp' },
-  { label: 'T-Shirts',         slug: 'Tshirt',           keyword: "Men's T-Shirts Online India",      img: 'https://media.meggfashion.in/products/d95351f7-f4cc-4b9a-b4f1-5ef48b52f31c/1775737735991_0.webp' },
-  { label: 'Jackets',          slug: 'Jacket',           keyword: "Men's Jackets Online India",       img: 'https://media.meggfashion.in/products/temp_1771611492547_38u7u7q9h/image_0.webp' },
-  { label: 'Accessories',      slug: 'Mens Accessories', keyword: "Men's Accessories Online India",   img: 'https://media.meggfashion.in/products/bea12666-5c41-470a-bc41-cdac7f013cfc/1776507541400_0.webp' },
-  { label: 'Hoodies',          slug: 'Hoodies',          keyword: "Men's Hoodies Online India",       img: 'https://media.meggfashion.in/products/temp_1770915432663_er6yvb1le/image_0.webp' },
-  { label: 'Innerwear',        slug: 'Innerwear',        keyword: "Men's Innerwear Online India",     img: 'https://media.meggfashion.in/products/temp_1770919439126_z4xttgv2e/image_0.webp' },
-  { label: 'Sweater',          slug: 'Sweater',          keyword: "Men's Sweaters Online India",      img: 'https://media.meggfashion.in/products/temp_1770920293205_5b8g1dfm3/image_0.webp' },
-  { label: 'Sweatshirt',       slug: 'Sweatshirt',       keyword: "Men's Sweatshirts Online India",   img: 'https://media.meggfashion.in/products/temp_1770914564470_mo7nk88l9/image_0.webp' },
-  { label: 'Track Pants',      slug: 'Trackpants',       keyword: "Men's Track Pants Online India",   img: 'https://media.meggfashion.in/products/0a4c383c-ee22-430d-b6b3-ed7342af71f0/1777109370621_0.webp' },
+  { label: 'Shirts',           slug: 'Shirt',            keyword: "Men's Shirts Online India",        img: '/assets/SHIRTS.webp' },
+  { label: 'Jeans',            slug: 'Jeans',            keyword: "Men's Jeans Online India",         img: '/assets/JEANS.webp' },
+  { label: 'Shoes',            slug: 'Shoes',            keyword: "Men's Shoes Online India",         img: '/assets/SHOES.webp' },
+  { label: 'T-Shirts',         slug: 'Tshirt',           keyword: "Men's T-Shirts Online India",      img: '/assets/TSHIRT.webp' },
+  { label: 'Jackets',          slug: 'Jacket',           keyword: "Men's Jackets Online India",       img: '/assets/JACKET.webp' },
+  { label: 'Accessories',      slug: 'Mens Accessories', keyword: "Men's Accessories Online India",   img: '/assets/ACESSORIES.webp' },
+  { label: 'Hoodies',          slug: 'Hoodies',          keyword: "Men's Hoodies Online India",       img: '/assets/HOODIES.webp' },
+  { label: 'Innerwear',        slug: 'Innerwear',        keyword: "Men's Innerwear Online India",     img: '/assets/INNERWEAR.webp' },
+  { label: 'Sweater',          slug: 'Sweater',          keyword: "Men's Sweaters Online India",      img: '/assets/SWEATER.webp' },
+  { label: 'Sweatshirt',       slug: 'Sweatshirt',       keyword: "Men's Sweatshirts Online India",   img: '/assets/SWEATSHIRT.webp' },
+  { label: 'Track Pants',      slug: 'Trackpants',       keyword: "Men's Track Pants Online India",   img: '/assets/TRACKPANTS.webp' },
   { label: 'Traditional',      slug: 'Traditional',      keyword: "Men's Ethnic Wear Online India",   img: 'https://media.meggfashion.in/products/temp_1770915875275_1x39ncroh/image_0.webp' },
-  { label: 'Perfume',          slug: 'Perfume',          keyword: "Men's Perfume Online India",       img: 'https://media.meggfashion.in/products/temp_1770147219246_mbd9f9w58/image_0.webp' },
-  { label: 'Body Care',        slug: 'Body Care',        keyword: "Men's Body Care Products India",   img: 'https://media.meggfashion.in/products/e52d90bc-ccb2-4d7b-aa2d-118af714d30b/1773911172244_0.webp' },
+  { label: 'Perfume',          slug: 'Perfume',          keyword: "Men's Perfume Online India",       img: '/assets/PERFUME.webp' },
+  { label: 'Body Care',        slug: 'Body Care',        keyword: "Men's Body Care Products India",   img: '/assets/SKINCARE.webp' },
   { label: 'Daily Essentials', slug: 'Daily Essentials', keyword: "Men's Daily Essentials India",     img: 'https://media.meggfashion.in/products/567a62c2-116d-4fa5-b465-faaff4fc3c9d/1773829639379_0.webp' },
 ]
 
@@ -81,8 +81,10 @@ export default function CategoryRow() {
                 >
                   <div style={{ position: 'relative', aspectRatio: '3 / 4', overflow: 'hidden', background: 'var(--color-surface-2)' }}>
                     <img
-                      src={getCdnImageUrl(cat.img, { width: 320, quality: 90 })}
-                      srcSet={`${getCdnImageUrl(cat.img, { width: 240, quality: 90 })} 240w, ${getCdnImageUrl(cat.img, { width: 320, quality: 90 })} 320w`}
+                      src={cat.img.startsWith('/assets') ? cat.img : getCdnImageUrl(cat.img, { width: 320, quality: 90 })}
+                      srcSet={cat.img.startsWith('/assets') 
+                        ? undefined 
+                        : `${getCdnImageUrl(cat.img, { width: 240, quality: 90 })} 240w, ${getCdnImageUrl(cat.img, { width: 320, quality: 90 })} 320w`}
                       sizes="clamp(140px, 42vw, 280px)"
                       alt={`${cat.keyword} — Shop on MEGG`}
                       className="cat-card-img"

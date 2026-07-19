@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
-import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import {
   listProducts,
@@ -32,7 +31,7 @@ interface Props {
 }
 
 export default function CategoryPageClient({
-  category, displayName, initialProducts, total: initialTotal, availableFilters: initialFilters,
+  category, initialProducts, total: initialTotal, availableFilters: initialFilters,
 }: Props) {
   const searchParams = useSearchParams()
   const pathname = usePathname()
@@ -50,7 +49,6 @@ export default function CategoryPageClient({
   const [loading, setLoading]     = useState(false)
   const [filterOpen, setFilterOpen] = useState(false)
   const [showMbar, setShowMbar]   = useState(true)
-  const [showSubcats, setShowSubcats] = useState(true)
   const [footerIntersecting, setFooterIntersecting] = useState(false)
 
   const fetchingRef = useRef(false)
@@ -185,13 +183,9 @@ export default function CategoryPageClient({
       const y = window.scrollY
       if (y > lastY && y > 100) setShowMbar(false)
       else if (y < lastY) setShowMbar(true)
-      setShowSubcats(false)
       lastY = y
       clearTimeout(scrollTimeout)
-      scrollTimeout = setTimeout(() => {
-        setShowMbar(true)
-        setShowSubcats(true)
-      }, 150)
+      scrollTimeout = setTimeout(() => setShowMbar(true), 150)
     }
     window.addEventListener('scroll', handleScroll, { passive: true })
     return () => {
@@ -213,9 +207,9 @@ export default function CategoryPageClient({
 
   // ── Derived view state ─────────────────────────────────────────────────
   const navBtn = (active: boolean): React.CSSProperties => ({
-    fontFamily: 'var(--font-sans)', fontSize: '0.75rem', letterSpacing: '0.06em',
-    textTransform: 'uppercase', background: 'none', border: 'none', padding: 0,
-    cursor: 'pointer', textAlign: 'left',
+    fontFamily: 'var(--font-sans)', fontSize: '0.9rem', letterSpacing: '0.06em',
+    textTransform: 'uppercase', background: 'none', border: 'none', padding: '0.35rem 0',
+    cursor: 'pointer', textAlign: 'left', width: '100%',
     color: active ? 'var(--color-black)' : 'var(--color-muted)',
   })
 
@@ -232,11 +226,10 @@ export default function CategoryPageClient({
           onClick={() => changeFilters({ ...filters, subcategory: '' })}
           style={navBtn(!filters.subcategory)}
         >
-          <span style={{ color: 'var(--color-muted)', fontSize: '0.65rem', marginRight: '0.35rem' }}>|00|</span>
           View All
         </button>
       </li>
-      {subcats.map((s, i) => (
+      {subcats.map((s) => (
         <li key={s.name} style={{ marginBottom: '0.5rem' }}>
           <button
             type="button"
@@ -246,9 +239,6 @@ export default function CategoryPageClient({
             })}
             style={navBtn(filters.subcategory === s.name)}
           >
-            <span style={{ color: 'var(--color-muted)', fontSize: '0.65rem', marginRight: '0.35rem' }}>
-              |{String(i + 1).padStart(2, '0')}|
-            </span>
             {s.name}
           </button>
         </li>
@@ -256,73 +246,27 @@ export default function CategoryPageClient({
     </ul>
   ) : undefined
 
-  const mobileSubcatTabs = subcats.length > 0 ? (
-    <>
-      <button
-        type="button"
-        onClick={() => changeFilters({ ...filters, subcategory: '' })}
-        style={{
-          ...navBtn(!filters.subcategory),
-          flexShrink: 0, whiteSpace: 'nowrap',
-          padding: '0.7rem 0.875rem',
-          borderBottom: !filters.subcategory ? '2px solid var(--color-black)' : '2px solid transparent',
-          fontSize: '0.7rem', letterSpacing: '0.1em',
-        }}
-      >
-        All
-      </button>
-      {subcats.map(s => (
-        <button
-          key={s.name}
-          type="button"
-          onClick={() => changeFilters({
-            ...filters,
-            subcategory: filters.subcategory === s.name ? '' : s.name,
-          })}
-          style={{
-            ...navBtn(filters.subcategory === s.name),
-            flexShrink: 0, whiteSpace: 'nowrap',
-            padding: '0.7rem 0.875rem',
-            borderBottom: filters.subcategory === s.name ? '2px solid var(--color-black)' : '2px solid transparent',
-            fontSize: '0.7rem', letterSpacing: '0.1em',
-          }}
-        >
-          {s.name}
-        </button>
-      ))}
-    </>
-  ) : undefined
-
-  const crumb = (
-    <div>
-      <Link href="/" style={{ ...navBtn(false), display: 'block', marginBottom: '0.3rem' }}>Home</Link>
-      <span style={{ ...navBtn(true), display: 'block' }}>{displayName}</span>
-    </div>
-  )
-
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <aside className="browse-sidebar" style={{
-        width: '180px', flexShrink: 0,
-        borderRight: '1px solid var(--color-border)',
-        padding: '2rem 1.25rem',
+<aside className="browse-sidebar" style={{
+        width: '220px', flexShrink: 0,
+        padding: '2rem 1.5rem',
         display: 'flex', flexDirection: 'column',
         position: 'sticky', top: 0, maxHeight: '100vh',
         alignSelf: 'flex-start',
       }}>
-        {crumb && <div style={{ marginBottom: '1.5rem' }}>{crumb}</div>}
         {sidebarNav && (
-          <div style={{ flex: 1, overflowY: 'auto', marginBottom: '1.5rem' }}>
+          <div style={{ flex: 1, overflowY: 'auto', marginBottom: '1.5rem', width: '100%' }}>
             {sidebarNav}
           </div>
         )}
-        <div style={{ marginTop: 'auto' }}>
+        <div style={{ marginTop: 'auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {activeCount > 0 && (
             <button type="button"
               onClick={() => changeFilters(BROWSE_EMPTY)}
               style={{
                 ...navBtn(false),
-                display: 'block', marginBottom: '0.75rem',
+                display: 'block',
                 textDecoration: 'underline', textUnderlineOffset: '3px',
                 fontSize: '0.7rem',
               }}>
@@ -332,8 +276,8 @@ export default function CategoryPageClient({
           <button type="button" onClick={() => setFilterOpen(true)} style={{
             fontFamily: 'var(--font-sans)', fontSize: '0.7rem', letterSpacing: '0.14em',
             textTransform: 'uppercase', background: 'none', cursor: 'pointer',
-            border: '1px solid var(--color-black)', padding: '0.7rem 0',
-            color: 'var(--color-black)', width: '100%',
+            border: '1px solid var(--color-black)', padding: '0.7rem 1.5rem',
+            color: 'var(--color-black)', width: 'auto',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
           }}>
             Filters
@@ -354,14 +298,8 @@ export default function CategoryPageClient({
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--color-border)',
+          padding: '1.25rem 1.5rem',
         }}>
-          <h1 style={{
-            fontFamily: 'var(--font-serif)', fontWeight: 300,
-            fontSize: 'clamp(1.1rem, 2vw, 1.75rem)', letterSpacing: '-0.02em',
-          }}>
-            {displayName}
-          </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
             <button type="button" onClick={() => setFilterOpen(true)} style={{
               fontFamily: 'var(--font-sans)', fontSize: '0.7rem', letterSpacing: '0.12em',
@@ -371,39 +309,30 @@ export default function CategoryPageClient({
               className="browse-mobile-filter">
               Filters{filterCount > 0 ? ` (${filterCount})` : ''}
             </button>
-            <span style={{
-              fontFamily: 'var(--font-sans)', fontSize: '0.75rem',
-              letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--color-muted)',
-            }}>
-              {total.toLocaleString()} items
-            </span>
           </div>
         </div>
 
-        {mobileSubcatTabs && (
-          <div
-            className="browse-mobile-subcats"
-            style={{
-              position: 'sticky',
-              top: 'var(--header-height)',
-              zIndex: 90,
-              backgroundColor: 'rgba(255, 255, 255, 0.97)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
-              overflowX: 'auto',
-              scrollbarWidth: 'none',
-              gap: 0,
-              borderBottom: '1px solid var(--color-border)',
-              padding: '0 0.75rem',
-              opacity: showSubcats ? 1 : 0,
-              transform: showSubcats ? 'translateY(0)' : 'translateY(-10px)',
-              pointerEvents: showSubcats ? 'auto' : 'none',
-              transition: 'opacity 0.25s ease, transform 0.25s ease-out',
-            }}
-          >
-            {mobileSubcatTabs}
+        <div className="browse-tabs" aria-label="Categories">
+          <div className="browse-tabs__scroll">
+            <button
+              type="button"
+              onClick={() => changeFilters({ ...filters, subcategory: '' })}
+              className={`browse-tabs__tab${!filters.subcategory ? ' browse-tabs__tab--active' : ''}`}
+            >
+              View All
+            </button>
+            {subcats.map(s => (
+              <button
+                key={s.name}
+                type="button"
+                onClick={() => changeFilters({ ...filters, subcategory: filters.subcategory === s.name ? '' : s.name })}
+                className={`browse-tabs__tab${filters.subcategory === s.name ? ' browse-tabs__tab--active' : ''}`}
+              >
+                {s.name}
+              </button>
+            ))}
           </div>
-        )}
+        </div>
 
         <div className="browse-grid">
           {loading && products.length === 0
@@ -437,6 +366,10 @@ export default function CategoryPageClient({
           <EndOfFeed loading={loading} hasMore={hasMore} count={products.length} />
         </div>
       </div>
+
+<aside className="browse-sidebar-right" style={{
+        width: '220px', flexShrink: 0,
+      }} />
 
       <div className="browse-mbar" style={{
         position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 200,

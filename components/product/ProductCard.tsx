@@ -371,7 +371,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
       </div>
 
       {/* ── Meta — flush, no horizontal padding ── */}
-      <div style={{ paddingTop: '0.5rem' }}>
+      <div style={{ paddingTop: '0.35rem' }}>
         <p
           aria-label="Brand"
           style={{
@@ -381,7 +381,7 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
             letterSpacing: '0.14em',
             textTransform: 'uppercase',
             color: 'var(--color-muted)',
-            marginBottom: '2px',
+            marginBottom: '1px',
             lineHeight: 1,
           }}
         >
@@ -391,9 +391,9 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
         <p
           style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: '0.8rem',
+            fontSize: '0.75rem',
             fontWeight: 400,
-            lineHeight: 1.3,
+            lineHeight: 1.2,
             color: 'var(--color-black)',
             textTransform: 'uppercase',
             letterSpacing: 0,
@@ -408,9 +408,9 @@ export default function ProductCard({ product, fetchPriority = 'auto' }: Product
 
         <p
           style={{
-            marginTop: '0.25rem',
+            marginTop: '0.15rem',
             fontFamily: 'var(--font-sans)',
-            fontSize: '0.8rem',
+            fontSize: '0.75rem',
             fontWeight: 500,
             color: 'var(--color-black)',
             fontVariantNumeric: 'tabular-nums',

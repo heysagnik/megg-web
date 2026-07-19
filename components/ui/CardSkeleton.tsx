@@ -18,21 +18,21 @@ const styles: Record<string, CSSProperties> = {
   meta: {
     display: "flex",
     flexDirection: "column",
-    gap: "0.5rem",
-    paddingTop: "0.75rem",
+    gap: "0.35rem",
+    paddingTop: "0.35rem",
   },
   lineBrand: {
-    height: "0.625rem",
+    height: "0.5rem",
     width: "40%",
   },
   lineName: {
-    height: "0.625rem",
+    height: "0.5rem",
     width: "70%",
   },
   linePrice: {
-    height: "0.625rem",
+    height: "0.5rem",
     width: "30%",
-    marginTop: "0.25rem",
+    marginTop: "0.15rem",
   },
 };
 

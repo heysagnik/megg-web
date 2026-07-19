@@ -3,7 +3,7 @@ import { getTrendingProducts, type Gender } from '@/lib/api'
 import HeroSection from '@/components/home/HeroSection'
 import CategoryRow from '@/components/home/CategoryRow'
 import Under699Banner from '@/components/home/Under699Banner'
-import ReelsSection from '@/components/home/ReelsSection'
+
 import OffersSection from '@/components/home/OffersSection'
 import TrendingStrip from '@/components/home/TrendingStrip'
 import NewArrivalsSection from '@/components/home/NewArrivalsSection'
@@ -119,14 +119,14 @@ export default async function HomePage(_: PageProps) {
       </div>
       <CategoryRow />
       <Under699Banner />
-      <ReelsSection />
-      <OffersSection />
+
       <TrendingStrip products={trending} />
+      <OffersSection />
       <section
         id="new-arrivals"
         style={{ paddingTop: 'var(--space-md)', paddingBottom: 'var(--space-xl)' }}
       >
-        <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: '0 var(--container-px)' }}>
+        <div style={{ maxWidth: '980px', margin: '0 auto', padding: '0 var(--container-px)' }}>
           <div style={{ marginBottom: 'var(--space-lg)' }}>
             <p className="text-label" style={{ color: 'var(--color-muted)', marginBottom: '0.4rem' }}>
               Fresh drops, every day

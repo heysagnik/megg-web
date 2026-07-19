@@ -14,8 +14,8 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
   return (
     <section
       style={{
-        paddingTop: 'var(--space-md)',
-        paddingBottom: 'var(--space-md)',
+        paddingTop: 'var(--space-xl)',
+        paddingBottom: 'var(--space-xl)',
         overflow: 'hidden',
       }}
     >
@@ -32,7 +32,7 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
       {/* ── Container ── */}
       <div
         style={{
-          maxWidth: 'var(--container-max)',
+          maxWidth: '980px',
           margin: '0 auto',
           padding: '0 var(--container-px)',
         }}
@@ -55,7 +55,7 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
            * We deliberately go full-bleed so the strip feels editorial rather
            * than boxed. paddingLeft aligns the first card with the content grid.
            */
-          paddingLeft: 'var(--container-px)',
+          paddingLeft: 'max(var(--container-px), calc((100vw - 980px) / 2 + var(--container-px)))',
           paddingRight: 'var(--container-px)',
           paddingBottom: '4px', /* tiny room so card box-shadows aren't clipped */
         }}
@@ -65,7 +65,7 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
             key={product.id}
             style={{
               flexShrink: 0,
-              width: 'clamp(160px, 42vw, 340px)',
+              width: 'clamp(140px, 45vw, 280px)',
               scrollSnapAlign: 'start',
             }}
           >

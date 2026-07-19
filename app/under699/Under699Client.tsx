@@ -1,7 +1,6 @@
 'use client'
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
-import Link from 'next/link'
 import { usePathname, useSearchParams } from 'next/navigation'
 import {
   getUnder699,
@@ -204,9 +203,9 @@ export default function Under699Client({
 
   // ── Derived view state ─────────────────────────────────────────────────
   const navBtn = (active: boolean): React.CSSProperties => ({
-    fontFamily: 'var(--font-sans)', fontSize: '0.75rem', letterSpacing: '0.06em',
-    textTransform: 'uppercase', background: 'none', border: 'none', padding: 0,
-    cursor: 'pointer', textAlign: 'left',
+    fontFamily: 'var(--font-sans)', fontSize: '0.9rem', letterSpacing: '0.06em',
+    textTransform: 'uppercase', background: 'none', border: 'none', padding: '0.35rem 0',
+    cursor: 'pointer', textAlign: 'left', width: '100%',
     color: active ? 'var(--color-black)' : 'var(--color-muted)',
   })
 
@@ -221,11 +220,10 @@ export default function Under699Client({
           onClick={() => changeFilters({ ...filters, subcategory: '' })}
           style={navBtn(!filters.subcategory)}
         >
-          <span style={{ color: 'var(--color-muted)', fontSize: '0.65rem', marginRight: '0.35rem' }}>|00|</span>
           All Under 699
         </button>
       </li>
-      {(avail.categories ?? []).map((cat, i) => (
+      {(avail.categories ?? []).map((cat) => (
         <li key={cat.name} style={{ marginBottom: '0.5rem' }}>
           <button
             type="button"
@@ -235,9 +233,6 @@ export default function Under699Client({
             })}
             style={navBtn(filters.subcategory === cat.name)}
           >
-            <span style={{ color: 'var(--color-muted)', fontSize: '0.65rem', marginRight: '0.35rem' }}>
-              |{String(i + 1).padStart(2, '0')}|
-            </span>
             {cat.name}
           </button>
         </li>
@@ -245,34 +240,26 @@ export default function Under699Client({
     </ul>
   )
 
-  const crumb = (
-    <div>
-      <Link href="/" style={{ ...navBtn(false), display: 'block', marginBottom: '0.3rem' }}>Home</Link>
-      <span style={{ ...navBtn(true), display: 'block' }}>Under Rs. 699</span>
-    </div>
-  )
+
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
       <aside className="browse-sidebar" style={{
-        width: '180px', flexShrink: 0,
-        borderRight: '1px solid var(--color-border)',
-        padding: '2rem 1.25rem',
+        width: '220px', flexShrink: 0,
+        padding: '2rem 1.5rem',
         display: 'flex', flexDirection: 'column',
         position: 'sticky', top: 0, maxHeight: '100vh',
         alignSelf: 'flex-start',
       }}>
-        {crumb && <div style={{ marginBottom: '1.5rem' }}>{crumb}</div>}
-        <div style={{ flex: 1, overflowY: 'auto', marginBottom: '1.5rem' }}>
+        <div style={{ flex: 1, overflowY: 'auto', marginBottom: '1.5rem', width: '100%' }}>
           {sidebarNav}
         </div>
-        <div style={{ marginTop: 'auto' }}>
+        <div style={{ marginTop: 'auto', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {activeCount > 0 && (
             <button type="button"
               onClick={() => changeFilters(BROWSE_EMPTY)}
               style={{
                 ...navBtn(false),
-                display: 'block', marginBottom: '0.75rem',
                 textDecoration: 'underline', textUnderlineOffset: '3px',
                 fontSize: '0.7rem',
               }}>
@@ -282,8 +269,8 @@ export default function Under699Client({
           <button type="button" onClick={() => setFilterOpen(true)} style={{
             fontFamily: 'var(--font-sans)', fontSize: '0.7rem', letterSpacing: '0.14em',
             textTransform: 'uppercase', background: 'none', cursor: 'pointer',
-            border: '1px solid var(--color-black)', padding: '0.7rem 0',
-            color: 'var(--color-black)', width: '100%',
+            border: '1px solid var(--color-black)', padding: '0.7rem 1.5rem',
+            color: 'var(--color-black)', width: 'auto',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
           }}>
             Filters
@@ -304,14 +291,8 @@ export default function Under699Client({
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--color-border)',
+          padding: '1.25rem 1.5rem',
         }}>
-          <h1 style={{
-            fontFamily: 'var(--font-serif)', fontWeight: 300,
-            fontSize: 'clamp(1.1rem, 2vw, 1.75rem)', letterSpacing: '-0.02em',
-          }}>
-            Under Rs. 699
-          </h1>
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
             <button type="button" onClick={() => setFilterOpen(true)} style={{
               fontFamily: 'var(--font-sans)', fontSize: '0.7rem', letterSpacing: '0.12em',
@@ -321,12 +302,28 @@ export default function Under699Client({
               className="browse-mobile-filter">
               Filters{filterCount > 0 ? ` (${filterCount})` : ''}
             </button>
-            <span style={{
-              fontFamily: 'var(--font-sans)', fontSize: '0.75rem',
-              letterSpacing: '0.06em', textTransform: 'uppercase', color: 'var(--color-muted)',
-            }}>
-              {total.toLocaleString()} items
-            </span>
+          </div>
+        </div>
+
+        <div className="browse-tabs" aria-label="Categories">
+          <div className="browse-tabs__scroll">
+            <button
+              type="button"
+              onClick={() => changeFilters({ ...filters, subcategory: '' })}
+              className={`browse-tabs__tab${!filters.subcategory ? ' browse-tabs__tab--active' : ''}`}
+            >
+              All Under 699
+            </button>
+            {(avail.categories ?? []).map(c => (
+              <button
+                key={c.name}
+                type="button"
+                onClick={() => changeFilters({ ...filters, subcategory: filters.subcategory === c.name ? '' : c.name })}
+                className={`browse-tabs__tab${filters.subcategory === c.name ? ' browse-tabs__tab--active' : ''}`}
+              >
+                {c.name}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -362,6 +359,10 @@ export default function Under699Client({
           <EndOfFeed loading={loading} hasMore={hasMore} count={products.length} />
         </div>
       </div>
+
+      <aside className="browse-sidebar-right" style={{
+        width: '220px', flexShrink: 0,
+      }} />
 
       <div className="browse-mbar" style={{
         position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 200,
