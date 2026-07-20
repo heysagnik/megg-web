@@ -1,4 +1,4 @@
-import { getCategories, listProducts, getOutfits, type ProductsResponse, type Outfit, type ScopeParams } from '@/lib/api'
+import { getCategories, listProducts, type ProductsResponse, type ScopeParams } from '@/lib/api'
 
 const BASE = 'https://www.meggfashion.in'
 
@@ -29,10 +29,9 @@ async function getAllProducts(): Promise<Array<ProductsResponse['products'][numb
 }
 
 export async function GET() {
-  const [categories, products, outfits] = await Promise.all([
+  const [categories, products] = await Promise.all([
     getCategories(SCOPE).catch(() => []),
     getAllProducts(),
-    getOutfits(1, 100, SCOPE).catch(() => [] as Outfit[]),
   ])
 
   const catUrls = categories.map(c => ({
@@ -49,14 +48,7 @@ export async function GET() {
     lastmod: TODAY,
   }))
 
-  const outfitUrls = outfits.map(o => ({
-    url: `${BASE}/outfit/${o.id}`,
-    priority: '0.7',
-    changefreq: 'weekly',
-    lastmod: TODAY,
-  }))
-
-  const all = [...STATIC, ...catUrls, ...productUrls, ...outfitUrls]
+  const all = [...STATIC, ...catUrls, ...productUrls]
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

@@ -38,7 +38,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ].filter(Boolean).join(' · ')
     || description.slice(0, 150)
 
-  const ogImageUrl = `${url}/opengraph-image`
+  const defaultOg = 'https://www.meggfashion.in/opengraph-image'
+  const firstImage = product.images?.[0]
+  const ogImageUrl = firstImage 
+    ? `https://edge.meggfashion.in/api/optimize?url=${encodeURIComponent(firstImage.startsWith('http') ? firstImage : `https://media.meggfashion.in${firstImage.startsWith('/') ? '' : '/'}${firstImage}`)}&w=1200&q=82&f=jpeg`
+    : defaultOg
 
   const subcat = (product.subcategory as string | undefined)?.toLowerCase() ?? ''
   const keywords = [
@@ -65,7 +69,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url,
       title: `${product.name} by ${product.brand} — MEGG`,
       description: ogDescription,
-      images: [{ url: ogImageUrl, width: 1200, height: 630, alt: product.name as string }],
+      images: [{ url: ogImageUrl, width: 1200, height: 900, alt: product.name as string }],
     },
     twitter: {
       card: 'summary_large_image',
