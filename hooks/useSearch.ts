@@ -8,8 +8,7 @@ import {
   type SearchResult,
   type SearchSort,
 } from '@/lib/api'
-
-const PAGE_SIZE = 20
+import { BROWSE_PAGE_SIZE } from '@/lib/constants'
 
 function sortedKey(p: URLSearchParams): string {
   const rows = Array.from(p.entries()).filter(([k]) => k !== 'page')
@@ -24,7 +23,9 @@ function normalise(p: URLSearchParams): URLSearchParams {
     out.delete('q')
   }
   return out
-}export function useSearch() {
+}
+
+export function useSearch() {
   const router   = useRouter()
   const pathname = usePathname()
   const raw      = useSearchParams()
@@ -75,7 +76,7 @@ function normalise(p: URLSearchParams): URLSearchParams {
     const p = new URLSearchParams(params)
     if (!p.get('sort')) p.set('sort', defaultSort)
     p.set('page', String(page))
-    p.set('limit', String(PAGE_SIZE))
+    p.set('limit', String(BROWSE_PAGE_SIZE))
 
     searchProductsRaw(p)
       .then(res => {

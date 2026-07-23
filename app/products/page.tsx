@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import { listProducts, type Gender } from '@/lib/api'
-import ProductsClient from './ProductsClient'
+import { BROWSE_PAGE_SIZE } from '@/lib/constants'
+import { collectionPageLd, SITE_URL } from '@/lib/seo/jsonld'
+import JsonLd from '@/components/seo/JsonLd'
+import BrowseRoute from '@/components/product/BrowseRoute'
 
 export const revalidate = 600
 export const dynamic = 'force-static'
@@ -35,42 +38,37 @@ export const metadata: Metadata = {
   },
 }
 
+import { Suspense } from 'react'
+
 export default async function ProductsPage() {
   const gender: Gender = 'men';
   // No server-side searchParams access → route stays static and edge-cacheable.
   // The client hydrates from /products (no category) and re-fetches with the
   // category param when the URL changes.
-  const data = await listProducts({ page: 1, limit: 20, gender }).catch(() => ({
+  const data = await listProducts({ page: 1, limit: BROWSE_PAGE_SIZE, gender }).catch(() => ({
     products: [],
     total: 0,
     availableFilters: { subcategories: [], colors: [], brands: [], categories: [] },
   }))
 
   const products = data.products ?? []
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
+  const jsonLd = collectionPageLd({
+    url: `${SITE_URL}/products`,
     name: 'All Products — MEGG',
-    url: 'https://www.meggfashion.in/products',
-    mainEntity: {
-      '@type': 'ItemList',
-      itemListElement: products.slice(0, 10).map((p, i) => ({
-        '@type': 'ListItem',
-        position: i + 1,
-        url: `https://www.meggfashion.in/product/${p.id}`,
-        name: p.name,
-      })),
-    },
-  }
+    products,
+  })
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <ProductsClient
-        initialProducts={products}
-        initialTotal={data.total ?? 0}
-        initialFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}
-      />
+      <JsonLd data={jsonLd} />
+      <Suspense fallback={null}>
+        <BrowseRoute
+          kind="products"
+          initialProducts={products}
+          initialTotal={data.total ?? 0}
+          initialFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}
+        />
+      </Suspense>
     </>
   )
 }

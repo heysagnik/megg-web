@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import { getProduct } from '@/lib/api'
+import { breadcrumbLdGraph, DEFAULT_RETURN_POLICY, DEFAULT_SHIPPING_DETAILS, SITE_URL } from '@/lib/seo/jsonld'
+import JsonLd from '@/components/seo/JsonLd'
 import ProductPageClient from '@/components/product/ProductPageClient'
 
 type Props = { params: Promise<{ productId: string }> }
@@ -123,15 +125,17 @@ export default async function ProductPage({ params }: Props) {
           availability: 'https://schema.org/InStock',
           url: product.affiliate_link ?? canonicalUrl,
           priceValidUntil,
-          seller: { '@type': 'Organization', name: 'MEGG', url: 'https://www.meggfashion.in' },
+          seller: { '@type': 'Organization', name: 'MEGG', url: SITE_URL },
+          hasMerchantReturnPolicy: DEFAULT_RETURN_POLICY,
+          shippingDetails: DEFAULT_SHIPPING_DETAILS,
         },
         category: product.category,
       },
       {
         '@type': 'BreadcrumbList',
         itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://www.meggfashion.in' },
-          { '@type': 'ListItem', position: 2, name: product.category, item: `https://www.meggfashion.in/category/${encodeURIComponent(product.category)}` },
+          { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
+          { '@type': 'ListItem', position: 2, name: product.category, item: `${SITE_URL}/category/${encodeURIComponent(product.category)}` },
           { '@type': 'ListItem', position: 3, name: product.name, item: canonicalUrl },
         ],
       },
@@ -140,10 +144,7 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <JsonLd data={jsonLd} />
       <ProductPageClient product={product} />
     </>
   )

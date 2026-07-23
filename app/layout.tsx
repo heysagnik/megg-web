@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import localFont from 'next/font/local'
 import Script from 'next/script'
 import './globals.css'
+import JsonLd from '@/components/seo/JsonLd'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import ProgressBar from '@/components/layout/ProgressBar'
@@ -179,7 +180,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="preconnect" href="https://media.meggfashion.in" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://cloud.umami.is" />
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }} />
+        <JsonLd data={orgSchema} />
       </head>
       <body>
         <InstagramAppRedirect />
@@ -187,7 +188,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AppBottomSheet />
         <ScrollRestoration />
         <Header />
-        <div id="page-wrapper" style={{ minHeight: '100vh', textTransform: 'uppercase' }}>{children}</div>
+        <div id="page-wrapper" className="min-h-screen uppercase">{children}</div>
         <Footer />
         {/* GA — afterInteractive: injected after hydration, never blocks navigationStart */}
         <Script

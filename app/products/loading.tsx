@@ -2,19 +2,13 @@ import CardSkeleton from '@/components/ui/CardSkeleton'
 
 export default function ProductsLoading() {
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '1.25rem 1.5rem', borderBottom: '1px solid var(--color-border)',
-        }}>
-          <div className="skeleton" style={{ height: '1.5rem', width: '30%' }} aria-hidden="true" />
-          <div className="skeleton" style={{ height: '0.75rem', width: '60px' }} aria-hidden="true" />
+    <div className="flex min-h-screen">
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between p-[1.25rem_1.5rem] border-b border-border">
+          <div className="skeleton h-6 w-[30%]" aria-hidden="true" />
+          <div className="skeleton h-3 w-[60px]" aria-hidden="true" />
         </div>
-        <div style={{
-          display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
-          gap: '1rem', padding: '1rem',
-        }}>
+        <div className="grid grid-cols-2 gap-sm p-sm">
           {Array.from({ length: 12 }).map((_, i) => <CardSkeleton key={i} />)}
         </div>
       </div>

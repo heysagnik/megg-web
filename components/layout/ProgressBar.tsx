@@ -91,20 +91,12 @@ export default function ProgressBar() {
     <div
       aria-hidden="true"
       role="presentation"
+      className="progress-bar"
       style={{
-        position:        'fixed',
-        top:             0,
-        left:            0,
-        right:           0,
-        height:          '1.5px',
-        backgroundColor: 'var(--color-black)',
-        zIndex:          9999,
-        transformOrigin: 'left center',
-        pointerEvents:   'none',
-        transform:       `scaleX(${bar.scaleX})`,
-        opacity:         bar.opacity,
-        transition:      bar.transition,
-        willChange:      'transform, opacity',
+        height:       '1.5px',
+        transform:    `scaleX(${bar.scaleX})`,
+        opacity:      bar.opacity,
+        transition:   bar.transition,
       }}
     />
   )

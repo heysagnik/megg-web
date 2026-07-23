@@ -1,426 +1,171 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { useState, useCallback, useRef, useEffect } from 'react'
-import type { CSSProperties, MouseEvent, UIEvent } from 'react'
+import { useState, useRef } from 'react'
+import type { MouseEvent, TouchEvent } from 'react'
 import type { Product } from '@/lib/api'
-import { formatPrice } from '@/lib/utils'
+import { cn, formatPrice } from '@/lib/utils'
 import { getCdnImageUrl } from '@/lib/image'
-
-// ─── Internal: Chevron Button ──────────────────────────────────────────────────
-
-const CAROUSEL_GAP = 2;
-
-interface ChevronButtonProps {
-  dir: 'left' | 'right'
-  onClick: (e: MouseEvent<HTMLButtonElement>) => void
-}
-
-function ChevronButton({ dir, onClick }: ChevronButtonProps) {
-  const style: CSSProperties = {
-    position: 'absolute',
-    top: '50%',
-    [dir]: '10px',
-    transform: 'translateY(-50%)',
-    zIndex: 2,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    background: 'none',
-    border: 'none',
-    padding: '6px',
-    cursor: 'pointer',
-    color: 'var(--color-black)',
-    animation: 'card-fade-in 180ms ease both',
-    backdropFilter: 'none',
-  }
-
-  return (
-    <button
-      type="button"
-      aria-label={dir === 'left' ? 'Previous image' : 'Next image'}
-      onClick={onClick}
-      style={style}
-    >
-      <svg
-        width="20"
-        height="20"
-        viewBox="0 0 20 20"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-      >
-        {dir === 'left' ? (
-          <polyline
-            points="13 4 7 10 13 16"
-            stroke="currentColor"
-            strokeWidth="1"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        ) : (
-          <polyline
-            points="7 4 13 10 7 16"
-            stroke="currentColor"
-            strokeWidth="1"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        )}
-      </svg>
-    </button>
-  )
-}
-
-// ─── Internal: Dot Indicators ──────────────────────────────────────────────────
-
-interface DotIndicatorsProps {
-  count: number
-  active: number
-}
-
-function DotIndicators({ count, active }: DotIndicatorsProps) {
-  const wrapStyle: CSSProperties = {
-    position: 'absolute',
-    bottom: '10px',
-    left: '50%',
-    transform: 'translateX(-50%)',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '4px',
-    zIndex: 2,
-    animation: 'card-fade-in 180ms ease both',
-  }
-
-  return (
-    <div style={wrapStyle} aria-hidden="true">
-      {Array.from({ length: count }).map((_, i) => (
-        <div
-          key={i}
-          style={{
-            height: '3px',
-            width: i === active ? '12px' : '3px',
-            borderRadius: '999px',
-            background: 'var(--color-black)',
-            opacity: i === active ? 0.75 : 0.35,
-            transition: 'width 200ms ease, opacity 200ms ease',
-          }}
-        />
-      ))}
-    </div>
-  )
-}
-
-// ─── Image slot ───────────────────────────────────────────────────────────────
-//
-// Renders a single image inside the carousel slide.
-// - <picture> with AVIF + WebP sources, JPEG <img> fallback.
-// - Width/height attrs match the visual aspect ratio so layout is reserved
-//   before the image loads (no CLS).
-// - Lazy by default, eager + high priority only when `priority` is set AND
-//   this is the very first slide.
-
-interface ProductImageProps {
-  src: string
-  alt: string
-  priority: boolean
-  priorityIndex: number
-  slideIndex: number
-}
-
-function ProductImage({ src, alt, priority, priorityIndex, slideIndex }: ProductImageProps) {
-  const isPrimary = priority && slideIndex === priorityIndex
-  const url = getCdnImageUrl(src)
-
-  return (
-    <img
-      src={url}
-      alt={alt}
-      width={800}
-      height={1066}
-      loading={isPrimary ? 'eager' : 'lazy'}
-      decoding={isPrimary ? 'sync' : 'async'}
-      fetchPriority={isPrimary ? 'high' : 'auto'}
-      style={{
-        position: 'absolute',
-        inset: 0,
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover',
-      }}
-      draggable={false}
-    />
-  )
-}
-
-// ─── ProductCard ───────────────────────────────────────────────────────────────
 
 export interface ProductCardProps {
   product: Product
   fetchPriority?: 'high' | 'low' | 'auto'
+  cardBgClass?: string
+  aspectClass?: string
 }
 
-export default function ProductCard({ product, fetchPriority = 'auto' }: ProductCardProps) {
-  const router = useRouter()
-  const isHigh = fetchPriority === 'high'
-  const [hovered, setHovered] = useState(false)
-  const isTouchRef = useRef(false)
-
+export default function ProductCard({
+  product,
+  fetchPriority = 'auto',
+  cardBgClass = 'bg-[#f2efea]',
+  aspectClass = 'aspect-[3/4]',
+}: ProductCardProps) {
   const [imgIdx, setImgIdx] = useState(0)
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const [hovered, setHovered] = useState(false)
+  const [isTouching, setIsTouching] = useState(false)
+  const touchStartX = useRef<number>(0)
+  const touchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const images = product.images ?? []
   const hasMultiple = images.length > 1
-  const extendedImages = hasMultiple ? [images[images.length - 1], ...images, images[0]] : images
+  const currentImage = images[imgIdx] || images[0] || ''
+  const isHigh = fetchPriority === 'high'
 
-  useEffect(() => {
-    if (hasMultiple && scrollContainerRef.current) {
-      const el = scrollContainerRef.current
-      el.scrollLeft = el.clientWidth + CAROUSEL_GAP
-    }
-  }, [hasMultiple])
+  const handlePrev = (e: MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setImgIdx(prev => (prev === 0 ? images.length - 1 : prev - 1))
+  }
 
-  // ── Handlers ──
+  const handleNext = (e: MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setImgIdx(prev => (prev === images.length - 1 ? 0 : prev + 1))
+  }
 
-  const handleClick = useCallback(() => {
-    router.push(`/product/${product.id}`)
-  }, [router, product.id])
+  const handleTouchStart = (e: TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX
+    setIsTouching(true)
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current)
+  }
 
-  const [isResetting, setIsResetting] = useState(false)
-
-  const resetCard = useCallback(() => {
-    setHovered(false)
-    isTouchRef.current = false
-    setImgIdx(0)
-    setIsResetting(true)
-
-    requestAnimationFrame(() => {
-      if (scrollContainerRef.current) {
-        const targetScroll = hasMultiple ? scrollContainerRef.current.clientWidth + CAROUSEL_GAP : 0
-        scrollContainerRef.current.style.scrollSnapType = 'none'
-        scrollContainerRef.current.scrollTo({ left: targetScroll, behavior: 'instant' } as ScrollToOptions)
-        scrollContainerRef.current.scrollLeft = targetScroll
-      }
-      setTimeout(() => setIsResetting(false), 50)
-    })
-  }, [hasMultiple])
-
-  const handleMouseLeave = useCallback(() => {
-    resetCard()
-  }, [resetCard])
-
-  useEffect(() => {
-    const handleOutsideTouch = (e: TouchEvent) => {
-      if (scrollContainerRef.current && !scrollContainerRef.current.contains(e.target as Node)) {
-        const targetScroll = hasMultiple ? scrollContainerRef.current.clientWidth + CAROUSEL_GAP : 0
-        if (isTouchRef.current || scrollContainerRef.current.scrollLeft !== targetScroll) {
-          resetCard()
-        }
+  const handleTouchEnd = (e: TouchEvent) => {
+    const diff = touchStartX.current - e.changedTouches[0].clientX
+    if (Math.abs(diff) > 35) {
+      if (diff > 0) {
+        setImgIdx(prev => (prev === images.length - 1 ? 0 : prev + 1))
+      } else {
+        setImgIdx(prev => (prev === 0 ? images.length - 1 : prev - 1))
       }
     }
-    document.addEventListener('touchstart', handleOutsideTouch, { passive: true })
-    return () => document.removeEventListener('touchstart', handleOutsideTouch)
-  }, [hasMultiple, resetCard])
-
-  const handleLeft = useCallback((e: MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-    e.preventDefault()
-    if (scrollContainerRef.current) {
-      const width = scrollContainerRef.current.clientWidth + CAROUSEL_GAP
-      scrollContainerRef.current.scrollBy({ left: -width, behavior: 'smooth' })
-    }
-  }, [])
-
-  const handleRight = useCallback((e: MouseEvent<HTMLButtonElement>) => {
-    e.stopPropagation()
-    e.preventDefault()
-    if (scrollContainerRef.current) {
-      const width = scrollContainerRef.current.clientWidth + CAROUSEL_GAP
-      scrollContainerRef.current.scrollBy({ left: width, behavior: 'smooth' })
-    }
-  }, [])
-
-  const handleScroll = useCallback((e: UIEvent<HTMLDivElement>) => {
-    const el = e.currentTarget
-    const width = el.clientWidth
-    const snapWidth = width + CAROUSEL_GAP
-    const scrollLeft = el.scrollLeft
-
-    if (!hasMultiple || width === 0) return
-
-    let realIdx = Math.round(scrollLeft / snapWidth) - 1
-    if (realIdx < 0) realIdx = images.length - 1
-    if (realIdx >= images.length) realIdx = 0
-
-    if (realIdx !== imgIdx) {
-      setImgIdx(realIdx)
-    }
-
-    if (scrollLeft <= 1) {
-      el.style.scrollSnapType = 'none'
-      el.scrollLeft = images.length * snapWidth
-      void el.offsetHeight
-      if (!isResetting) el.style.scrollSnapType = 'x mandatory'
-    } else if (scrollLeft >= (extendedImages.length - 1) * snapWidth - 1) {
-      el.style.scrollSnapType = 'none'
-      el.scrollLeft = snapWidth
-      void el.offsetHeight
-      if (!isResetting) el.style.scrollSnapType = 'x mandatory'
-    }
-  }, [images.length, extendedImages.length, imgIdx, hasMultiple, isResetting])
-
-  const handleTouchStart = useCallback(() => {
-    isTouchRef.current = true
-  }, [])
-
-  const handleMouseEnter = useCallback(() => {
-    if (isTouchRef.current) return
-    setHovered(true)
-  }, [])
-
-  // ── Styles ──
-
-  const wrapperStyle: CSSProperties = {
-    cursor: 'pointer',
-    width: '100%',
-    textTransform: 'uppercase',
-    letterSpacing: 'normal',
-    color: 'var(--color-black)',
-    outline: 'none',
+    touchTimerRef.current = setTimeout(() => setIsTouching(false), 1200)
   }
 
-  const imageWrapperStyle: CSSProperties = {
-    position: 'relative',
-    width: '100%',
-    aspectRatio: '3 / 4',
-    overflow: 'hidden',
-  }
-
-  const imageAreaStyle: CSSProperties = {
-    width: '100%',
-    height: '100%',
-    overflowX: 'auto',
-    overflowY: 'hidden',
-    scrollSnapType: isResetting ? 'none' : 'x mandatory',
-    scrollbarWidth: 'none',
-    display: 'flex',
-    flexDirection: 'row',
-    gap: `${CAROUSEL_GAP}px`,
-  }
-
-  // ── Render ──
+  const showControls = hasMultiple && (hovered || isTouching)
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
-      style={wrapperStyle}
-      onClick={handleClick}
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
+    <a
+      href={`/product/${product.id}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group block w-full cursor-pointer uppercase tracking-normal text-black outline-none no-underline"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       onTouchStart={handleTouchStart}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          router.push(`/product/${product.id}`)
-        }
-      }}
+      onTouchEnd={handleTouchEnd}
       aria-label={`${product.brand} — ${product.name}`}
     >
-      {/* ── Image Area Wrapper ── */}
-      <div style={imageWrapperStyle}>
+      {/* Image container */}
+      <div className={cn('relative w-full overflow-hidden', aspectClass, cardBgClass)}>
+        {/* Sliding image track */}
         <div
-          ref={scrollContainerRef}
-          onScroll={handleScroll}
-          style={imageAreaStyle}
-          className="hide-scrollbar"
+          className="flex flex-row w-full h-full transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
+          style={{ transform: `translateX(-${imgIdx * 100}%)` }}
         >
-          <style dangerouslySetInnerHTML={{ __html: '.hide-scrollbar::-webkit-scrollbar { display: none; }' }} />
-          {extendedImages.map((img, i) => {
-            const isClone = hasMultiple && (i === 0 || i === extendedImages.length - 1)
-            return (
-              <div
-                key={i}
-                style={{ width: '100%', height: '100%', flexShrink: 0, scrollSnapAlign: 'start', position: 'relative', background: 'var(--color-gray-50)' }}
-              >
-                <ProductImage
-                  src={img}
-                  alt={`${product.brand} ${product.name}`}
-                  priority={isHigh}
-                  priorityIndex={1}
-                  slideIndex={i}
-                />
-              </div>
-            )
-          })}
+          {(images.length > 0 ? images : ['']).map((img, i) => (
+            <div key={i} className="w-full h-full shrink-0 relative">
+              <img
+                src={getCdnImageUrl(img)}
+                alt={`${product.brand} ${product.name}`}
+                width={800}
+                height={1066}
+                loading={isHigh && i === 0 ? 'eager' : 'lazy'}
+                decoding={isHigh && i === 0 ? 'sync' : 'async'}
+                fetchPriority={isHigh && i === 0 ? 'high' : 'auto'}
+                className="w-full h-full object-cover"
+                draggable={false}
+              />
+            </div>
+          ))}
         </div>
 
+        {/* Minimal Hover / Carousel Controls */}
         {hasMultiple && (
           <>
-            {hovered && (
-              <>
-                <ChevronButton dir="left" onClick={handleLeft} />
-                <ChevronButton dir="right" onClick={handleRight} />
-              </>
-            )}
-            {(hovered || isTouchRef.current) && (
-              <DotIndicators count={images.length} active={imgIdx} />
-            )}
+            {/* Minimal Left Chevron */}
+            <button
+              type="button"
+              aria-label="Previous image"
+              onClick={handlePrev}
+              className={cn(
+                'absolute left-1.5 top-1/2 -translate-y-1/2 z-10 p-1 text-black bg-transparent border-none cursor-pointer transition-all duration-200 hover:scale-110 active:scale-95',
+                showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none md:opacity-0',
+              )}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+
+            {/* Minimal Right Chevron */}
+            <button
+              type="button"
+              aria-label="Next image"
+              onClick={handleNext}
+              className={cn(
+                'absolute right-1.5 top-1/2 -translate-y-1/2 z-10 p-1 text-black bg-transparent border-none cursor-pointer transition-all duration-200 hover:scale-110 active:scale-95',
+                showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none md:opacity-0',
+              )}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+
+            {/* Minimal Dash Indicators — Black colored, auto-hides when mouse leaves */}
+            <div
+              className={cn(
+                'absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 transition-opacity duration-300 pointer-events-none',
+                showControls ? 'opacity-100' : 'opacity-0',
+              )}
+            >
+              {images.map((_, i) => (
+                <div
+                  key={i}
+                  className={cn(
+                    'h-[2px] transition-all duration-300',
+                    i === imgIdx ? 'w-3.5 bg-black' : 'w-1 bg-black/35',
+                  )}
+                />
+              ))}
+            </div>
           </>
         )}
       </div>
 
-      {/* ── Meta — flush, no horizontal padding ── */}
-      <div style={{ paddingTop: '0.35rem' }}>
-        <p
-          aria-label="Brand"
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: '0.6rem',
-            fontWeight: 600,
-            letterSpacing: '0.14em',
-            textTransform: 'uppercase',
-            color: 'var(--color-muted)',
-            marginBottom: '1px',
-            lineHeight: 1,
-          }}
-        >
+      {/* Product Details */}
+      <div className="mt-2.5 w-full font-sans">
+        <p className="text-[0.625rem] font-semibold tracking-[0.14em] uppercase text-neutral-500 mb-1 leading-none">
           {product.brand}
         </p>
 
-        <p
-          style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: '0.75rem',
-            fontWeight: 400,
-            lineHeight: 1.2,
-            color: 'var(--color-black)',
-            textTransform: 'uppercase',
-            letterSpacing: 0,
-            display: '-webkit-box',
-            WebkitLineClamp: 2,
-            WebkitBoxOrient: 'vertical',
-            overflow: 'hidden',
-          }}
-        >
+        <h3 className="text-[0.725rem] md:text-[0.75rem] font-normal leading-[1.25] text-black uppercase tracking-normal truncate block w-full">
           {product.name}
-        </p>
+        </h3>
 
-        <p
-          style={{
-            marginTop: '0.15rem',
-            fontFamily: 'var(--font-sans)',
-            fontSize: '0.75rem',
-            fontWeight: 500,
-            color: 'var(--color-black)',
-            fontVariantNumeric: 'tabular-nums',
-            letterSpacing: 0,
-            textTransform: 'none',
-          }}
-        >
+        <p className="mt-1 text-[0.725rem] md:text-[0.75rem] font-medium text-black tracking-normal normal-case tabular-nums">
           {formatPrice(product.price)}
         </p>
       </div>
-    </div>
+    </a>
   )
 }

@@ -1,6 +1,9 @@
 import type { Metadata } from 'next'
 import { getUnder699, type Gender } from '@/lib/api'
-import Under699Client from './Under699Client'
+import { BROWSE_PAGE_SIZE } from '@/lib/constants'
+import { collectionPageLd, SITE_URL } from '@/lib/seo/jsonld'
+import JsonLd from '@/components/seo/JsonLd'
+import BrowseRoute from '@/components/product/BrowseRoute'
 
 export const revalidate = 600
 export const dynamic = 'force-static'
@@ -37,38 +40,29 @@ interface Props {
 
 export default async function Under699Page(_: Props) {
   const gender: Gender = 'men';
-  const data = await getUnder699(1, 20, undefined, undefined, { gender }).catch(() => ({
+  const data = await getUnder699({ page: 1, limit: BROWSE_PAGE_SIZE, gender }).catch(() => ({
     products: [],
     total: 0,
     availableFilters: { subcategories: [], colors: [], brands: [], categories: [] },
   }))
 
   const products = data.products ?? []
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'CollectionPage',
+  const jsonLd = collectionPageLd({
+    url: `${SITE_URL}/under699`,
     name: "Men's Fashion Under Rs 699 — MEGG",
-    url: 'https://www.meggfashion.in/under699',
     description: "Shop curated men's fashion under Rs 699 on MEGG.",
-    mainEntity: {
-      '@type': 'ItemList',
-      itemListElement: products.slice(0, 10).map((p, i) => ({
-        '@type': 'ListItem',
-        position: i + 1,
-        url: `https://www.meggfashion.in/product/${p.id}`,
-        name: p.name,
-      })),
-    },
-  }
+    products,
+  })
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={jsonLd} />
       <Suspense fallback={null}>
-        <Under699Client
+        <BrowseRoute
+          kind="under699"
           initialProducts={products}
-          total={data.total ?? 0}
-          availableFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}
+          initialTotal={data.total ?? 0}
+          initialFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}
         />
       </Suspense>
     </>

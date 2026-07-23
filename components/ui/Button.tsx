@@ -20,37 +20,31 @@ interface ButtonProps {
   href?: string;
 }
 
-const variantClass: Record<ButtonVariant, string> = {
-  primary: "btn-primary",
-  outline: "btn-outline",
-  ghost: "btn-ghost",
-  underline: "btn-underline",
+const baseClasses =
+  "inline-flex items-center justify-center font-sans text-xs font-medium uppercase tracking-wider cursor-pointer transition";
+
+const variantClasses: Record<ButtonVariant, string> = {
+  primary:
+    "bg-black text-white hover:opacity-[0.82]",
+  outline:
+    "border border-black bg-transparent text-black hover:bg-black hover:text-white",
+  ghost:
+    "bg-transparent text-black hover:opacity-55",
+  underline:
+    "bg-transparent text-black underline decoration-1 underline-offset-[3px] hover:opacity-60",
 };
 
-/**
- * Inline style overrides per size.
- * The base CSS classes (.btn-*) set md-sized padding; sm / lg deviate from that.
- */
-const sizeStyles: Record<ButtonSize, React.CSSProperties> = {
-  sm: {
-    fontSize: "var(--text-2xs)",
-    padding: "0.5rem 1.375rem",
-    letterSpacing: "var(--tracking-wider)",
-  },
-  md: {
-    /* intentionally empty — CSS class owns the md defaults */
-  },
-  lg: {
-    fontSize: "var(--text-sm)",
-    padding: "1.125rem 3rem",
-  },
+/** Per-variant size — block-style variants own the padding; underline does not. */
+const blockSizeClasses: Record<ButtonSize, string> = {
+  sm: "text-2xs px-[1.375rem] py-2",
+  md: "px-[2.25rem] py-[0.875rem]",
+  lg: "text-sm px-12 py-[1.125rem]",
 };
 
-/** underline variant has no block padding — only offset from its text baseline */
-const underlineSizeStyles: Record<ButtonSize, React.CSSProperties> = {
-  sm: { fontSize: "var(--text-2xs)" },
-  md: {},
-  lg: { fontSize: "var(--text-sm)" },
+const underlineSizeClasses: Record<ButtonSize, string> = {
+  sm: "text-2xs",
+  md: "text-xs",
+  lg: "text-sm",
 };
 
 export function Button({
@@ -64,19 +58,11 @@ export function Button({
   type = "button",
   href,
 }: ButtonProps) {
-  const cls = cn(variantClass[variant], className);
+  const sizeClasses =
+    variant === "underline" ? underlineSizeClasses[size] : blockSizeClasses[size];
+  const disabledClasses = disabled ? "opacity-[0.38] pointer-events-none cursor-not-allowed" : "";
 
-  const inlineStyle: React.CSSProperties =
-    variant === "underline" ? underlineSizeStyles[size] : sizeStyles[size];
-
-  const disabledStyle: React.CSSProperties = disabled
-    ? { opacity: 0.38, pointerEvents: "none", cursor: "not-allowed" }
-    : {};
-
-  const combinedStyle: React.CSSProperties = {
-    ...inlineStyle,
-    ...disabledStyle,
-  };
+  const cls = cn(baseClasses, variantClasses[variant], sizeClasses, disabledClasses, className);
 
   /* ── Render as Next.js Link when href is supplied ── */
   if (href) {
@@ -84,7 +70,6 @@ export function Button({
       <Link
         href={href}
         className={cls}
-        style={combinedStyle}
         onClick={onClick as React.MouseEventHandler<HTMLAnchorElement>}
         aria-disabled={disabled}
         tabIndex={disabled ? -1 : undefined}
@@ -99,7 +84,6 @@ export function Button({
     <button
       type={type}
       className={cls}
-      style={combinedStyle}
       onClick={onClick as React.MouseEventHandler<HTMLButtonElement>}
       disabled={disabled}
     >

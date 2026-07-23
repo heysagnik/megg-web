@@ -1,13 +1,12 @@
-import type React from 'react'
-import { Spinner } from './Spinner'
-import { cn } from '@/lib/utils'
+import { Spinner } from './Spinner';
+import { cn } from '@/lib/utils';
 
 interface EndOfFeedProps {
-  loading: boolean
-  hasMore: boolean
-  count: number
-  message?: string
-  className?: string
+  loading: boolean;
+  hasMore: boolean;
+  count: number;
+  message?: string;
+  className?: string;
 }
 
 export function EndOfFeed({
@@ -19,63 +18,23 @@ export function EndOfFeed({
 }: EndOfFeedProps) {
   if (loading) {
     return (
-      <div
-        className={cn(className)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: 'var(--space-xl) 0',
-        }}
-      >
+      <div className={cn('flex items-center justify-center py-xl', className)}>
         <Spinner size="md" />
       </div>
-    )
+    );
   }
 
   if (!hasMore && count > 0) {
     return (
-      <div
-        className={cn(className)}
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: 'var(--space-md)',
-          padding: 'var(--space-xl) 0',
-        }}
-      >
-        {/* Left hairline */}
-        <div
-          aria-hidden="true"
-          style={{
-            flex: 1,
-            height: '1px',
-            background: 'var(--color-border)',
-          }}
-        />
-
-        {/* Label */}
-        <span
-          className="text-label"
-          style={{ color: 'var(--color-muted)', whiteSpace: 'nowrap' }}
-        >
-          {message}
-        </span>
-
-        {/* Right hairline */}
-        <div
-          aria-hidden="true"
-          style={{
-            flex: 1,
-            height: '1px',
-            background: 'var(--color-border)',
-          }}
-        />
+      <div className={cn('flex items-center gap-md py-xl', className)}>
+        <div className="flex-1 h-px bg-border" aria-hidden="true" />
+        <span className="text-label text-muted whitespace-nowrap">{message}</span>
+        <div className="flex-1 h-px bg-border" aria-hidden="true" />
       </div>
-    )
+    );
   }
 
-  return null
+  return null;
 }
 
-export default EndOfFeed
+export default EndOfFeed;

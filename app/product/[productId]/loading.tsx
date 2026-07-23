@@ -1,132 +1,62 @@
 export default function ProductLoading() {
   return (
-    <>
-      <style>{`
-        .product-loading {
-          display: flex;
-          flex-direction: column;
-          background: var(--color-white);
-          min-height: 100svh;
-        }
-        @media (min-width: 768px) {
-          .product-loading {
-            flex-direction: row;
-            align-items: flex-start;
-          }
-        }
-
-        /* Left / image side */
-        .product-loading-img {
-          width: 100%;
-          display: flex;
-          flex-direction: row;
-        }
-        @media (min-width: 768px) {
-          .product-loading-img {
-            width: 50%;
-          }
-        }
-
-        .product-loading-strip {
-          width: 1.25rem;
-          height: 100svh;
-          flex-shrink: 0;
-          display: none;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 5px;
-        }
-        @media (min-width: 768px) {
-          .product-loading-strip {
-            display: flex;
-          }
-        }
-
-        .product-loading-img-area {
-          flex: 1;
-          aspect-ratio: 3 / 4;
-        }
-        @media (min-width: 768px) {
-          .product-loading-img-area {
-            aspect-ratio: unset;
-            height: 100svh;
-          }
-        }
-
-        /* Right / info side */
-        .product-loading-info {
-          width: 100%;
-          padding: 1.5rem var(--container-px) 3rem;
-          display: flex;
-          flex-direction: column;
-        }
-        @media (min-width: 768px) {
-          .product-loading-info {
-            width: 50%;
-            height: 100svh;
-            padding: 0;
-            align-items: center;
-            justify-content: center;
-            border-left: 1px solid var(--color-border);
-          }
-        }
-
-        .product-loading-info-inner {
-          width: 100%;
-        }
-        @media (min-width: 768px) {
-          .product-loading-info-inner {
-            width: 72%;
-            padding: 2rem 0;
-          }
-        }
-      `}</style>
-
-      <div className="product-loading" aria-hidden="true">
-        {/* ── Image side ── */}
-        <div className="product-loading-img">
-          <div className="product-loading-strip">
-            {[0, 1, 2].map(i => (
-              <div key={i} style={{ width: '2px', height: '2rem', background: 'var(--color-border-mid)', flexShrink: 0 }} />
-            ))}
-          </div>
-          <div className="skeleton product-loading-img-area" />
+    <div
+      className="flex flex-col bg-white min-h-[100svh] md:flex-row md:items-start"
+      aria-hidden="true"
+    >
+      {/* ── Image side ── */}
+      <div className="flex flex-row w-full md:w-1/2">
+        <div
+          className="w-5 h-[100svh] flex-shrink-0 hidden md:flex flex-col items-center justify-center gap-[5px]"
+        >
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="w-[2px] h-8 bg-border-mid flex-shrink-0"
+            />
+          ))}
         </div>
+        <div className="skeleton flex-1 aspect-[3/4] md:aspect-auto md:h-[100svh]" />
+      </div>
 
-        {/* ── Info side ── */}
-        <div className="product-loading-info">
-          <div className="product-loading-info-inner">
-            {/* Brand */}
-            <div className="skeleton" style={{ height: '0.55rem', width: '32%', marginBottom: '0.75rem' }} />
+      {/* ── Info side ── */}
+      <div className="w-full flex flex-col p-md px-[var(--container-px)] pb-12 md:w-1/2 md:h-[100svh] md:p-0 md:items-center md:justify-center md:border-l md:border-border">
+        <div className="w-full md:w-[72%] md:py-lg">
+          {/* Brand */}
+          <div className="skeleton h-[0.55rem] w-[32%] mb-[0.75rem]" />
 
-            {/* Name */}
-            <div className="skeleton" style={{ height: '1.4rem', width: '90%', marginBottom: '0.45rem' }} />
-            <div className="skeleton" style={{ height: '1.4rem', width: '65%', marginBottom: '1.25rem' }} />
+          {/* Name */}
+          <div className="skeleton h-[1.4rem] w-[90%] mb-[0.45rem]" />
+          <div className="skeleton h-[1.4rem] w-[65%] mb-[1.25rem]" />
 
-            {/* Price */}
-            <div className="skeleton" style={{ height: '1.5rem', width: '28%', marginBottom: 'var(--space-md)' }} />
+          {/* Price */}
+          <div className="skeleton h-6 w-[28%] mb-md" />
 
-            <div style={{ height: 'var(--space-md)' }} />
+          <div className="h-md" />
 
-            {/* Accordion rows */}
-            {[0, 1, 2].map(i => (
-              <div key={i} style={{ borderTop: '1px solid var(--color-border-mid)', minHeight: '3rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <div className="skeleton" style={{ height: '0.6rem', width: i === 0 ? '36%' : i === 1 ? '52%' : '44%' }} />
-                <div className="skeleton" style={{ height: '0.6rem', width: '0.6rem' }} />
-              </div>
-            ))}
+          {/* Accordion rows */}
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="border-t border-border-mid min-h-12 flex items-center justify-between"
+            >
+              <div
+                className="skeleton h-[0.6rem]"
+                style={{ width: i === 0 ? '36%' : i === 1 ? '52%' : '44%' }}
+              />
+              <div className="skeleton h-[0.6rem] w-[0.6rem]" />
+            </div>
+          ))}
 
-            <div style={{ borderTop: '1px solid var(--color-border-mid)' }} />
+          <div className="border-t border-border-mid" />
 
-            {/* Buy button */}
-            <div className="skeleton" style={{ width: '100%', height: '3.25rem' }} />
+          {/* Buy button */}
+          <div className="skeleton w-full h-[3.25rem]" />
 
-            {/* Caption */}
-            <div className="skeleton" style={{ height: '0.5rem', width: '60%', margin: '0.75rem auto 0' }} />
-          </div>
+          {/* Caption */}
+          <div className="skeleton h-[0.5rem] w-[60%] mx-auto mt-[0.75rem]" />
         </div>
       </div>
-    </>
+    </div>
   )
 }

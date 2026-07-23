@@ -16,7 +16,7 @@ export function resolveMediaUrl(src: string): string {
   return `${MEDIA_BASE}/${src}`
 }
 
-export function getCdnImageUrl(src: string, _opts?: CdnImageOptions): string {
+export function getCdnImageUrl(src: string): string {
   return resolveMediaUrl(src)
 }
 

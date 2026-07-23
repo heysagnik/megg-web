@@ -17,41 +17,46 @@ export default function SectionHeader({
   className,
 }: SectionHeaderProps) {
   return (
-    <div
-      className={cn(className)}
-      style={{ marginBottom: 'var(--space-lg)' }}
-    >
+    <div className={cn('mb-xl', className)}>
       <div
-        className="section-header-row"
-        style={{
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
-          gap: '1rem',
-        }}
+        className={cn(
+          'flex items-end justify-between gap-sm',
+          'max-md:flex-col max-md:items-start max-md:gap-1',
+        )}
       >
         {/* Left: eyebrow + title stack */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+        <div className="flex flex-col gap-1">
           {eyebrow && (
-            <span
-              className="text-label"
-              style={{ color: 'var(--color-muted)' }}
-            >
-              {eyebrow}
-            </span>
+            <span className="text-label text-muted">{eyebrow}</span>
           )}
           <h2 className="text-section">{title}</h2>
         </div>
 
-        {/* Right: CTA */}
+        {/* Right: CTA — underline button styled as plain utilities */}
         {cta && (
           <>
             {ctaTo ? (
-              <Link href={ctaTo} className="btn-underline">
+              <Link
+                href={ctaTo}
+                className={cn(
+                  'inline-flex items-center gap-1.5',
+                  'text-xs tracking-wide uppercase',
+                  'underline decoration-1 underline-offset-[3px]',
+                  'transition-opacity hover:opacity-60',
+                )}
+              >
                 {cta}
               </Link>
             ) : (
-              <span className="btn-underline">{cta}</span>
+              <span
+                className={cn(
+                  'inline-flex items-center gap-1.5',
+                  'text-xs tracking-wide uppercase',
+                  'underline decoration-1 underline-offset-[3px]',
+                )}
+              >
+                {cta}
+              </span>
             )}
           </>
         )}

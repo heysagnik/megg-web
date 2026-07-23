@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getTrendingProducts, type Gender } from '@/lib/api'
+import JsonLd from '@/components/seo/JsonLd'
 import HeroSection from '@/components/home/HeroSection'
 import CategoryRow from '@/components/home/CategoryRow'
 import Under699Banner from '@/components/home/Under699Banner'
@@ -107,14 +108,14 @@ export default async function HomePage(_: PageProps) {
 
   return (
     <main>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }} />
+      <JsonLd data={faqJsonLd} />
       {trendingJsonLd && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(trendingJsonLd) }} />
+        <JsonLd data={trendingJsonLd} />
       )}
-      <h1 style={{ position: 'absolute', width: 1, height: 1, padding: 0, margin: -1, overflow: 'hidden', clip: 'rect(0,0,0,0)', whiteSpace: 'nowrap', borderWidth: 0 }}>
-        MEGG — Shop Men&apos;s T-Shirts, Shirts, Jeans, Shoes, Jackets &amp; More Online India
+      <h1 className="sr-only">
+        MEGG — Shop Men's T-Shirts, Shirts, Jeans, Shoes, Jackets & More Online India
       </h1>
-      <div style={{ marginTop: 'calc(-1 * var(--header-height))' }}>
+      <div className="mt-[calc(-1*var(--header-height))]">
         <HeroSection />
       </div>
       <CategoryRow />
@@ -122,16 +123,15 @@ export default async function HomePage(_: PageProps) {
 
       <TrendingStrip products={trending} />
       <OffersSection />
-      <section
-        id="new-arrivals"
-        style={{ paddingTop: 'var(--space-md)', paddingBottom: 'var(--space-xl)' }}
-      >
-        <div style={{ maxWidth: '980px', margin: '0 auto', padding: '0 var(--container-px)' }}>
-          <div style={{ marginBottom: 'var(--space-lg)' }}>
-            <p className="text-label" style={{ color: 'var(--color-muted)', marginBottom: '0.4rem' }}>
-              Fresh drops, every day
+      <section id="new-arrivals" className="pt-12 pb-24">
+        <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-10 lg:px-12">
+          <div className="mb-10">
+            <p className="font-sans text-[0.675rem] font-semibold tracking-[0.2em] uppercase text-neutral-400 mb-1.5">
+              FRESH DROPS, EVERY DAY
             </p>
-            <h2 className="text-section">New Arrivals</h2>
+            <h2 className="font-sans text-2xl sm:text-3xl md:text-4xl font-light tracking-[0.06em] uppercase text-black">
+              NEW ARRIVALS
+            </h2>
           </div>
           <NewArrivalsSection />
         </div>

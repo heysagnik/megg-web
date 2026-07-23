@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -25,22 +25,13 @@ export default function PageHeader({
 }: PageHeaderProps) {
   return (
     <header
-      className={cn(className)}
-      style={{
-        borderBottom: '1px solid var(--color-border)',
-        padding: 'var(--space-md) 0 0',
-      }}
+      className={cn('border-b border-border pt-md', className)}
     >
       {/* Breadcrumbs */}
       {crumbs.length > 0 && (
         <nav
           aria-label="Breadcrumb"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.375rem',
-            marginBottom: 'var(--space-sm)',
-          }}
+          className="mb-sm flex items-center gap-1.5"
         >
           {crumbs.map((crumb, index) => {
             const isLast = index === crumbs.length - 1;
@@ -48,39 +39,18 @@ export default function PageHeader({
             return (
               <span
                 key={`${crumb.label}-${index}`}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.375rem',
-                }}
+                className="inline-flex items-center gap-1.5"
               >
                 {crumb.to && !isLast ? (
                   <Link
                     href={crumb.to}
-                    className="text-label"
-                    style={{
-                      color: 'var(--color-muted)',
-                      transition: 'color 0.2s',
-                    }}
-                    onMouseEnter={(e) =>
-                      ((e.currentTarget as HTMLAnchorElement).style.color =
-                        'var(--color-black)')
-                    }
-                    onMouseLeave={(e) =>
-                      ((e.currentTarget as HTMLAnchorElement).style.color =
-                        'var(--color-muted)')
-                    }
+                    className="text-label text-muted transition-colors hover:text-black"
                   >
                     {crumb.label}
                   </Link>
                 ) : (
                   <span
-                    className="text-label"
-                    style={{
-                      color: isLast
-                        ? 'var(--color-black)'
-                        : 'var(--color-muted)',
-                    }}
+                    className={cn('text-label', isLast ? 'text-black' : 'text-muted')}
                     aria-current={isLast ? 'page' : undefined}
                   >
                     {crumb.label}
@@ -89,11 +59,7 @@ export default function PageHeader({
 
                 {!isLast && (
                   <span
-                    className="text-label"
-                    style={{
-                      color: 'var(--color-muted)',
-                      userSelect: 'none',
-                    }}
+                    className="text-label select-none text-muted"
                     aria-hidden="true"
                   >
                     /
@@ -107,16 +73,10 @@ export default function PageHeader({
 
       {/* Title */}
       <h1
-        style={{
-          fontFamily: 'var(--font-serif)',
-          fontSize: 'clamp(1.8rem, 3.5vw, 3rem)',
-          fontWeight: 400,
-          lineHeight: 1.05,
-          letterSpacing: '-0.02em',
-          textTransform: 'uppercase',
-          color: 'var(--color-black)',
-          marginBottom: subtitle || below ? 'var(--space-xs)' : 'var(--space-md)',
-        }}
+        className={cn(
+          'font-serif uppercase leading-[1.05] tracking-tight text-black text-[clamp(1.8rem,3.5vw,3rem)] font-normal',
+          subtitle || below ? 'mb-xs' : 'mb-md',
+        )}
       >
         {title}
       </h1>
@@ -124,11 +84,10 @@ export default function PageHeader({
       {/* Subtitle */}
       {subtitle && (
         <p
-          className="text-caption"
-          style={{
-            marginBottom: below ? 'var(--space-sm)' : 'var(--space-md)',
-            maxWidth: '52ch',
-          }}
+          className={cn(
+            'text-caption max-w-[52ch]',
+            below ? 'mb-sm' : 'mb-md',
+          )}
         >
           {subtitle}
         </p>
@@ -136,11 +95,7 @@ export default function PageHeader({
 
       {/* Below slot — filter tabs, sort controls, etc. */}
       {below && (
-        <div
-          style={{
-            marginTop: subtitle ? 0 : 'var(--space-sm)',
-          }}
-        >
+        <div className={subtitle ? undefined : 'mt-sm'}>
           {below}
         </div>
       )}

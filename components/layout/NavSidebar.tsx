@@ -1,7 +1,8 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import Link from 'next/link'
+import { useFocusTrap } from '@/hooks/useFocusTrap'
 
 /* ─── Types ──────────────────────────────────────────── */
 interface NavSidebarProps {
@@ -11,71 +12,36 @@ interface NavSidebarProps {
 }
 
 /* ─── Data ───────────────────────────────────────────── */
-const NAV_SECTIONS = [
-  {
-    label: 'Shop',
-    items: [
-      { label: 'New Arrivals',    to: '/#new-arrivals' },
-      { label: 'All Products',    to: '/products' },
-      { label: 'Under Rs. 699',      to: '/under699' },
-    ],
-  },
-  {
-    label: 'Categories',
-    items: [
-      { label: 'Shirts',           to: '/category/Shirt' },
-      { label: 'T-Shirts',         to: '/category/Tshirt' },
-      { label: 'Jeans',            to: '/category/Jeans' },
-      { label: 'Shoes',            to: '/category/Shoes' },
-      { label: 'Jackets',          to: '/category/Jacket' },
-      { label: 'Hoodies',          to: '/category/Hoodies' },
-      { label: 'Sweatshirts',      to: '/category/Sweatshirt' },
-      { label: 'Sweaters',         to: '/category/Sweater' },
-      { label: 'Track Pants',      to: '/category/Trackpants' },
-      { label: 'Accessories',      to: '/category/Mens Accessories' },
-      { label: 'Innerwear',        to: '/category/Innerwear' },
-      { label: 'Traditional',      to: '/category/Traditional' },
-      { label: 'Perfume',          to: '/category/Perfume' },
-      { label: 'Body Care',        to: '/category/Body Care' },
-      { label: 'Daily Essentials', to: '/category/Daily Essentials' },
-    ],
-  },
+const SHOP_ITEMS = [
+  { label: 'NEW ARRIVALS',  to: '/#new-arrivals' },
+  { label: 'ALL PRODUCTS',  to: '/products' },
+  { label: 'UNDER RS. 699', to: '/under699' },
 ]
 
-const SECONDARY_ITEMS = [
-  { label: 'Search', to: '/search', external: false },
+const CATEGORY_ITEMS = [
+  { label: 'SHIRTS',           to: '/category/Shirt' },
+  { label: 'T-SHIRTS',         to: '/category/Tshirt' },
+  { label: 'JEANS',            to: '/category/Jeans' },
+  { label: 'SHOES',            to: '/category/Shoes' },
+  { label: 'JACKETS',          to: '/category/Jacket' },
+  { label: 'HOODIES',          to: '/category/Hoodies' },
+  { label: 'SWEATSHIRTS',      to: '/category/Sweatshirt' },
+  { label: 'SWEATERS',         to: '/category/Sweater' },
+  { label: 'TRACK PANTS',      to: '/category/Trackpants' },
+  { label: 'ACCESSORIES',      to: '/category/Mens Accessories' },
+  { label: 'INNERWEAR',        to: '/category/Innerwear' },
+  { label: 'TRADITIONAL',      to: '/category/Traditional' },
+  { label: 'PERFUME',          to: '/category/Perfume' },
+  { label: 'BODY CARE',        to: '/category/Body Care' },
+  { label: 'DAILY ESSENTIALS', to: '/category/Daily Essentials' },
 ]
 
-/* ─── Shared row style helpers ───────────────────────── */
-const rowBase: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  width: '100%',
-  textDecoration: 'none',
-  cursor: 'pointer',
-  background: 'none',
-  border: 'none',
-  textAlign: 'left',
-  transition: 'background-color 0.15s ease',
-}
-
-/* ─── Component ──────────────────────────────────────── */
 export default function NavSidebar({ id, isOpen, onClose }: NavSidebarProps) {
-  const [hoveredIndex, setHoveredIndex] = useState<string | null>(null)
+  const drawerRef = useRef<HTMLDivElement>(null)
 
-  const drawerRef  = useRef<HTMLDivElement>(null)
-  const closeRef   = useRef<HTMLButtonElement>(null)
-  const lastFocusRef = useRef<HTMLElement | null>(null)
+  useFocusTrap({ active: isOpen, containerRef: drawerRef, onEscape: onClose })
 
-  /* ── Remember what had focus before the drawer opened ── */
-  useEffect(() => {
-    if (isOpen) {
-      lastFocusRef.current = document.activeElement as HTMLElement
-    }
-  }, [isOpen])
-
-  /* ── Body scroll lock ────────────────────────────────── */
+  /* ── Body scroll lock ── */
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden'
@@ -85,311 +51,129 @@ export default function NavSidebar({ id, isOpen, onClose }: NavSidebarProps) {
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
-  /* ── Focus the close button when drawer opens ─────────── */
-  useEffect(() => {
-    if (!isOpen) return
-    const timer = setTimeout(() => closeRef.current?.focus(), 50)
-    return () => clearTimeout(timer)
-  }, [isOpen])
-
-  /* ── Restore focus when drawer closes ─────────────────── */
-  useEffect(() => {
-    if (!isOpen && lastFocusRef.current) {
-      const el = lastFocusRef.current
-      // Slight delay so the element is truly interactive again
-      const timer = setTimeout(() => {
-        try { el.focus() } catch (_) { /* ignore */ }
-      }, 50)
-      return () => clearTimeout(timer)
-    }
-  }, [isOpen])
-
-  /* ── Keyboard: Escape + Tab trap ─────────────────────── */
-  useEffect(() => {
-    if (!isOpen) return
-
-    const FOCUSABLE =
-      'a[href], button:not([disabled]), input:not([disabled]), ' +
-      '[tabindex]:not([tabindex="-1"])'
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        onClose()
-        return
-      }
-
-      if (e.key === 'Tab') {
-        const drawer = drawerRef.current
-        if (!drawer) return
-        const focusable = Array.from(
-          drawer.querySelectorAll<HTMLElement>(FOCUSABLE)
-        ).filter((el) => el.offsetParent !== null) // only visible
-
-        if (focusable.length === 0) return
-
-        const first = focusable[0]
-        const last  = focusable[focusable.length - 1]
-
-        if (e.shiftKey) {
-          if (document.activeElement === first) {
-            e.preventDefault()
-            last.focus()
-          }
-        } else {
-          if (document.activeElement === last) {
-            e.preventDefault()
-            first.focus()
-          }
-        }
-      }
-    }
-
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, onClose])
-
-  /* ── Nav item click ──────────────────────────────────── */
-  const handleNavClick = () => onClose()
-
-  /* ─────────────────────────────────────────────────────── */
   return (
     <>
-      {/* ── Backdrop ──────────────────────────────────────── */}
+      {/* Backdrop */}
       <div
         aria-hidden="true"
         onClick={onClose}
+        className="fixed inset-0 z-[9998] bg-black/30 backdrop-blur-[2px] transition-opacity duration-300"
         style={{
-          position: 'fixed',
-          inset: 0,
-          zIndex: 199,
-          backgroundColor: 'rgba(0,0,0,0.2)',
           opacity: isOpen ? 1 : 0,
           pointerEvents: isOpen ? 'auto' : 'none',
-          transition: 'opacity 0.35s ease',
         }}
       />
 
-      {/* ── Drawer panel ──────────────────────────────────── */}
+      {/* Drawer panel — Modern White Zara Aesthetic */}
       <div
         ref={drawerRef}
         id={id}
         role="dialog"
         aria-modal="true"
         aria-label="Navigation menu"
+        className="fixed left-0 top-0 bottom-0 z-[9999] bg-white text-black flex flex-col justify-between will-change-transform transition-transform duration-[350ms] ease-[cubic-bezier(0.76,0,0.24,1)] w-full sm:w-[360px] h-screen p-6 md:p-8"
         style={{
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          bottom: 0,
-          zIndex: 200,
-          width: 'var(--sidebar-width)',
-          backgroundColor: '#F7F7F7',
           transform: isOpen ? 'translateX(0)' : 'translateX(-100%)',
-          transition: 'transform 0.4s cubic-bezier(0.76,0,0.24,1)',
-          overflowY: 'auto',
-          overflowX: 'hidden',
-          display: 'flex',
-          flexDirection: 'column',
-          willChange: 'transform',
+          visibility: isOpen ? 'visible' : 'hidden',
         }}
       >
-        {/* ── Close button ────────────────────────────────── */}
-        <div>
-          <div style={{ padding: '1.5rem 1.5rem 1.375rem' }}>
-            <button
-              ref={closeRef}
-              type="button"
-              onClick={onClose}
-              tabIndex={isOpen ? 0 : -1}
-              aria-label="Close navigation menu"
-              style={{
-                ...rowBase,
-                justifyContent: 'flex-start',
-                gap: '0.5rem',
-                fontFamily: 'var(--font-sans)',
-                fontSize: '0.75rem',
-                fontWeight: 500,
-                letterSpacing: '0.13em',
-                textTransform: 'uppercase',
-                color: 'var(--color-black)',
-                opacity: 0.65,
-                padding: 0,
-                width: 'auto',
-                transition: 'opacity 0.2s',
-              }}
-              onMouseEnter={(e) => (e.currentTarget.style.opacity = '1')}
-              onMouseLeave={(e) => (e.currentTarget.style.opacity = '0.65')}
-            >
-              <span style={{ fontSize: '1rem', lineHeight: 1, fontWeight: 300 }}>✕</span>
-              <span>Close</span>
-            </button>
-          </div>
-          {/* Hairline separator */}
-          <div style={{ height: '1px', backgroundColor: 'rgba(0,0,0,0.08)' }} />
+        {/* Top Header — wordmark + close */}
+        <div className="flex items-center justify-between shrink-0 mb-8 pb-4 border-b border-border">
+          <span className="font-serif text-[1.1rem] font-normal tracking-tight uppercase text-black leading-none select-none">
+            MEGG
+          </span>
+          <button
+            type="button"
+            onClick={onClose}
+            tabIndex={isOpen ? 0 : -1}
+            aria-label="Close navigation menu"
+            className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer text-black hover:opacity-60 transition-opacity p-0 shrink-0"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+              aria-hidden="true" focusable="false">
+              <path d="M18 6 6 18" />
+              <path d="M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        {/* ── Sectioned nav ─────────────────────────────────── */}
-        <nav aria-label="Main navigation" style={{ flex: 1, paddingBottom: '2rem' }}>
-          {NAV_SECTIONS.map((section) => (
-            <div key={section.label}>
-              {/* Section label */}
-              <p
-                style={{
-                  fontFamily: 'var(--font-sans)',
-                  fontSize: '0.75rem',
-                  fontWeight: 600,
-                  letterSpacing: '0.18em',
-                  textTransform: 'uppercase',
-                  color: 'var(--color-muted)',
-                  padding: '1.25rem 1.5rem 0.5rem',
-                }}
+        {/* Scrollable Navigation */}
+        <nav aria-label="Main navigation" className="flex-1 overflow-y-auto pr-2 hide-scrollbar space-y-8 font-sans">
+
+          {/* Shop Highlight Section */}
+          <div className="space-y-1">
+            {SHOP_ITEMS.map((item) => (
+              <Link
+                key={item.label}
+                href={item.to}
+                onClick={onClose}
+                tabIndex={isOpen ? 0 : -1}
+                className="group flex items-center justify-between py-2 font-sans text-[0.825rem] font-medium tracking-[0.14em] uppercase text-black no-underline"
               >
-                {section.label}
-              </p>
-
-              <ul role="list" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                {section.items.map((item) => (
-                  <li key={item.label}>
-                    <Link
-                      href={item.to}
-                      onClick={handleNavClick}
-                      tabIndex={isOpen ? 0 : -1}
-                      style={{
-                        ...rowBase,
-                        padding: '0.8rem 1.5rem',
-                        borderBottom: '1px solid rgba(0,0,0,0.05)',
-                        fontFamily: 'var(--font-sans)',
-                        fontSize: '0.8125rem',
-                        fontWeight: 400,
-                        letterSpacing: '0.01em',
-                        textTransform: 'uppercase',
-                        color: '#1a1a1a',
-                        backgroundColor:
-                          hoveredIndex === item.label
-                            ? 'rgba(0,0,0,0.03)'
-                            : 'transparent',
-                      }}
-                      onMouseEnter={() => setHoveredIndex(item.label)}
-                      onMouseLeave={() => setHoveredIndex(null)}
-                    >
-                      <span>{item.label}</span>
-                      <span style={{ fontSize: '1rem', color: '#bbb', fontWeight: 300 }}>›</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-
-          {/* ── Secondary links ─────────────────────────────── */}
-          <div
-            style={{
-              marginTop: '1.5rem',
-              borderTop: '1px solid rgba(0,0,0,0.06)',
-              paddingTop: '0.5rem',
-            }}
-          >
-            {SECONDARY_ITEMS.map((item) =>
-              item.external ? (
-                <a
-                  key={item.label}
-                  href={item.to}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  tabIndex={isOpen ? 0 : -1}
-                  style={{
-                    ...rowBase,
-                    padding: '0.75rem 1.5rem',
-                    fontFamily: 'var(--font-sans)',
-                    fontSize: '0.75rem',
-                    fontWeight: 400,
-                    letterSpacing: '0.04em',
-                    textTransform: 'uppercase',
-                    color: 'var(--color-muted)',
-                  }}
-                >
+                <span className="transition-transform duration-200 group-hover:translate-x-0.5">
                   {item.label}
-                </a>
-              ) : (
+                </span>
+                <svg width="11" height="11" viewBox="0 0 12 12" fill="none"
+                  className="shrink-0 opacity-0 -translate-x-1 transition-all duration-200 group-hover:opacity-100 group-hover:translate-x-0"
+                  aria-hidden="true">
+                  <path d="M1 11L11 1M11 1H4M11 1V8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </Link>
+            ))}
+          </div>
+
+          <div className="border-t border-border" />
+
+          {/* Categories List */}
+          <div>
+            <p className="font-sans text-[0.65rem] tracking-[0.2em] uppercase text-neutral-400 font-normal mb-4">
+              CATEGORIES
+            </p>
+            <div className="space-y-0.5">
+              {CATEGORY_ITEMS.map((item) => (
                 <Link
                   key={item.label}
                   href={item.to}
-                  onClick={handleNavClick}
+                  onClick={onClose}
                   tabIndex={isOpen ? 0 : -1}
-                  style={{
-                    ...rowBase,
-                    padding: '0.75rem 1.5rem',
-                    fontFamily: 'var(--font-sans)',
-                    fontSize: '0.75rem',
-                    fontWeight: 400,
-                    letterSpacing: '0.04em',
-                    textTransform: 'uppercase',
-                    color: 'var(--color-muted)',
-                  }}
+                  className="block py-1.5 font-sans text-[0.775rem] font-normal tracking-[0.12em] uppercase text-neutral-600 hover:text-black hover:translate-x-0.5 transition-all no-underline"
                 >
                   {item.label}
                 </Link>
-              )
-            )}
-          </div>
-
-          {/* ── Download app ────────────────────────────────── */}
-          <div style={{ padding: '0.75rem 1.5rem 2.5rem' }}>
-            <a
-              href="/download"
-              tabIndex={isOpen ? 0 : -1}
-              style={{
-                display: 'block',
-                background: 'var(--color-black)',
-                padding: '1rem 1.125rem',
-                textDecoration: 'none',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-            >
-              {/* decorative rings */}
-              <div style={{
-                position: 'absolute', right: '-20px', top: '-20px',
-                width: '90px', height: '90px', borderRadius: '50%',
-                border: '1px solid rgba(255,255,255,0.07)', pointerEvents: 'none',
-              }} />
-              <div style={{
-                position: 'absolute', right: '16px', bottom: '-16px',
-                width: '48px', height: '48px', borderRadius: '50%',
-                border: '1px solid rgba(255,255,255,0.07)', pointerEvents: 'none',
-              }} />
-
-              <div style={{ marginBottom: '0.75rem' }}>
-                <img src="/logo.png" alt="Megg" style={{ width: '28px', height: '28px', objectFit: 'cover', flexShrink: 0, borderRadius: '4px' }} />
-              </div>
-
-              <p style={{
-                fontFamily: 'var(--font-serif)', fontSize: '1rem',
-                fontWeight: 300, letterSpacing: '-0.01em',
-                color: 'var(--color-white)', lineHeight: 1.25,
-                marginBottom: '0.875rem',
-              }}>
-                Better experience<br />on the app
-              </p>
-
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{
-                  fontFamily: 'var(--font-sans)', fontSize: '0.58rem',
-                  letterSpacing: '0.14em', textTransform: 'uppercase',
-                  color: 'rgba(255,255,255,0.55)',
-                  borderBottom: '1px solid rgba(255,255,255,0.25)',
-                  paddingBottom: '1px',
-                }}>
-                  Download free
-                </span>
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                  <path d="M1 11L11 1M11 1H4M11 1V8" stroke="rgba(255,255,255,0.4)" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-            </a>
+              ))}
+            </div>
           </div>
         </nav>
+
+        {/* Footer — Ultra-Luxury App Banner Card */}
+        <div className="pt-6 shrink-0 border-t border-border">
+          <a
+            href="/download"
+            onClick={onClose}
+            tabIndex={isOpen ? 0 : -1}
+            className="group relative block bg-gradient-to-br from-neutral-900 via-black to-neutral-950 text-white p-5 border border-neutral-800/80 hover:border-neutral-700 shadow-md transition-all duration-300 no-underline overflow-hidden"
+          >
+            {/* Ambient glow and subtle luxury gradient shine */}
+            <div className="absolute -right-8 -bottom-8 w-28 h-28 bg-white/[0.04] blur-xl pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.06] to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-in-out pointer-events-none" />
+
+            <div className="flex items-center justify-between relative z-10 mb-3.5">
+              <img src="/logo.png" alt="Megg" className="h-7 w-auto object-contain shrink-0" />
+
+              {/* Minimal CTA arrow button */}
+              <div className="w-7 h-7 bg-white text-black flex items-center justify-center shrink-0 transition-transform duration-200 group-hover:scale-105 group-hover:bg-neutral-100">
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none">
+                  <path d="M1 11L11 1M11 1H4M11 1V8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
+            </div>
+
+            <p className="font-sans text-[0.75rem] font-light tracking-[0.06em] text-neutral-200 uppercase leading-snug relative z-10">
+              EXPERIENCE MEGG ON MOBILE APP
+            </p>
+          </a>
+        </div>
       </div>
     </>
   )

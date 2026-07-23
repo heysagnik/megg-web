@@ -1,8 +1,10 @@
 import type { Metadata } from 'next'
 import { getPublicCollection } from '@/lib/api'
+import { collectionPageLd, SITE_URL } from '@/lib/seo/jsonld'
+import JsonLd from '@/components/seo/JsonLd'
 import CollectionDetailClient from './CollectionDetailClient'
 
-const BASE_URL = 'https://www.meggfashion.in'
+const BASE_URL = SITE_URL
 
 type Props = { params: Promise<{ collectionId: string }> }
 
@@ -49,40 +51,22 @@ export default async function CollectionDetailPage({ params }: Props) {
   const url = `${BASE_URL}/collection/${collectionId}`
   const collection = await getPublicCollection(collectionId).catch(() => null)
 
-  const jsonLd = collection ? {
-    '@context': 'https://schema.org',
-    '@graph': [
-      {
-        '@type': 'CollectionPage',
-        name: `${collection.name} — MEGG`,
+  const jsonLd = collection
+    ? collectionPageLd({
         url,
+        name: `${collection.name} — MEGG`,
         description: collection.description || `${collection.name} — curated men's fashion collection on MEGG.`,
-        mainEntity: {
-          '@type': 'ItemList',
-          name: collection.name,
-          itemListElement: (collection.items ?? []).slice(0, 10).map((item, i) => ({
-            '@type': 'ListItem',
-            position: i + 1,
-            url: `${BASE_URL}/product/${item.id}`,
-            name: item.name,
-          })),
-        },
-      },
-      {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: BASE_URL },
-          { '@type': 'ListItem', position: 2, name: collection.name, item: url },
+        products: (collection.items ?? []).map(i => ({ id: i.id, name: i.name })),
+        breadcrumb: [
+          { name: 'Home', url: BASE_URL },
+          { name: collection.name, url },
         ],
-      },
-    ],
-  } : null
+      })
+    : null
 
   return (
     <>
-      {jsonLd && (
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      )}
+      <JsonLd data={jsonLd} />
       <CollectionDetailClient collectionId={collectionId} />
     </>
   )

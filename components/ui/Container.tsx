@@ -10,13 +10,8 @@ interface ContainerProps {
 export function Container({ children, className, style }: ContainerProps) {
   return (
     <div
-      className={cn(className)}
-      style={{
-        maxWidth: "var(--container-max)",
-        margin: "0 auto",
-        padding: "0 var(--container-px)",
-        ...style,
-      }}
+      className={cn("mx-auto max-w-[var(--container-max)] px-[var(--container-px)]", className)}
+      style={style}
     >
       {children}
     </div>

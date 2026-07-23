@@ -2,50 +2,30 @@ import Link from 'next/link'
 
 export default function NotFound() {
   return (
-    <div
-      style={{
-        minHeight: '70vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 'var(--space-xl) var(--container-px)',
-        textAlign: 'center',
-      }}
-    >
-      <p
-        style={{
-          fontFamily: 'var(--font-serif)',
-          fontSize: 'clamp(4rem, 10vw, 8rem)',
-          fontWeight: 300,
-          letterSpacing: '-0.04em',
-          color: 'var(--color-gray-200)',
-          lineHeight: 1,
-          marginBottom: '1rem',
-        }}
-      >
+    <div className="min-h-[70vh] flex flex-col items-center justify-center px-[var(--container-px)] text-center py-xl">
+      <p className="font-serif text-[clamp(4rem,10vw,8rem)] font-light tracking-[-0.04em] text-gray-200 leading-none mb-sm">
         404
       </p>
-      <p
-        style={{
-          fontFamily: 'var(--font-sans)',
-          fontSize: '0.75rem',
-          letterSpacing: '0.14em',
-          textTransform: 'uppercase',
-          color: 'var(--color-muted)',
-          marginBottom: '2.5rem',
-        }}
-      >
+      <p className="font-sans text-2xs tracking-[0.14em] uppercase text-muted mb-lg">
         Page not found
       </p>
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-        <Link href="/" className="btn-primary">
+      <div className="flex gap-sm flex-wrap justify-center">
+        <Link
+          href="/"
+          className="inline-flex items-center justify-center font-sans text-xs font-medium uppercase tracking-wider cursor-pointer transition bg-black text-white hover:opacity-[0.82] px-[2.25rem] py-[0.875rem]"
+        >
           Home
         </Link>
-        <Link href="/products" className="btn-outline">
+        <Link
+          href="/products"
+          className="inline-flex items-center justify-center font-sans text-xs font-medium uppercase tracking-wider cursor-pointer transition border border-black bg-transparent text-black hover:bg-black hover:text-white px-[2.25rem] py-[0.875rem]"
+        >
           Shop All
         </Link>
-        <Link href="/search" className="btn-outline">
+        <Link
+          href="/search"
+          className="inline-flex items-center justify-center font-sans text-xs font-medium uppercase tracking-wider cursor-pointer transition border border-black bg-transparent text-black hover:bg-black hover:text-white px-[2.25rem] py-[0.875rem]"
+        >
           Search
         </Link>
       </div>

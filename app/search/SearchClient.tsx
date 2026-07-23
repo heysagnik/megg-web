@@ -85,6 +85,7 @@ function SearchInner() {
       banners={data?.banners ?? []}
       searchMode={data?.searchMode ?? null}
       defaultSort={defaultSort}
+      onQueryChange={q => update({ query: q || null })}
       onCategorySelect={onCategory}
       onToggleMulti={(key, value) => toggleMulti(key, value)}
       onSortChange={onSort}

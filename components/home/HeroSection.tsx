@@ -37,14 +37,11 @@ export default function HeroSection() {
   useEffect(() => {
     const logo = logoRef.current
     if (!logo) return
-    // After the null-guard above, TS still considers logo possibly-null inside
-    // the nested `update` closure. Cast once here.
     const el = logo as HTMLDivElement
 
     const vh = window.innerHeight
     const THRESHOLD = vh * 0.85
 
-    // Start values
     const FONT_START = Math.min(80, vh * 0.08)
     const FONT_END   = 24
     const TOP_START  = vh / 2
@@ -72,7 +69,6 @@ export default function HeroSection() {
       }
     }
 
-    // Initial paint
     update()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => {
@@ -83,21 +79,11 @@ export default function HeroSection() {
 
   return (
     <>
-      <div
-        style={{
-          position: 'relative',
-          width: '100%',
-          height: '100svh',
-          minHeight: '600px',
-          overflow: 'hidden',
-          display: 'flex',
-        }}
-      >
+      <div className="relative w-full overflow-hidden flex h-[100svh] min-h-[600px]">
         {PANELS.map((src, idx) => (
           <div
             key={src}
-            className={idx === 0 ? 'hero-panel-left' : 'hero-panel-right'}
-            style={{ flex: 1, position: 'relative', overflow: 'hidden' }}
+            className={`relative flex-1 overflow-hidden max-[600px]:hidden ${idx === 0 ? '' : 'max-[600px]:hidden'}`}
             onMouseEnter={() => handleEnter(idx)}
             onMouseLeave={() => handleLeave(idx)}
           >
@@ -109,14 +95,7 @@ export default function HeroSection() {
               preload="none"
               poster={`https://media.meggfashion.in/${src}.jpg`}
               aria-label={`MEGG curated fashion editorial ${idx === 0 ? 'left' : 'right'} panel`}
-              style={{
-                position: 'absolute',
-                inset: 0,
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                display: 'block',
-              }}
+              className="absolute inset-0 w-full h-full object-cover block"
             >
               <source src={getCdnVideoUrl(`${src}.webm`)} type="video/webm" />
             </video>
@@ -125,11 +104,9 @@ export default function HeroSection() {
 
         <div
           aria-hidden="true"
+          className="absolute inset-0 pointer-events-none"
           style={{
-            position: 'absolute',
-            inset: 0,
             background: 'radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.28) 100%)',
-            pointerEvents: 'none',
           }}
         />
       </div>
@@ -138,20 +115,10 @@ export default function HeroSection() {
       <div
         ref={logoRef}
         aria-hidden="true"
+        className="fixed left-1/2 z-[110] pointer-events-none font-serif font-light tracking-tight uppercase leading-none whitespace-nowrap text-white"
         style={{
-          position: 'fixed',
-          left: '50%',
-          top: '50%',
-          transform: 'translateX(-50%) translateY(-50%)',
-          zIndex: 110,
-          pointerEvents: 'none',
-          fontFamily: 'var(--font-serif)',
-          fontWeight: 300,
-          letterSpacing: '-0.04em',
-          textTransform: 'uppercase',
-          lineHeight: 1,
-          whiteSpace: 'nowrap',
-          color: 'white',
+          top:        '50%',
+          transform:  'translateX(-50%) translateY(-50%)',
           willChange: 'top, font-size, color',
         }}
       >

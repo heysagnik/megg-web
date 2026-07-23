@@ -4,23 +4,23 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getPublicCollection, type WishlistCollection, type WishlistItem } from '@/lib/api'
 import { getCdnImageUrl, getProductSrcSet } from '@/lib/image'
-import { formatPrice } from '@/lib/utils'
+import { formatPrice, cn as CN } from '@/lib/utils'
 
 function ItemCard({ item, priority }: { item: WishlistItem; priority?: boolean }) {
   const router = useRouter()
   const [loaded, setLoaded] = useState(priority ?? false)
-  const src = item.images?.[0] ? getCdnImageUrl(item.images[0], { width: 480, quality: 90 }) : null
+  const src = item.images?.[0] ? getCdnImageUrl(item.images[0]) : null
 
   return (
     <div
       role="button" tabIndex={0}
       onClick={() => router.push(`/product/${item.id}`)}
       onKeyDown={e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); router.push(`/product/${item.id}`) } }}
-      style={{ cursor: 'pointer', width: '100%', color: 'var(--color-black)' }}
+      className="cursor-pointer w-full text-black"
       aria-label={`${item.brand} ${item.name}`}
     >
-      <div style={{ position: 'relative', width: '100%', aspectRatio: '3 / 4', background: 'var(--color-gray-50)', overflow: 'hidden' }}>
-        {!loaded && <div className="skeleton" style={{ position: 'absolute', inset: 0 }} />}
+      <div className="relative w-full bg-gray-50 overflow-hidden aspect-[3/4]">
+        {!loaded && <div className="skeleton absolute inset-0" />}
         {src && (
           <img
             src={src}
@@ -31,19 +31,20 @@ function ItemCard({ item, priority }: { item: WishlistItem; priority?: boolean }
             loading={priority ? 'eager' : 'lazy'}
             fetchPriority={priority ? 'high' : 'auto'}
             onLoad={() => setLoaded(true)}
-            style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: loaded ? 1 : 0, transition: priority ? 'none' : 'opacity 300ms ease' }}
+            className="absolute inset-0 w-full h-full object-cover transition-opacity duration-300"
+            style={{ opacity: loaded ? 1 : 0 }}
             draggable={false}
           />
         )}
       </div>
-      <div style={{ paddingTop: '0.5rem' }}>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.6rem', fontWeight: 600, letterSpacing: '0.14em', textTransform: 'uppercase', color: 'var(--color-muted)', marginBottom: '2px', lineHeight: 1 }}>
+      <div className="pt-1">
+        <p className="font-sans text-[0.6rem] font-semibold tracking-wider uppercase text-muted mb-px leading-none">
           {item.brand}
         </p>
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.8rem', fontWeight: 400, lineHeight: 1.3, textTransform: 'uppercase', letterSpacing: 0, color: 'var(--color-black)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+        <p className="font-sans text-[0.8rem] font-normal leading-[1.3] uppercase tracking-normal text-black line-clamp-2">
           {item.name}
         </p>
-        <p style={{ marginTop: '0.25rem', fontFamily: 'var(--font-sans)', fontSize: '0.8rem', fontWeight: 500, color: 'var(--color-black)', fontVariantNumeric: 'tabular-nums', letterSpacing: 0, textTransform: 'none' }}>
+        <p className="mt-[0.25rem] font-sans text-[0.8rem] font-medium text-black tracking-normal normal-case tabular-nums">
           {formatPrice(String(item.price))}
         </p>
       </div>
@@ -63,17 +64,18 @@ export default function CollectionDetailClient({ collectionId }: { collectionId:
       .finally(() => setLoading(false))
   }, [collectionId])
 
+  const cntClass = 'mx-auto max-w-[var(--container-max)] px-[var(--container-px)] pt-md pb-xl'
+
   return (
-    <div style={{ maxWidth: 'var(--container-max)', margin: '0 auto', padding: '0 var(--container-px)', paddingTop: 'var(--space-md)', paddingBottom: 'var(--space-xl)' }}>
-      {/* Title */}
+    <div className={cntClass}>
       {collection && (
-        <div style={{ marginBottom: 'var(--space-lg)' }}>
-          <p className="text-label" style={{ color: 'var(--color-muted)', marginBottom: '0.4rem' }}>
+        <div className="mb-lg">
+          <p className="text-label text-muted mb-[0.4rem]">
             {collection.item_count ?? collection.items.length} item{collection.items.length !== 1 ? 's' : ''}
           </p>
           <h1 className="text-section">{collection.name}</h1>
           {collection.description && (
-            <p style={{ marginTop: '0.5rem', fontFamily: 'var(--font-sans)', fontSize: '0.8rem', color: 'var(--color-muted)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+            <p className="mt-1 font-sans text-[0.8rem] text-muted tracking-[0.04em] uppercase">
               {collection.description}
             </p>
           )}
@@ -81,26 +83,22 @@ export default function CollectionDetailClient({ collectionId }: { collectionId:
       )}
 
       {loading ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4" style={{ gap: 'var(--space-sm) var(--space-xs)' }}>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-lg gap-x-[0.5rem]">
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i}>
-              <div className="skeleton" style={{ width: '100%', aspectRatio: '3 / 4' }} />
-              <div className="skeleton" style={{ width: '70%', height: '0.8rem', marginTop: '0.5rem', borderRadius: '2px' }} />
+              <div className="skeleton w-full aspect-[3/4]" />
+              <div className="skeleton mt-1 w-[70%] h-[0.8rem] rounded-[2px]" />
             </div>
           ))}
         </div>
       ) : error ? (
-        <div style={{ textAlign: 'center', padding: 'var(--space-xl) 0' }}>
-          <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.85rem', color: 'var(--color-muted)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-            Collection not found
-          </p>
+        <div className="text-center py-xl">
+          <p className="font-sans text-[0.85rem] text-muted tracking-[0.05em] uppercase">Collection not found</p>
         </div>
       ) : collection!.items.length === 0 ? (
-        <p style={{ fontFamily: 'var(--font-sans)', fontSize: '0.85rem', color: 'var(--color-muted)', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-          This collection is empty
-        </p>
+        <p className="font-sans text-[0.85rem] text-muted tracking-[0.05em] uppercase">This collection is empty</p>
       ) : (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4" style={{ gap: 'var(--space-sm) var(--space-xs)' }}>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-lg gap-x-[0.5rem]">
           {collection!.items.map((item, i) => (
             <ItemCard key={item.wishlist_id ?? item.id} item={item} priority={i < 4} />
           ))}

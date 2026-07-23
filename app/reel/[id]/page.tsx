@@ -35,7 +35,7 @@ export default async function ReelPage({ params }: ReelPageProps) {
         id: reel.id,
         category: reel.category,
         videoUrl: getCdnVideoUrl(reel.video_url),
-        thumbnailUrl: getCdnImageUrl(reel.thumbnail_url, { width: 600 }),
+        thumbnailUrl: getCdnImageUrl(reel.thumbnail_url),
         views: reel.views,
         likes: reel.likes,
       }}
@@ -45,7 +45,7 @@ export default async function ReelPage({ params }: ReelPageProps) {
         name: p.name,
         brand: p.brand,
         price: typeof p.price === 'string' ? parseFloat(p.price) : p.price,
-        image: getCdnImageUrl(p.images?.[0] || '', { width: 200 }),
+        image: getCdnImageUrl(p.images?.[0] || ''),
         affiliate_link: p.affiliate_link,
       }))}
     />

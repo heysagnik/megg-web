@@ -28,18 +28,13 @@ export default function ReelsSection() {
       return next
     })
 
-    // pause any currently playing reel
     if (playing && playing !== id) {
       const prev = videoRefs.current[playing]
       if (prev) { prev.pause(); prev.currentTime = 0 }
     }
-    
-    // Play the current one. Note: if it's the first time hovering, 
-    // the video element might not be in the DOM yet, so we also auto-play it in its ref callback.
+
     const vid = videoRefs.current[id]
-    if (vid) {
-      vid.play().catch(() => {})
-    }
+    if (vid) vid.play().catch(() => {})
     setPlaying(id)
   }
 
@@ -50,54 +45,21 @@ export default function ReelsSection() {
   }
 
   return (
-    <section
-      style={{
-        paddingTop: 'var(--space-lg)',
-        paddingBottom: 'var(--space-md)',
-        overflow: 'hidden',
-      }}
-    >
-      <style>{`
-        .reels-row { scrollbar-width: none; }
-        .reels-row::-webkit-scrollbar { display: none; }
-        .reel-thumb { transition: transform 0.55s ease; }
-        .reel-card:hover .reel-thumb { transform: scale(1.04); }
-        .reel-play-btn { transition: opacity 0.2s; }
-        .reel-card:hover .reel-play-btn { opacity: 1; }
-      `}</style>
-
+    <section className="pt-lg pb-md overflow-hidden">
       {/* Section header */}
-      <div
-        style={{
-          maxWidth: 'var(--container-max)',
-          margin: '0 auto',
-          padding: '0 var(--container-px)',
-          marginBottom: 'var(--space-lg)',
-          display: 'flex',
-          alignItems: 'flex-end',
-          justifyContent: 'space-between',
-          gap: '1rem',
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-          <span className="text-label" style={{ color: 'var(--color-muted)' }}>
-            Style inspiration
-          </span>
+      <div className="mx-auto max-w-[var(--container-max)] px-[var(--container-px)] mb-lg flex items-end justify-between gap-sm">
+        <div className="flex flex-col gap-1">
+          <span className="text-label text-muted">Style inspiration</span>
           <h2 className="text-section">Reels</h2>
         </div>
       </div>
 
       {/* Horizontal scroll strip */}
       <div
-        className="reels-row"
+        className="hide-scrollbar flex gap-[0.75rem] overflow-x-auto [scroll-snap-type:x_mandatory] py-[4px]"
         style={{
-          display: 'flex',
-          gap: '0.75rem',
-          overflowX: 'auto',
-          scrollSnapType: 'x mandatory',
-          paddingLeft: 'var(--container-px)',
-          paddingRight: 'var(--container-px)',
-          paddingBottom: '4px',
+          paddingLeft:        'var(--container-px)',
+          paddingRight:       'var(--container-px)',
         }}
       >
         {reels.map((reel) => {
@@ -105,46 +67,29 @@ export default function ReelsSection() {
           return (
             <div
               key={reel.id}
-              className="reel-card"
+              className="group relative cursor-pointer shrink-0 [scroll-snap-align:start]"
               style={{
-                flexShrink: 0,
-                width: 'clamp(150px, 22vw, 240px)',
-                scrollSnapAlign: 'start',
-                position: 'relative',
-                cursor: 'pointer',
+                width:           'clamp(150px, 22vw, 240px)',
               }}
               onMouseEnter={() => handlePlay(reel.id)}
               onMouseLeave={() => handlePause(reel.id)}
               onClick={() => router.push(`/reel/${reel.id}`)}
             >
-              <div
-                style={{
-                  position: 'relative',
-                  aspectRatio: '9 / 16',
-                  overflow: 'hidden',
-                  background: 'var(--color-black)',
-                }}
-              >
+              <div className="relative overflow-hidden bg-black aspect-[9/16]">
                 {/* Thumbnail shown when not playing */}
                 {reel.thumbnail_url && (
                   <img
-                    src={getCdnImageUrl(reel.thumbnail_url, { width: 300, quality: 95 })}
-                    srcSet={`${getCdnImageUrl(reel.thumbnail_url, { width: 240, quality: 95 })} 240w, ${getCdnImageUrl(reel.thumbnail_url, { width: 300, quality: 95 })} 300w, ${getCdnImageUrl(reel.thumbnail_url, { width: 480, quality: 95 })} 480w`}
+                    src={getCdnImageUrl(reel.thumbnail_url)}
+                    srcSet={`${getCdnImageUrl(reel.thumbnail_url)} 240w, ${getCdnImageUrl(reel.thumbnail_url)} 300w, ${getCdnImageUrl(reel.thumbnail_url)} 480w`}
                     sizes="clamp(150px, 22vw, 240px)"
                     alt={`Style reel — ${reel.category}`}
-                    className="reel-thumb"
+                    className="absolute inset-0 w-full h-full object-cover"
                     loading="lazy"
                     decoding="async"
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      opacity: isPlaying ? 0 : 1,
-                      transition: 'opacity 0.3s',
-                    }}
                     draggable={false}
+                    style={{
+                      opacity:    isPlaying ? 0 : 1,
+                    }}
                   />
                 )}
 
@@ -160,14 +105,9 @@ export default function ReelsSection() {
                     loop
                     playsInline
                     preload="none"
+                    className="absolute inset-0 w-full h-full object-cover"
                     style={{
-                      position: 'absolute',
-                      inset: 0,
-                      width: '100%',
-                      height: '100%',
-                      objectFit: 'cover',
-                      opacity: isPlaying ? 1 : 0,
-                      transition: 'opacity 0.3s',
+                      opacity:    isPlaying ? 1 : 0,
                     }}
                   />
                 )}
@@ -175,16 +115,7 @@ export default function ReelsSection() {
                 {/* Play icon overlay (hidden on hover) */}
                 {!isPlaying && (
                   <div
-                    className="reel-play-btn"
-                    style={{
-                      position: 'absolute',
-                      inset: 0,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      opacity: 0,
-                      background: 'rgba(0,0,0,0.15)',
-                    }}
+                    className="absolute inset-0 flex items-center justify-center bg-black/15 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
                       <circle cx="20" cy="20" r="20" fill="rgba(0,0,0,0.45)" />
@@ -195,24 +126,12 @@ export default function ReelsSection() {
 
                 {/* Bottom gradient + category label */}
                 <div
+                  className="absolute bottom-0 left-0 right-0 p-3"
                   style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    right: 0,
-                    padding: '0.75rem',
                     background: 'linear-gradient(to top, rgba(0,0,0,0.6) 0%, transparent 100%)',
                   }}
                 >
-                  <p
-                    style={{
-                      fontFamily: 'var(--font-sans)',
-                      fontSize: '0.6rem',
-                      letterSpacing: '0.14em',
-                      textTransform: 'uppercase',
-                      color: 'rgba(255,255,255,0.8)',
-                    }}
-                  >
+                  <p className="font-sans text-[0.6rem] tracking-wider uppercase text-white/80">
                     {reel.category}
                   </p>
                 </div>

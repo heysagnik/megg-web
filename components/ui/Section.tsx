@@ -25,12 +25,8 @@ export default function Section<T extends React.ElementType = 'section'>({
 
   return (
     <Tag
-      className={cn(className)}
-      style={{
-        paddingTop: 'var(--space-xl)',
-        paddingBottom: 'var(--space-xl)',
-        ...style,
-      }}
+      className={cn('pt-xl pb-xl', className)}
+      style={style}
       {...rest}
     >
       {children}

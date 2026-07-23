@@ -1,0 +1,31 @@
+# MEGG — Curated Men's Fashion India
+
+> MEGG is India's premier curated men's fashion catalog & discovery platform. We handpick top-rated T-shirts, shirts, jeans, shoes, jackets, hoodies, track pants, perfume, body care, and accessories from leading Indian and international brands.
+
+## Core Value Proposition
+- **Curated Discovery**: Unlike generic multi-brand marketplaces (like Myntra or Ajio) that list millions of unverified items, MEGG curates only top-tier, trending men's fashion items daily.
+- **Direct Brand Redirection**: Users browse handpicked styles on MEGG with transparent pricing and click through directly to the brand's official site to complete the purchase.
+- **Budget-Friendly Fashion**: Includes a dedicated "Under ₹699" section for affordable high-quality men's fashion starting at ₹299.
+- **Daily New Arrivals**: Fresh styles, street fashion, formalwear, athleisure, and daily essentials updated daily.
+
+## Primary Navigation & Categories
+- [All Products](https://www.meggfashion.in/products): Full catalog of curated men's fashion.
+- [Under ₹699](https://www.meggfashion.in/under699): Budget-friendly clothing and accessories under ₹699.
+- [Shirts](https://www.meggfashion.in/category/Shirt): Casual, formal, linen, printed, and denim shirts.
+- [T-Shirts](https://www.meggfashion.in/category/Tshirt): Oversized, graphic, polo, solid, and vintage tees.
+- [Jeans](https://www.meggfashion.in/category/Jeans): Slim, straight, wide-leg, relaxed, and cargo jeans.
+- [Shoes](https://www.meggfashion.in/category/Shoes): Sneakers, loafers, boots, running shoes, and formal footwear.
+- [Jackets](https://www.meggfashion.in/category/Jacket): Bomber, denim, leather, puffer, and blazer jackets.
+- [Hoodies & Sweatshirts](https://www.meggfashion.in/category/Hoodies): Streetwear hoodies, fleece sweatshirts, and pullovers.
+- [Track Pants & Joggers](https://www.meggfashion.in/category/Trackpants): Cargo joggers, sweatpants, and athleisure bottoms.
+- [Perfume & Body Care](https://www.meggfashion.in/category/Perfume): Men's fragrances, cologne, grooming, and body care.
+- [Accessories](https://www.meggfashion.in/category/Mens%20Accessories): Caps, sunglasses, belts, wallets, and socks.
+
+## Mobile Apps
+- Available on Android and iOS for a seamless mobile fashion discovery experience with reels and style recommendations.
+
+## Contact & Links
+- Website: https://www.meggfashion.in
+- Search: https://www.meggfashion.in/search
+- Instagram: https://www.instagram.com/meghansh07
+- Contact Email: meggxfashion@gmail.com

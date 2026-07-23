@@ -60,29 +60,35 @@ export function getCategoryDisplay(slug: string): string {
 }
 
 /**
- * CSS colour map used in product cards and detail pages.
+ * Colour swatch map — used for filter chips and any "show me the colour" UI.
+ * One map, one getter, one fallback. No parallel definitions.
  */
-export const COLOR_MAP: Record<string, string> = {
-  white: "#F5F5F5",
-  black: "#1A1A1A",
-  blue: "#4A7FA5",
-  navy: "#1B2A4A",
-  grey: "#9E9E9E",
-  gray: "#9E9E9E",
-  beige: "#C9B89A",
-  brown: "#7D5A3C",
-  green: "#4A7C59",
-  orange: "#D4703A",
-  red: "#B74444",
-  pink: "#E8A0A0",
-  yellow: "#D4C03A",
-  purple: "#7B5EA7",
-  olive: "#6B6B45",
-  maroon: "#7A2D2D",
+export const COLOR_SWATCH_MAP: Record<string, string> = {
+  beige: "#e8dcc4",
+  black: "#000000",
+  blue: "#7096b8",
+  brown: "#734d32",
+  burgundy: "#730019",
+  green: "#5e8c61",
+  grey: "#c0c0c0",
+  gray: "#c0c0c0",
+  white: "#ffffff",
+  red: "#cc1100",
+  yellow: "#ffd700",
+  pink: "#ffc0cb",
+  navy: "#000080",
+  olive: "#808000",
+  cream: "#fffdd0",
+  tan: "#d2b48c",
+  purple: "#800080",
+  orange: "#ffa500",
 };
 
+const COLOR_FALLBACK = "#d4d4d4";
+
 export function getColorHex(color: string): string {
-  return COLOR_MAP[color.toLowerCase()] ?? "#CCCCCC";
+  if (!color) return COLOR_FALLBACK;
+  return COLOR_SWATCH_MAP[color.toLowerCase().trim()] ?? COLOR_FALLBACK;
 }
 
 /**

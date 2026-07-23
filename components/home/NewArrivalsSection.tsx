@@ -45,7 +45,6 @@ export default function NewArrivalsSection() {
         return [...prev, ...fresh]
       })
 
-      // If we got fewer than PAGE_SIZE, we've reached the end
       const total = data.total ?? Infinity
       const fetched = (pageNum - 1) * PAGE_SIZE + incoming.length
       setHasMore(incoming.length === PAGE_SIZE && fetched < total)
@@ -58,8 +57,6 @@ export default function NewArrivalsSection() {
     }
   }, [gender])
 
-  // ── Initial load / reset when gender changes ────────────────────────────────
-
   useEffect(() => {
     setProducts([])
     setPage(1)
@@ -68,8 +65,6 @@ export default function NewArrivalsSection() {
     fetchPage(1)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gender])
-
-  // ── IntersectionObserver — load next page when sentinel enters view ─────────
 
   useEffect(() => {
     const sentinel = sentinelRef.current
@@ -87,7 +82,6 @@ export default function NewArrivalsSection() {
         }
       },
       {
-        // Start fetching slightly before the sentinel is fully visible
         rootMargin: '200px',
         threshold: 0,
       },
@@ -97,15 +91,15 @@ export default function NewArrivalsSection() {
     return () => observer.disconnect()
   }, [hasMore, loading, fetchPage])
 
-  // ── Render ─────────────────────────────────────────────────────────────────
-
   const showSkeletons = loading && products.length === 0
   const skeletonCount = PAGE_SIZE
 
   return (
     <>
-      {/* Product grid */}
-      <div className="product-grid-3">
+      {/* Zara-style product grid: 3-column, wide gutters, 60px row breathing space */}
+      <div
+        className="grid grid-cols-2 md:grid-cols-3 md:gap-x-12 lg:gap-x-14 md:gap-y-[60px] gap-x-5 gap-y-10 w-full"
+      >
         {showSkeletons
           ? Array.from({ length: skeletonCount }).map((_, i) => (
               <CardSkeleton key={`skel-${i}`} />
@@ -114,7 +108,6 @@ export default function NewArrivalsSection() {
               <ProductCard key={product.id} product={product} fetchPriority={i < 6 ? 'high' : 'auto'} />
             ))}
 
-        {/* Append skeleton rows while loading subsequent pages */}
         {loading && products.length > 0 &&
           Array.from({ length: 4 }).map((_, i) => (
             <CardSkeleton key={`skel-more-${page}-${i}`} />
@@ -123,32 +116,14 @@ export default function NewArrivalsSection() {
 
       {/* Error state */}
       {error && !loading && (
-        <div
-          style={{
-            textAlign: 'center',
-            padding: 'var(--space-xl) 0',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '1rem',
-          }}
-        >
-          <p
-            style={{
-              fontFamily: 'var(--font-sans)',
-              fontSize: '0.75rem',
-              color: 'var(--color-muted)',
-              letterSpacing: '0.06em',
-              textTransform: 'uppercase',
-            }}
-          >
+        <div className="flex flex-col items-center gap-sm py-xl">
+          <p className="font-sans text-xs text-muted tracking-wide uppercase">
             {error}
           </p>
           <button
             type="button"
-            className="btn-outline"
+            className="inline-flex items-center justify-center border border-black bg-transparent text-black font-sans text-[0.65rem] font-medium tracking-wider uppercase px-[2.25rem] py-[0.875rem] cursor-pointer transition hover:bg-black hover:text-white"
             onClick={() => fetchPage(page)}
-            style={{ fontSize: '0.65rem' }}
           >
             Try Again
           </button>
@@ -156,7 +131,7 @@ export default function NewArrivalsSection() {
       )}
 
       {/* Invisible sentinel — IntersectionObserver target */}
-      <div ref={sentinelRef} aria-hidden="true" style={{ height: '1px' }} />
+      <div ref={sentinelRef} aria-hidden="true" className="h-px" />
 
       {/* End-of-feed indicator */}
       <EndOfFeed

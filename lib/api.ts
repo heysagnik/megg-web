@@ -354,19 +354,7 @@ function unwrapPaginated<T>(raw: unknown): T {
 
 export type SortOption = 'price_asc' | 'price_desc' | 'newest' | 'popular';
 
-/** Product listing — GET /products/list */
-export async function getProducts(
-  page = 1,
-  limit = 20,
-  category?: string,
-  subcategory?: string,
-  sort?: SortOption,
-  scope: ScopeParams = {},
-): Promise<ProductsResponse> {
-  return listProducts({ page, limit, category, subcategory, sort, ...scope });
-}
-
-/** Full-featured product listing with all filter params */
+/** Product listing — GET /products/list (all filter params supported). */
 export async function listProducts(params: ListParams): Promise<ProductsResponse> {
   const path = `/products/list?${qs({
     page: params.page ?? 1,
@@ -383,10 +371,6 @@ export async function listProducts(params: ListParams): Promise<ProductsResponse
   return unwrapPaginated<ProductsResponse>(await fetchJSON(path));
 }
 
-/** @deprecated use listProducts with category param */
-export const browseCategory = (category: string, page = 1, limit = 20, subcategory?: string, sort?: SortOption, scope: ScopeParams = {}) =>
-  getProducts(page, limit, category, subcategory, sort, scope);
-
 /** New arrivals — GET /products/new-arrivals */
 export async function getNewArrivals(page = 1, limit = 20, scope: ScopeParams = {}): Promise<ProductsResponse> {
   const path = `/products/new-arrivals?${qs({ page, limit, gender: scope.gender })}`;
@@ -394,14 +378,27 @@ export async function getNewArrivals(page = 1, limit = 20, scope: ScopeParams = 
 }
 
 /** Budget products — GET /products/under699 */
-export async function getUnder699(
-  page = 1,
-  limit = 20,
-  category?: string,
-  sort?: SortOption,
-  scope: ScopeParams = {},
-): Promise<ProductsResponse> {
-  const path = `/products/under699?${qs({ page, limit, category, sort, gender: scope.gender })}`;
+export async function getUnder699(params: {
+  page?: number;
+  limit?: number;
+  category?: string;
+  subcategory?: string;
+  sort?: SortOption;
+  color?: string;
+  brand?: string;
+  maxPrice?: number;
+} & ScopeParams = {}): Promise<ProductsResponse> {
+  const path = `/products/under699?${qs({
+    page: params.page ?? 1,
+    limit: params.limit ?? 20,
+    category: params.category,
+    subcategory: params.subcategory,
+    sort: params.sort,
+    color: params.color,
+    brand: params.brand,
+    maxPrice: params.maxPrice,
+    gender: params.gender,
+  })}`;
   return unwrapPaginated<ProductsResponse>(await fetchJSON(path));
 }
 

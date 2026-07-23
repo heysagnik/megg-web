@@ -1,59 +1,37 @@
-import type { CSSProperties } from 'react'
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils';
 
 interface DividerProps {
-  label?: string
-  className?: string
+  label?: string;
+  className?: string;
 }
 
 export function Divider({ label, className }: DividerProps) {
   if (!label) {
     return (
       <div
-        className={cn(className)}
-        style={{
-          borderTop: '1px solid var(--color-border)',
-          width: '100%',
-        } satisfies CSSProperties}
+        className={cn('w-full border-t border-border', className)}
         role="separator"
         aria-hidden="true"
       />
-    )
-  }
-
-  const lineStyle: CSSProperties = {
-    flex: 1,
-    borderTop: '1px solid var(--color-border)',
-    alignSelf: 'center',
-  }
-
-  const labelStyle: CSSProperties = {
-    fontFamily: 'var(--font-sans)',
-    fontSize: 'var(--text-xs)',
-    fontWeight: 500,
-    letterSpacing: 'var(--tracking-wider)',
-    textTransform: 'uppercase',
-    color: 'var(--color-muted)',
-    padding: '0 1rem',
-    whiteSpace: 'nowrap',
-    flexShrink: 0,
-  }
-
-  const wrapperStyle: CSSProperties = {
-    display: 'flex',
-    alignItems: 'center',
-    width: '100%',
+    );
   }
 
   return (
     <div
-      className={cn(className)}
-      style={wrapperStyle}
+      className={cn('flex w-full items-center', className)}
       role="separator"
     >
-      <div style={lineStyle} aria-hidden="true" />
-      <span style={labelStyle}>{label}</span>
-      <div style={lineStyle} aria-hidden="true" />
+      <div className="flex-1 border-t border-border self-center" aria-hidden="true" />
+      <span
+        className={cn(
+          'text-label shrink-0 px-sm text-muted',
+        )}
+      >
+        {label}
+      </span>
+      <div className="flex-1 border-t border-border self-center" aria-hidden="true" />
     </div>
-  )
+  );
 }
+
+export default Divider;
