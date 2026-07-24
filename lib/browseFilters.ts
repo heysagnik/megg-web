@@ -3,9 +3,7 @@ import type { SortOption } from '@/lib/api'
 // ─── Browse filter state ─────────────────────────────────────────────────────
 
 export interface BrowseFilters {
-  /** Top-level category (left-rail selection on `/products` & `/under699`). */
   category: string
-  /** True drill-down within a category — FilterPanel's TYPE section. */
   subcategory: string
   color: string
   brand: string

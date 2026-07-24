@@ -207,6 +207,8 @@ export default function BrowseLayout({
           </div>
         )}
 
+        <div ref={sentinelRef} aria-hidden="true" className="h-px" />
+
         <div className="px-4 md:px-0">
           <EndOfFeed loading={loading} hasMore={hasMore} count={products.length} />
         </div>
