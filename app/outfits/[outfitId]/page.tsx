@@ -79,7 +79,7 @@ export default async function OutfitPage({ params }: Props) {
 
         {/* Outfit banner — full-bleed on mobile, sticky column on desktop */}
         <div className="w-full md:w-[34%] lg:w-[32%] shrink-0 md:sticky md:top-0 md:h-screen">
-          <div className="relative w-full h-full overflow-hidden bg-[#f2efea] aspect-[3/4] sm:aspect-[16/10] md:aspect-auto">
+          <div className="relative w-full h-full overflow-hidden bg-[#f2efea] aspect-[2/3] sm:aspect-[4/3] md:aspect-auto">
             {outfit.model_image ? (
               <img
                 src={outfit.model_image}
@@ -88,8 +88,7 @@ export default async function OutfitPage({ params }: Props) {
                 height={900}
                 loading="eager"
                 fetchPriority="high"
-                // Changed from invalid 'object-fit' to 'object-cover object-top' to prioritize the model's face
-                className="absolute inset-0 w-full h-full object-cover object-top md:object-center"
+                className="absolute inset-0 w-full h-full object-cover md:object-center"
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center text-neutral-400 text-sm">
