@@ -73,9 +73,9 @@ export default function CategoryRow() {
                       sizes="clamp(140px, 42vw, 280px)"
                       alt={`${cat.keyword} — Shop on MEGG`}
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-600 ease-out group-hover:scale-105"
-                      loading={i < 4 ? 'eager' : 'lazy'}
+                      loading="lazy"
                       decoding="async"
-                      fetchPriority={i < 2 ? 'high' : 'low'}
+                      fetchPriority="auto"
                       width={320}
                       height={427}
                       draggable={false}

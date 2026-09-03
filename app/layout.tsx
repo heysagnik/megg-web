@@ -177,7 +177,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <link rel="apple-touch-icon" href="/logo.png" />
         <link rel="manifest" href="/manifest.json" />
         <link rel="preconnect" href="https://edge.meggfashion.in" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://media.meggfashion.in" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://media.meggfashion.in" />
+        <link rel="dns-prefetch" href="https://media.meggfashion.in" />
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
         <link rel="dns-prefetch" href="https://cloud.umami.is" />
         <JsonLd data={orgSchema} />

@@ -153,8 +153,9 @@ export default function ProductCard({
           }}
         >
           {(images.length > 0 ? images : ['']).map((img, i) => {
-            // Eagerly load primary/secondary images and all images once interacted
-            const isEager = (isHigh && i === 0) || i <= 1 || shouldPreloadAll
+            // Eagerly load primary image only for above-the-fold cards (isHigh)
+            // Preload remaining images for this card once hovered or touched
+            const isEager = (isHigh && i === 0) || shouldPreloadAll
 
             return (
               <div key={i} className="w-full h-full shrink-0 relative [contain:paint]">

@@ -104,8 +104,8 @@ export default function NewArrivalsSection() {
           ? Array.from({ length: skeletonCount }).map((_, i) => (
               <CardSkeleton key={`skel-${i}`} />
             ))
-          : products.map((product, i) => (
-              <ProductCard key={product.id} product={product} fetchPriority={i < 6 ? 'high' : 'auto'} />
+          : products.map((product) => (
+              <ProductCard key={product.id} product={product} fetchPriority="auto" />
             ))}
 
         {loading && products.length > 0 &&

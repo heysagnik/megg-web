@@ -37,7 +37,7 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
               width:           'clamp(140px, 45vw, 280px)',
             }}
           >
-            <ProductCard product={product} fetchPriority={i < 4 ? 'high' : 'auto'} />
+            <ProductCard product={product} fetchPriority="auto" />
           </div>
         ))}
       </div>
