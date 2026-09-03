@@ -11,6 +11,7 @@ export interface ProductCardProps {
   fetchPriority?: 'high' | 'low' | 'auto'
   cardBgClass?: string
   aspectClass?: string
+  disableSwipe?: boolean
 }
 
 export default function ProductCard({
@@ -18,10 +19,12 @@ export default function ProductCard({
   fetchPriority = 'auto',
   cardBgClass = 'bg-[#f2efea]',
   aspectClass = 'aspect-[3/4]',
+  disableSwipe = false,
 }: ProductCardProps) {
   const [imgIdx, setImgIdx] = useState(0)
   const [hovered, setHovered] = useState(false)
   const [isInteracting, setIsInteracting] = useState(false)
+  const [isTransitioning, setIsTransitioning] = useState(false)
   const [dragOffset, setDragOffset] = useState(0)
 
   const pointerStartPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
@@ -30,6 +33,7 @@ export default function ProductCard({
   const isHorizontalSwipe = useRef<boolean | null>(null)
   const hasSwiped = useRef(false)
   const touchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const transitionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const images = product.images ?? []
   const hasMultiple = images.length > 1
@@ -38,19 +42,27 @@ export default function ProductCard({
   // Preload all images for this card once the user interacts with it
   const shouldPreloadAll = hovered || isInteracting
 
+  const changeSlide = (getNext: (prev: number) => number) => {
+    setIsTransitioning(true)
+    setImgIdx(getNext)
+    if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current)
+    transitionTimerRef.current = setTimeout(() => setIsTransitioning(false), 420)
+  }
+
   const handlePrev = (e: MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setImgIdx(prev => (prev === 0 ? images.length - 1 : prev - 1))
+    changeSlide(prev => (prev === 0 ? images.length - 1 : prev - 1))
   }
 
   const handleNext = (e: MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    setImgIdx(prev => (prev === images.length - 1 ? 0 : prev + 1))
+    changeSlide(prev => (prev === images.length - 1 ? 0 : prev + 1))
   }
 
   const handlePointerDown = (e: React.PointerEvent<HTMLElement>) => {
+    if (disableSwipe) return
     // Only primary mouse button (0) or touch/pen
     if (e.pointerType === 'mouse' && e.button !== 0) return
 
@@ -65,7 +77,7 @@ export default function ProductCard({
   }
 
   const handlePointerMove = (e: React.PointerEvent<HTMLElement>) => {
-    if (!isPointerDown.current || !hasMultiple) return
+    if (disableSwipe || !isPointerDown.current || !hasMultiple) return
 
     const deltaX = e.clientX - pointerStartPos.current.x
     const deltaY = e.clientY - pointerStartPos.current.y
@@ -102,7 +114,7 @@ export default function ProductCard({
   }
 
   const handlePointerUp = (e: React.PointerEvent<HTMLElement>) => {
-    if (!isPointerDown.current) return
+    if (disableSwipe || !isPointerDown.current) return
     isPointerDown.current = false
 
     try {
@@ -117,11 +129,11 @@ export default function ProductCard({
       const threshold = 35
       if (dragOffset < -threshold) {
         // Swiped left -> next
-        setImgIdx(prev => (prev === images.length - 1 ? prev : prev + 1))
+        changeSlide(prev => (prev === images.length - 1 ? prev : prev + 1))
         hasSwiped.current = true
       } else if (dragOffset > threshold) {
         // Swiped right -> prev
-        setImgIdx(prev => (prev === 0 ? prev : prev - 1))
+        changeSlide(prev => (prev === 0 ? prev : prev - 1))
         hasSwiped.current = true
       } else if (maxDragDist.current > 15) {
         // Noticeable drag that didn't cross threshold -> prevent accidental click
@@ -151,7 +163,7 @@ export default function ProductCard({
   }
 
   const showControls = hasMultiple && (hovered || isInteracting)
-  const isDragging = isHorizontalSwipe.current === true && dragOffset !== 0
+  const isDragging = !disableSwipe && isHorizontalSwipe.current === true && dragOffset !== 0
 
   return (
     <a
@@ -159,15 +171,16 @@ export default function ProductCard({
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        'group block w-full uppercase tracking-normal text-black outline-none no-underline select-none touch-pan-y',
-        hasMultiple ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'
+        'group block w-full uppercase tracking-normal text-black outline-none no-underline select-none',
+        !disableSwipe && 'touch-pan-y',
+        hasMultiple && !disableSwipe ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'
       )}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerUp}
+      onPointerDown={disableSwipe ? undefined : handlePointerDown}
+      onPointerMove={disableSwipe ? undefined : handlePointerMove}
+      onPointerUp={disableSwipe ? undefined : handlePointerUp}
+      onPointerCancel={disableSwipe ? undefined : handlePointerUp}
       onClick={handleClick}
       aria-label={`${product.brand} — ${product.name}`}
     >
@@ -189,9 +202,16 @@ export default function ProductCard({
             // Eagerly load primary image only for above-the-fold cards (isHigh)
             // Preload remaining images for this card once hovered or touched
             const isEager = (isHigh && i === 0) || shouldPreloadAll
+            const isVisible = isDragging || isTransitioning || i === imgIdx
 
             return (
-              <div key={i} className="w-full h-full shrink-0 relative [contain:paint]">
+              <div
+                key={i}
+                className={cn(
+                  'w-full h-full shrink-0 relative overflow-hidden',
+                  !isVisible && 'invisible opacity-0'
+                )}
+              >
                 <img
                   src={getCdnImageUrl(img)}
                   alt={`${product.brand} ${product.name}`}
@@ -295,24 +315,27 @@ export default function ProductCard({
 
       {/* Product Details */}
       <div className="mt-2.5 w-full font-sans">
-        <p className="text-[0.625rem] font-semibold tracking-[0.14em] uppercase text-neutral-500 mb-1 leading-none">
+        <p className="text-[0.625rem] font-semibold tracking-[0.14em] uppercase text-neutral-500 mb-1 leading-none truncate">
           {product.brand}
         </p>
 
-        <h3 className="text-[0.725rem] md:text-[0.75rem] font-normal leading-[1.3] text-black uppercase tracking-normal line-clamp-2 block w-full">
+        <h3
+          className="text-[0.725rem] md:text-[0.75rem] font-normal leading-[1.25] text-black uppercase tracking-normal truncate block w-full"
+          title={product.name}
+        >
           {product.name}
         </h3>
 
-        <div className="mt-1.5 flex items-baseline gap-1.5 flex-wrap">
-          <span className="text-[0.725rem] md:text-[0.75rem] font-medium text-black tracking-normal normal-case tabular-nums leading-none">
+        <div className="mt-1.5 flex items-baseline gap-1.5 whitespace-nowrap overflow-hidden">
+          <span className="text-[0.725rem] md:text-[0.75rem] font-medium text-black tracking-normal normal-case tabular-nums leading-none shrink-0">
             {formatPrice(product.price)}
           </span>
           {product.mrp && Number(product.mrp) > Number(product.price) && (
             <>
-              <span className="text-[0.65rem] text-neutral-400 font-normal line-through tracking-normal tabular-nums leading-none">
+              <span className="text-[0.65rem] text-neutral-400 font-normal line-through tracking-normal tabular-nums leading-none shrink-0">
                 {formatPrice(product.mrp)}
               </span>
-              <span className="text-[0.625rem] text-[#ff3e6c] font-semibold tracking-normal uppercase leading-none">
+              <span className="text-[0.625rem] text-[#ff3e6c] font-semibold tracking-normal uppercase leading-none shrink-0">
                 {Math.round(((Number(product.mrp) - Number(product.price)) / Number(product.mrp)) * 100)}% OFF
               </span>
             </>

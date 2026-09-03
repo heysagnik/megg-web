@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import type { Product } from '@/lib/api'
+import { cn } from '@/lib/utils'
 import ProductCard from '@/components/product/ProductCard'
 
 interface TrendingStripProps {
@@ -13,6 +14,12 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
+  const [isMouseDown, setIsMouseDown] = useState(false)
+
+  const isDragging = useRef(false)
+  const startX = useRef(0)
+  const startScrollLeft = useRef(0)
+  const hasDragged = useRef(false)
 
   const updateScrollState = useCallback(() => {
     const el = scrollRef.current
@@ -42,6 +49,45 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
       left: direction === 'left' ? -scrollAmount : scrollAmount,
       behavior: 'smooth',
     })
+  }
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (e.button !== 0) return
+    const el = scrollRef.current
+    if (!el) return
+    isDragging.current = true
+    setIsMouseDown(true)
+    startX.current = e.pageX - el.offsetLeft
+    startScrollLeft.current = el.scrollLeft
+    hasDragged.current = false
+  }
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current) return
+    const el = scrollRef.current
+    if (!el) return
+    e.preventDefault()
+    const x = e.pageX - el.offsetLeft
+    const walk = (x - startX.current) * 1.5
+    if (Math.abs(x - startX.current) > 6) {
+      hasDragged.current = true
+    }
+    el.scrollLeft = startScrollLeft.current - walk
+  }
+
+  const handleMouseUpOrLeave = () => {
+    if (isDragging.current) {
+      isDragging.current = false
+      setIsMouseDown(false)
+    }
+  }
+
+  const handleClickCapture = (e: React.MouseEvent) => {
+    if (hasDragged.current) {
+      e.preventDefault()
+      e.stopPropagation()
+      hasDragged.current = false
+    }
   }
 
   if (!products || products.length === 0) return null
@@ -99,14 +145,22 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
         {/* Scroll Track — Bleeds cleanly to page edges with container padding */}
         <div
           ref={scrollRef}
-          className="flex gap-3 sm:gap-6 overflow-x-auto hide-scrollbar snap-x snap-mandatory scroll-smooth py-1 -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-10 md:px-10 lg:-mx-12 lg:px-12"
+          onMouseDown={handleMouseDown}
+          onMouseMove={handleMouseMove}
+          onMouseUp={handleMouseUpOrLeave}
+          onMouseLeave={handleMouseUpOrLeave}
+          onClickCapture={handleClickCapture}
+          className={cn(
+            'flex gap-3 sm:gap-6 overflow-x-auto hide-scrollbar snap-x snap-mandatory py-1 -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-10 md:px-10 lg:-mx-12 lg:px-12 select-none',
+            isMouseDown ? 'scroll-auto cursor-grabbing' : 'scroll-smooth cursor-grab sm:cursor-auto'
+          )}
         >
           {products.map((product) => (
             <div
               key={product.id}
               className="w-[150px] xs:w-[165px] sm:w-[220px] md:w-[250px] lg:w-[270px] shrink-0 snap-start"
             >
-              <ProductCard product={product} fetchPriority="auto" />
+              <ProductCard product={product} fetchPriority="auto" disableSwipe />
             </div>
           ))}
         </div>
