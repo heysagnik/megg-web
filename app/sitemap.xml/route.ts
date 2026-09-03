@@ -28,18 +28,24 @@ async function getAllProducts(): Promise<Array<ProductsResponse['products'][numb
   return products
 }
 
+export const dynamic = 'force-static'
+export const revalidate = 86400
+
 export async function GET() {
   const [categories, products] = await Promise.all([
     getCategories(SCOPE).catch(() => []),
     getAllProducts(),
   ])
 
-  const catUrls = categories.map(c => ({
-    url: `${BASE}/category/${encodeURIComponent(c.category)}`,
-    priority: '0.8',
-    changefreq: 'daily',
-    lastmod: TODAY,
-  }))
+  const catUrls = categories.map(c => {
+    const name = typeof c === 'string' ? c : (c as unknown as { category: string }).category
+    return {
+      url: `${BASE}/category/${encodeURIComponent(name)}`,
+      priority: '0.8',
+      changefreq: 'daily',
+      lastmod: TODAY,
+    }
+  })
 
   const productUrls = products.map(p => ({
     url: `${BASE}/product/${p.id}`,
@@ -61,6 +67,9 @@ ${all.map(u => `  <url>
 </urlset>`
 
   return new Response(xml, {
-    headers: { 'Content-Type': 'application/xml', 'Cache-Control': 'public, max-age=3600' },
+    headers: {
+      'Content-Type': 'application/xml',
+      'Cache-Control': 'public, max-age=86400, s-maxage=86400, stale-while-revalidate=86400',
+    },
   })
 }

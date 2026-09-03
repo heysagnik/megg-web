@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
-import { getProduct } from '@/lib/api'
+import { getProduct, getTrendingProducts } from '@/lib/api'
+import { getCdnImageUrl } from '@/lib/image'
 import { breadcrumbLdGraph, DEFAULT_RETURN_POLICY, DEFAULT_SHIPPING_DETAILS, SITE_URL } from '@/lib/seo/jsonld'
 import JsonLd from '@/components/seo/JsonLd'
 import ProductPageClient from '@/components/product/ProductPageClient'
@@ -11,9 +12,14 @@ export const revalidate = 3600
 export const dynamic = 'force-static'
 export const dynamicParams = true
 
+export async function generateStaticParams() {
+  const trending = await getTrendingProducts({ gender: 'men' }).catch(() => [])
+  return trending.slice(0, 30).map(p => ({ productId: p.id }))
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { productId } = await params
-  const url = `https://www.meggfashion.in/product/${productId}`
+  const url = `${SITE_URL}/product/${productId}`
   const product = await getProduct(productId).catch(() => null)
   if (!product) {
     return {
@@ -40,11 +46,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   ].filter(Boolean).join(' · ')
     || description.slice(0, 150)
 
-  const defaultOg = 'https://www.meggfashion.in/opengraph-image'
-  const firstImage = product.images?.[0]
-  const ogImageUrl = firstImage 
-    ? `https://edge.meggfashion.in/api/optimize?url=${encodeURIComponent(firstImage.startsWith('http') ? firstImage : `https://media.meggfashion.in${firstImage.startsWith('/') ? '' : '/'}${firstImage}`)}&w=1200&q=82&f=jpeg`
-    : defaultOg
+  const defaultOg = `${SITE_URL}/opengraph-image`
+  const firstImage = product.images?.[0] || product.variants?.[0]?.images?.[0]
+  const ogImageUrl = firstImage ? getCdnImageUrl(firstImage) : defaultOg
 
   const subcat = (product.subcategory as string | undefined)?.toLowerCase() ?? ''
   const keywords = [

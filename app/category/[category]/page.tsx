@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { listProducts, type Gender } from '@/lib/api'
+import { getCategories, listProducts, type Gender } from '@/lib/api'
 import { BROWSE_PAGE_SIZE } from '@/lib/constants'
 import { getCategoryDisplay } from '@/lib/utils'
 import { CATEGORY_KEYWORDS, FALLBACK_KEYWORDS } from '@/lib/seo/categoryKeywords'
@@ -9,6 +9,16 @@ import BrowseRoute from '@/components/product/BrowseRoute'
 
 export const revalidate = 600
 export const dynamic = 'force-static'
+
+export async function generateStaticParams() {
+  const categories = await getCategories({ gender: 'men' }).catch(() => [])
+  return categories
+    .map(c => {
+      const name = typeof c === 'string' ? c : (c as unknown as { category: string }).category
+      return name ? { category: encodeURIComponent(name) } : null
+    })
+    .filter((item): item is { category: string } => item !== null)
+}
 
 interface Props {
   params: Promise<{ category: string }>

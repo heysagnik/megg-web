@@ -22,13 +22,20 @@ export default function ProductCard({
   const [imgIdx, setImgIdx] = useState(0)
   const [hovered, setHovered] = useState(false)
   const [isTouching, setIsTouching] = useState(false)
-  const touchStartX = useRef<number>(0)
+  const [dragOffset, setDragOffset] = useState(0)
+
+  const containerRef = useRef<HTMLDivElement>(null)
+  const touchStartPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
+  const isHorizontalSwipe = useRef<boolean | null>(null)
+  const hasSwiped = useRef(false)
   const touchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const images = product.images ?? []
   const hasMultiple = images.length > 1
-  const currentImage = images[imgIdx] || images[0] || ''
   const isHigh = fetchPriority === 'high'
+
+  // Preload all images for this card once the user interacts with it
+  const shouldPreloadAll = hovered || isTouching
 
   const handlePrev = (e: MouseEvent) => {
     e.preventDefault()
@@ -43,59 +50,128 @@ export default function ProductCard({
   }
 
   const handleTouchStart = (e: TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX
+    touchStartPos.current = {
+      x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+    }
+    isHorizontalSwipe.current = null
+    hasSwiped.current = false
+    setDragOffset(0)
     setIsTouching(true)
     if (touchTimerRef.current) clearTimeout(touchTimerRef.current)
   }
 
-  const handleTouchEnd = (e: TouchEvent) => {
-    const diff = touchStartX.current - e.changedTouches[0].clientX
-    if (Math.abs(diff) > 35) {
-      if (diff > 0) {
-        setImgIdx(prev => (prev === images.length - 1 ? 0 : prev + 1))
-      } else {
-        setImgIdx(prev => (prev === 0 ? images.length - 1 : prev - 1))
+  const handleTouchMove = (e: TouchEvent) => {
+    if (!hasMultiple) return
+
+    const deltaX = e.touches[0].clientX - touchStartPos.current.x
+    const deltaY = e.touches[0].clientY - touchStartPos.current.y
+
+    // Determine direction on first move
+    if (isHorizontalSwipe.current === null) {
+      if (Math.abs(deltaY) > 8 && Math.abs(deltaY) >= Math.abs(deltaX)) {
+        // Vertical scroll — allow native browser scroll
+        isHorizontalSwipe.current = false
+        return
+      }
+      if (Math.abs(deltaX) > 8 && Math.abs(deltaX) > Math.abs(deltaY)) {
+        // Horizontal image swipe
+        isHorizontalSwipe.current = true
       }
     }
-    touchTimerRef.current = setTimeout(() => setIsTouching(false), 1200)
+
+    if (isHorizontalSwipe.current === true) {
+      hasSwiped.current = true
+      // Rubber-band resistance at track boundaries
+      const isAtFirst = imgIdx === 0 && deltaX > 0
+      const isAtLast = imgIdx === images.length - 1 && deltaX < 0
+      const damping = isAtFirst || isAtLast ? 0.3 : 1
+      setDragOffset(deltaX * damping)
+    }
+  }
+
+  const handleTouchEnd = () => {
+    if (isHorizontalSwipe.current === true) {
+      const threshold = 40
+      if (dragOffset < -threshold) {
+        // Swiped left -> next
+        setImgIdx(prev => (prev === images.length - 1 ? prev : prev + 1))
+      } else if (dragOffset > threshold) {
+        // Swiped right -> prev
+        setImgIdx(prev => (prev === 0 ? prev : prev - 1))
+      }
+    }
+
+    setDragOffset(0)
+    isHorizontalSwipe.current = null
+    touchTimerRef.current = setTimeout(() => {
+      setIsTouching(false)
+      hasSwiped.current = false
+    }, 1200)
+  }
+
+  const handleClick = (e: MouseEvent) => {
+    if (hasSwiped.current) {
+      e.preventDefault()
+      e.stopPropagation()
+      hasSwiped.current = false
+    }
   }
 
   const showControls = hasMultiple && (hovered || isTouching)
+  const isDragging = isHorizontalSwipe.current === true && dragOffset !== 0
 
   return (
     <a
       href={`/product/${product.id}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block w-full cursor-pointer uppercase tracking-normal text-black outline-none no-underline"
+      className="group block w-full cursor-pointer uppercase tracking-normal text-black outline-none no-underline select-none"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onClick={handleClick}
       aria-label={`${product.brand} — ${product.name}`}
     >
       {/* Image container */}
-      <div className={cn('relative w-full overflow-hidden', aspectClass, cardBgClass)}>
-        {/* Sliding image track */}
+      <div
+        ref={containerRef}
+        className={cn('relative w-full overflow-hidden', aspectClass, cardBgClass)}
+      >
+        {/* Sliding image track with GPU acceleration */}
         <div
-          className="flex flex-row w-full h-full transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)]"
-          style={{ transform: `translateX(-${imgIdx * 100}%)` }}
+          className={cn(
+            'flex flex-row w-full h-full will-change-transform',
+            isDragging
+              ? 'transition-none'
+              : 'transition-transform duration-[380ms] ease-[cubic-bezier(0.16,1,0.3,1)]'
+          )}
+          style={{
+            transform: `translate3d(calc(-${imgIdx * 100}% + ${dragOffset}px), 0, 0)`,
+          }}
         >
-          {(images.length > 0 ? images : ['']).map((img, i) => (
-            <div key={i} className="w-full h-full shrink-0 relative">
-              <img
-                src={getCdnImageUrl(img)}
-                alt={`${product.brand} ${product.name}`}
-                width={800}
-                height={1066}
-                loading={isHigh && i === 0 ? 'eager' : 'lazy'}
-                decoding={isHigh && i === 0 ? 'sync' : 'async'}
-                fetchPriority={isHigh && i === 0 ? 'high' : 'auto'}
-                className="w-full h-full object-cover"
-                draggable={false}
-              />
-            </div>
-          ))}
+          {(images.length > 0 ? images : ['']).map((img, i) => {
+            // Eagerly load primary/secondary images and all images once interacted
+            const isEager = (isHigh && i === 0) || i <= 1 || shouldPreloadAll
+
+            return (
+              <div key={i} className="w-full h-full shrink-0 relative [contain:paint]">
+                <img
+                  src={getCdnImageUrl(img)}
+                  alt={`${product.brand} ${product.name}`}
+                  width={800}
+                  height={1066}
+                  loading={isEager ? 'eager' : 'lazy'}
+                  decoding="async"
+                  fetchPriority={isHigh && i === 0 ? 'high' : 'auto'}
+                  className="w-full h-full object-cover pointer-events-none"
+                  draggable={false}
+                />
+              </div>
+            )
+          })}
         </div>
 
         {/* Minimal Hover / Carousel Controls */}
@@ -107,11 +183,21 @@ export default function ProductCard({
               aria-label="Previous image"
               onClick={handlePrev}
               className={cn(
-                'absolute left-1.5 top-1/2 -translate-y-1/2 z-10 p-1 text-black bg-transparent border-none cursor-pointer transition-all duration-200 hover:scale-110 active:scale-95',
-                showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none md:opacity-0',
+                'absolute left-1 top-1/2 -translate-y-1/2 z-10 p-2 text-black/75 hover:text-black bg-transparent border-none cursor-pointer transition-all duration-200 hover:scale-110 active:scale-90',
+                showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
               )}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.25"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="drop-shadow-[0_1px_2px_rgba(255,255,255,0.4)]"
+              >
                 <polyline points="15 18 9 12 15 6" />
               </svg>
             </button>
@@ -122,30 +208,51 @@ export default function ProductCard({
               aria-label="Next image"
               onClick={handleNext}
               className={cn(
-                'absolute right-1.5 top-1/2 -translate-y-1/2 z-10 p-1 text-black bg-transparent border-none cursor-pointer transition-all duration-200 hover:scale-110 active:scale-95',
-                showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none md:opacity-0',
+                'absolute right-1 top-1/2 -translate-y-1/2 z-10 p-2 text-black/75 hover:text-black bg-transparent border-none cursor-pointer transition-all duration-200 hover:scale-110 active:scale-90',
+                showControls ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
               )}
             >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.25"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="drop-shadow-[0_1px_2px_rgba(255,255,255,0.4)]"
+              >
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             </button>
 
-            {/* Minimal Dash Indicators — Black colored, auto-hides when mouse leaves */}
+            {/* Minimal Dash Indicators — Black, auto-hides when idle, tap/click jumps to slide */}
             <div
               className={cn(
-                'absolute bottom-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 transition-opacity duration-300 pointer-events-none',
-                showControls ? 'opacity-100' : 'opacity-0',
+                'absolute bottom-2.5 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1.5 transition-opacity duration-300 py-1 px-2 rounded-full',
+                showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'
               )}
             >
               {images.map((_, i) => (
-                <div
+                <button
                   key={i}
-                  className={cn(
-                    'h-[2px] transition-all duration-300',
-                    i === imgIdx ? 'w-3.5 bg-black' : 'w-1 bg-black/35',
-                  )}
-                />
+                  type="button"
+                  aria-label={`Go to slide ${i + 1}`}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    setImgIdx(i)
+                  }}
+                  className="p-0.5 bg-transparent border-none cursor-pointer flex items-center"
+                >
+                  <span
+                    className={cn(
+                      'block h-[2px] rounded-full transition-all duration-300',
+                      i === imgIdx ? 'w-4 bg-black' : 'w-1.5 bg-black/35 hover:bg-black/60'
+                    )}
+                  />
+                </button>
               ))}
             </div>
           </>
