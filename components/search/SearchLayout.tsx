@@ -197,7 +197,7 @@ function DedicatedSearchBar({
 
       {/* Auto suggestions */}
       {showSuggestions && suggestions.length > 0 && (
-        <div className="absolute left-4 right-4 z-50 bg-white border-b border-neutral-200 shadow-lg mt-1 max-h-[220px] overflow-y-auto">
+        <div className="absolute left-4 right-4 z-50 bg-white/92 backdrop-blur-md border border-neutral-200/80 rounded-b-lg shadow-xl mt-1 max-h-[240px] overflow-y-auto hide-scrollbar">
           {suggestions.map((s, i) => (
             <button
               key={`${s.value}-${i}`}
@@ -208,7 +208,7 @@ function DedicatedSearchBar({
                 setShowSuggestions(false)
                 onQueryChange(s.value)
               }}
-              className="w-full text-left py-2.5 px-4 font-sans text-[0.725rem] tracking-[0.08em] uppercase border-b border-neutral-100 cursor-pointer text-black hover:bg-neutral-50 flex items-center gap-3"
+              className="w-full text-left py-2.5 px-4 font-sans text-[0.725rem] tracking-[0.08em] uppercase border-b border-neutral-100/70 last:border-b-0 cursor-pointer text-black hover:bg-neutral-100/60 transition-colors flex items-center gap-3"
             >
               <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-neutral-400 shrink-0">
                 <circle cx="11" cy="11" r="8" /><path d="m21 21-4.35-4.35" />

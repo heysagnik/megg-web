@@ -23,18 +23,50 @@ export default function AppBottomSheet() {
   const [visible, setVisible] = useState(false)
 
   useEffect(() => {
-    // only on mobile, only once per session
-    const isMobile = window.innerWidth < 768
-    const dismissed = sessionStorage.getItem(STORAGE_KEY)
-    if (isMobile && !dismissed) {
-      // slight delay so the page renders first
-      const t = setTimeout(() => setVisible(true), 800)
-      return () => clearTimeout(t)
+    // only on mobile (<768px) and if not already dismissed in localStorage
+    if (window.innerWidth >= 768) return
+    if (localStorage.getItem(STORAGE_KEY) === '1') return
+
+    // Track session page views
+    const views = parseInt(sessionStorage.getItem('megg_page_views') || '0', 10) + 1
+    sessionStorage.setItem('megg_page_views', views.toString())
+
+    let triggered = false
+    const trigger = () => {
+      if (triggered) return
+      triggered = true
+      setVisible(true)
+      cleanup()
     }
+
+    // Trigger on 2nd page view in the session
+    if (views >= 2) {
+      const timer = setTimeout(trigger, 1500)
+      return () => clearTimeout(timer)
+    }
+
+    // Trigger after scrolling 40% of the page
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight
+      if (scrollHeight > 0 && window.scrollY / scrollHeight >= 0.4) {
+        trigger()
+      }
+    }
+
+    // Fallback: trigger after 12 seconds of active reading
+    const engagementTimer = setTimeout(trigger, 12000)
+
+    const cleanup = () => {
+      window.removeEventListener('scroll', handleScroll)
+      clearTimeout(engagementTimer)
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return cleanup
   }, [])
 
   const dismiss = () => {
-    sessionStorage.setItem(STORAGE_KEY, '1')
+    localStorage.setItem(STORAGE_KEY, '1')
     setVisible(false)
   }
 
@@ -91,9 +123,9 @@ export default function AppBottomSheet() {
         <button
           type="button"
           onClick={dismiss}
-          className="block w-full text-center font-sans text-xs tracking-wider uppercase bg-transparent border border-border-mid text-muted p-[0.875rem] cursor-pointer hover:text-black"
+          className="block w-full text-center font-sans text-xs tracking-wider uppercase bg-transparent border border-neutral-300 text-black font-medium p-[0.875rem] cursor-pointer hover:bg-neutral-50 transition-colors"
         >
-          Continue Here
+          Continue on Web
         </button>
       </div>
     </>

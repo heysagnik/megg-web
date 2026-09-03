@@ -114,7 +114,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
               <div
                 key={`${activeVariant?.id ?? 'base'}-${i}`}
                 ref={el => setImgRef(el, i)}
-                className="h-[100svh] relative overflow-hidden bg-surface-2"
+                className="max-h-[85vh] aspect-[3/4] relative overflow-hidden bg-surface-2 mx-auto mb-2 flex items-center justify-center"
               >
                 <img
                   src={getCdnImageUrl(img)}
@@ -122,7 +122,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                   loading={i === 0 ? 'eager' : 'lazy'}
                   decoding="async"
                   fetchPriority={i === 0 ? 'high' : 'auto'}
-                  className="absolute inset-0 w-full h-full object-cover object-center select-none"
+                  className="w-full h-full object-cover object-center select-none"
                   draggable={false}
                 />
               </div>
@@ -144,19 +144,18 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
 
             {/* Price + inline share */}
             <div className="flex items-center justify-between mb-sm">
-              <div className="flex items-baseline gap-sm flex-wrap">
-                <p className="font-sans text-[1.4rem] font-medium text-black -tracking-[0.01em] tabular-nums">
+              <div className="flex items-baseline gap-2.5 flex-wrap">
+                <span className="font-sans text-[1.4rem] font-medium text-black -tracking-[0.01em] tabular-nums leading-none">
                   {price}
-                </p>
+                </span>
                 {hasDiscount && (
                   <>
-                    <div className="relative inline-block">
-                      <p className="font-sans text-base text-muted -tracking-[0.01em] tabular-nums">{mrpStr}</p>
-                      <div className="absolute top-1/2 left-[-5%] w-[110%] h-[1.5px] -rotate-12 text-muted bg-current" />
-                    </div>
-                    <p className="font-sans text-[0.875rem] text-[#ff3e6c] font-semibold tracking-[0.02em] uppercase">
-                      ({discountPct}% OFF)
-                    </p>
+                    <span className="font-sans text-sm text-neutral-400 font-normal line-through -tracking-[0.01em] tabular-nums leading-none">
+                      {mrpStr}
+                    </span>
+                    <span className="font-sans text-xs text-[#ff3e6c] font-semibold tracking-[0.04em] uppercase leading-none">
+                      {discountPct}% OFF
+                    </span>
                   </>
                 )}
               </div>

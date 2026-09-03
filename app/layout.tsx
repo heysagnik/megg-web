@@ -12,7 +12,7 @@ import ScrollRestoration from '@/components/layout/ScrollRestoration'
 import InstagramAppRedirect from '@/components/layout/InstagramAppRedirect'
 
 const futura = localFont({
-  src: '../public/FuturaCyrillicBook.ttf',
+  src: '../public/FuturaCyrillicBook.woff2',
   display: 'swap',
   weight: '400',
   fallback: ['system-ui', 'arial', 'sans-serif'],

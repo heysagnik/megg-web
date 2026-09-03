@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
-import type { MouseEvent, TouchEvent } from 'react'
+import type { MouseEvent, PointerEvent as ReactPointerEvent } from 'react'
 import type { Product } from '@/lib/api'
 import { cn, formatPrice } from '@/lib/utils'
 import { getCdnImageUrl } from '@/lib/image'
@@ -21,11 +21,12 @@ export default function ProductCard({
 }: ProductCardProps) {
   const [imgIdx, setImgIdx] = useState(0)
   const [hovered, setHovered] = useState(false)
-  const [isTouching, setIsTouching] = useState(false)
+  const [isInteracting, setIsInteracting] = useState(false)
   const [dragOffset, setDragOffset] = useState(0)
 
-  const containerRef = useRef<HTMLDivElement>(null)
-  const touchStartPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
+  const pointerStartPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
+  const isPointerDown = useRef(false)
+  const maxDragDist = useRef(0)
   const isHorizontalSwipe = useRef<boolean | null>(null)
   const hasSwiped = useRef(false)
   const touchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -35,7 +36,7 @@ export default function ProductCard({
   const isHigh = fetchPriority === 'high'
 
   // Preload all images for this card once the user interacts with it
-  const shouldPreloadAll = hovered || isTouching
+  const shouldPreloadAll = hovered || isInteracting
 
   const handlePrev = (e: MouseEvent) => {
     e.preventDefault()
@@ -49,39 +50,49 @@ export default function ProductCard({
     setImgIdx(prev => (prev === images.length - 1 ? 0 : prev + 1))
   }
 
-  const handleTouchStart = (e: TouchEvent) => {
-    touchStartPos.current = {
-      x: e.touches[0].clientX,
-      y: e.touches[0].clientY,
-    }
+  const handlePointerDown = (e: React.PointerEvent<HTMLElement>) => {
+    // Only primary mouse button (0) or touch/pen
+    if (e.pointerType === 'mouse' && e.button !== 0) return
+
+    pointerStartPos.current = { x: e.clientX, y: e.clientY }
+    maxDragDist.current = 0
+    isPointerDown.current = true
     isHorizontalSwipe.current = null
     hasSwiped.current = false
     setDragOffset(0)
-    setIsTouching(true)
+    setIsInteracting(true)
     if (touchTimerRef.current) clearTimeout(touchTimerRef.current)
   }
 
-  const handleTouchMove = (e: TouchEvent) => {
-    if (!hasMultiple) return
+  const handlePointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    if (!isPointerDown.current || !hasMultiple) return
 
-    const deltaX = e.touches[0].clientX - touchStartPos.current.x
-    const deltaY = e.touches[0].clientY - touchStartPos.current.y
+    const deltaX = e.clientX - pointerStartPos.current.x
+    const deltaY = e.clientY - pointerStartPos.current.y
+    const dist = Math.hypot(deltaX, deltaY)
+    if (dist > maxDragDist.current) {
+      maxDragDist.current = dist
+    }
 
-    // Determine direction on first move
+    // Determine direction on first move with 8px threshold
     if (isHorizontalSwipe.current === null) {
       if (Math.abs(deltaY) > 8 && Math.abs(deltaY) >= Math.abs(deltaX)) {
-        // Vertical scroll — allow native browser scroll
+        // Vertical scroll — allow native browser scroll (for touch)
         isHorizontalSwipe.current = false
         return
       }
       if (Math.abs(deltaX) > 8 && Math.abs(deltaX) > Math.abs(deltaY)) {
         // Horizontal image swipe
         isHorizontalSwipe.current = true
+        try {
+          e.currentTarget.setPointerCapture(e.pointerId)
+        } catch {
+          // ignore
+        }
       }
     }
 
     if (isHorizontalSwipe.current === true) {
-      hasSwiped.current = true
       // Rubber-band resistance at track boundaries
       const isAtFirst = imgIdx === 0 && deltaX > 0
       const isAtLast = imgIdx === images.length - 1 && deltaX < 0
@@ -90,24 +101,45 @@ export default function ProductCard({
     }
   }
 
-  const handleTouchEnd = () => {
+  const handlePointerUp = (e: React.PointerEvent<HTMLElement>) => {
+    if (!isPointerDown.current) return
+    isPointerDown.current = false
+
+    try {
+      if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+        e.currentTarget.releasePointerCapture(e.pointerId)
+      }
+    } catch {
+      // ignore
+    }
+
     if (isHorizontalSwipe.current === true) {
-      const threshold = 40
+      const threshold = 35
       if (dragOffset < -threshold) {
         // Swiped left -> next
         setImgIdx(prev => (prev === images.length - 1 ? prev : prev + 1))
+        hasSwiped.current = true
       } else if (dragOffset > threshold) {
         // Swiped right -> prev
         setImgIdx(prev => (prev === 0 ? prev : prev - 1))
+        hasSwiped.current = true
+      } else if (maxDragDist.current > 15) {
+        // Noticeable drag that didn't cross threshold -> prevent accidental click
+        hasSwiped.current = true
+      } else {
+        // Micro-movement (<15px) -> intentional click/tap
+        hasSwiped.current = false
       }
+    } else {
+      hasSwiped.current = false
     }
 
     setDragOffset(0)
     isHorizontalSwipe.current = null
     touchTimerRef.current = setTimeout(() => {
-      setIsTouching(false)
+      setIsInteracting(false)
       hasSwiped.current = false
-    }, 1200)
+    }, 600)
   }
 
   const handleClick = (e: MouseEvent) => {
@@ -118,7 +150,7 @@ export default function ProductCard({
     }
   }
 
-  const showControls = hasMultiple && (hovered || isTouching)
+  const showControls = hasMultiple && (hovered || isInteracting)
   const isDragging = isHorizontalSwipe.current === true && dragOffset !== 0
 
   return (
@@ -126,20 +158,21 @@ export default function ProductCard({
       href={`/product/${product.id}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="group block w-full cursor-pointer uppercase tracking-normal text-black outline-none no-underline select-none"
+      className={cn(
+        'group block w-full uppercase tracking-normal text-black outline-none no-underline select-none touch-pan-y',
+        hasMultiple ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'
+      )}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
       onClick={handleClick}
       aria-label={`${product.brand} — ${product.name}`}
     >
       {/* Image container */}
-      <div
-        ref={containerRef}
-        className={cn('relative w-full overflow-hidden', aspectClass, cardBgClass)}
-      >
+      <div className={cn('relative w-full overflow-hidden', aspectClass, cardBgClass)}>
         {/* Sliding image track with GPU acceleration */}
         <div
           className={cn(
@@ -266,13 +299,25 @@ export default function ProductCard({
           {product.brand}
         </p>
 
-        <h3 className="text-[0.725rem] md:text-[0.75rem] font-normal leading-[1.25] text-black uppercase tracking-normal truncate block w-full">
+        <h3 className="text-[0.725rem] md:text-[0.75rem] font-normal leading-[1.3] text-black uppercase tracking-normal line-clamp-2 block w-full">
           {product.name}
         </h3>
 
-        <p className="mt-1 text-[0.725rem] md:text-[0.75rem] font-medium text-black tracking-normal normal-case tabular-nums">
-          {formatPrice(product.price)}
-        </p>
+        <div className="mt-1.5 flex items-baseline gap-1.5 flex-wrap">
+          <span className="text-[0.725rem] md:text-[0.75rem] font-medium text-black tracking-normal normal-case tabular-nums leading-none">
+            {formatPrice(product.price)}
+          </span>
+          {product.mrp && Number(product.mrp) > Number(product.price) && (
+            <>
+              <span className="text-[0.65rem] text-neutral-400 font-normal line-through tracking-normal tabular-nums leading-none">
+                {formatPrice(product.mrp)}
+              </span>
+              <span className="text-[0.625rem] text-[#ff3e6c] font-semibold tracking-normal uppercase leading-none">
+                {Math.round(((Number(product.mrp) - Number(product.price)) / Number(product.mrp)) * 100)}% OFF
+              </span>
+            </>
+          )}
+        </div>
       </div>
     </a>
   )
