@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useCallback } from 'react'
 import { getCdnVideoUrl } from '@/lib/image'
+import { cn } from '@/lib/utils'
 
 // q_auto:low — reduces bitrate ~60-70% vs original; vc_auto serves WebM to Chrome
 const PANELS = [
@@ -83,21 +84,25 @@ export default function HeroSection() {
         {PANELS.map((src, idx) => (
           <div
             key={src}
-            className={`relative flex-1 overflow-hidden max-[600px]:hidden ${idx === 0 ? '' : 'max-[600px]:hidden'}`}
+            className={cn(
+              'relative flex-1 overflow-hidden',
+              idx !== 0 && 'max-[600px]:hidden'
+            )}
             onMouseEnter={() => handleEnter(idx)}
             onMouseLeave={() => handleLeave(idx)}
           >
             <video
               ref={(el) => { videoRefs.current[idx] = el }}
+              autoPlay
               muted
               loop
               playsInline
-              preload="none"
-              poster={`https://media.meggfashion.in/${src}.jpg`}
+              preload="auto"
               aria-label={`MEGG curated fashion editorial ${idx === 0 ? 'left' : 'right'} panel`}
               className="absolute inset-0 w-full h-full object-cover block"
             >
               <source src={getCdnVideoUrl(`${src}.webm`)} type="video/webm" />
+              <source src={getCdnVideoUrl(`${src}.mp4`)} type="video/mp4" />
             </video>
           </div>
         ))}
