@@ -56,6 +56,10 @@ export default async function ProductsPage() {
     url: `${SITE_URL}/products`,
     name: 'All Products — MEGG',
     products,
+    breadcrumb: [
+      { name: 'Home', url: SITE_URL },
+      { name: 'All Products', url: `${SITE_URL}/products` },
+    ],
   })
 
   return (

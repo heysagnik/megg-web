@@ -52,6 +52,10 @@ export default async function Under699Page(_: Props) {
     name: "Men's Fashion Under Rs 699 — MEGG",
     description: "Shop curated men's fashion under Rs 699 on MEGG.",
     products,
+    breadcrumb: [
+      { name: 'Home', url: SITE_URL },
+      { name: 'Under ₹699', url: `${SITE_URL}/under699` },
+    ],
   })
 
   return (
