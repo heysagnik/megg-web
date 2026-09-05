@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og'
-import { readFileSync } from 'fs'
-import { join } from 'path'
+import * as fs from 'fs'
+import { fileURLToPath } from 'url'
 
 export const alt = 'MEGG — Curated Men\'s Fashion India'
 export const size = { width: 1200, height: 1200 }
@@ -8,7 +8,7 @@ export const contentType = 'image/jpeg'
 export const revalidate = 86400
 
 export default async function Image() {
-  const fontData = readFileSync(join(process.cwd(), 'public', 'FuturaCyrillicBook.ttf'))
+  const fontData = fs.readFileSync(fileURLToPath(new URL('../public/FuturaCyrillicBook.ttf', import.meta.url)))
 
   return new ImageResponse(
     (
