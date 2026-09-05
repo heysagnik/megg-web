@@ -98,6 +98,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         <BrowseRoute
           kind="category"
           categorySlug={slug}
+          pageTitle={`${name} for Men — Shop Online in India`}
           initialProducts={data.products ?? []}
           initialTotal={data.total ?? 0}
           initialFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}

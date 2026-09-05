@@ -68,6 +68,7 @@ export default async function ProductsPage() {
       <Suspense fallback={null}>
         <BrowseRoute
           kind="products"
+          pageTitle="Shop All Men's Fashion — T-Shirts, Shirts, Jeans, Shoes & More"
           initialProducts={products}
           initialTotal={data.total ?? 0}
           initialFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}

@@ -31,6 +31,11 @@ export const metadata: Metadata = {
     'curated men fashion India', 'men wardrobe essentials India',
     'men innerwear online India', 'men accessories online India',
     'men sweatshirts online India', 'men sweaters online India',
+    // Long-tail / curation-angle — realistic to rank for vs. marketplaces.
+    'curated men fashion discovery platform India', 'D2C men fashion brands India',
+    'independent men clothing brands India', 'Myntra alternative men fashion',
+    'unique streetwear brands India', 'boutique men fashion app India',
+    'no clutter fashion shopping India', 'best app to discover men fashion India',
   ],
   openGraph: {
     title: 'MEGG — Shop Men\'s T-Shirts, Shirts, Jeans, Shoes & More Online India',

@@ -21,6 +21,8 @@ export interface BrowseRouteProps {
   kind: BrowseKind
   /** URL category slug for `kind === 'category'` (ignored otherwise). */
   categorySlug?: string
+  /** Keyword-bearing page title rendered as a screen-reader-only `<h1>`. */
+  pageTitle: string
   initialProducts: Product[]
   initialTotal: number
   initialFilters: AvailableFilters
@@ -39,6 +41,7 @@ export interface BrowseRouteProps {
 export default function BrowseRoute({
   kind,
   categorySlug,
+  pageTitle,
   initialProducts,
   initialTotal,
   initialFilters,
@@ -86,6 +89,7 @@ export default function BrowseRoute({
 
   return (
     <BrowseLayout
+      pageTitle={pageTitle}
       products={state.products}
       total={state.total}
       loading={state.loading}

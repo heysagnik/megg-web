@@ -35,6 +35,8 @@ const mobileTabBtnClass = (active: boolean) => cn(
 )
 
 export interface BrowseLayoutProps {
+  /** Keyword-bearing page title rendered as a screen-reader-only `<h1>`. */
+  pageTitle: string
   products: Product[]
   total: number
   loading: boolean
@@ -60,7 +62,7 @@ export interface BrowseLayoutProps {
  * grid (with skeletons + empty state), and the slide-over FilterPanel.
  */
 export default function BrowseLayout({
-  products, total, loading, hasMore,
+  pageTitle, products, total, loading, hasMore,
   filters, avail,
   filterOpen, showMbar, footerIntersecting,
   sentinelRef, navOptions, navFilterKey,
@@ -143,6 +145,7 @@ export default function BrowseLayout({
 
   return (
     <div className="flex min-h-[100vh] w-full">
+      <h1 className="sr-only">{pageTitle}</h1>
       {/* ── Left sidebar ── */}
       <aside className={SIDEBAR_CLASS}>
         {sidebarNav}

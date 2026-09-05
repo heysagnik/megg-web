@@ -49,6 +49,14 @@ export const metadata: Metadata = {
     'new arrivals men fashion India', 'men outfit ideas India',
     'men streetwear India', 'men casual wear India', 'men office wear India',
     'men gym wear India', 'men party wear India',
+    // Long-tail / curation-angle terms — where a curated discovery
+    // platform can realistically outrank generic marketplaces.
+    'curated fashion platform for men India', 'D2C men fashion brands India',
+    'small brand men clothing India', 'independent fashion brands men India',
+    'Myntra alternative for men fashion', 'Ajio alternative men clothing',
+    'no clutter men fashion shopping', 'fashion discovery app India',
+    'best app to discover men fashion India', 'unique men clothing brands India',
+    'boutique men fashion India', 'handpicked streetwear India',
   ],
 
   authors: [{ name: 'MEGG', url: BASE_URL }],

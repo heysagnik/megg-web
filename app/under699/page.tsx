@@ -64,6 +64,7 @@ export default async function Under699Page(_: Props) {
       <Suspense fallback={null}>
         <BrowseRoute
           kind="under699"
+          pageTitle="Men's Fashion Under ₹699 — Budget Clothing & Accessories"
           initialProducts={products}
           initialTotal={data.total ?? 0}
           initialFilters={data.availableFilters ?? { subcategories: [], colors: [], brands: [], categories: [] }}

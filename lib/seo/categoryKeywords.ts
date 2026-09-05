@@ -22,6 +22,8 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'sports T-shirts men online', 'summer T-shirts men', 'solid color tees men',
     'Myntra T-shirts alternative', 'Ajio T-shirt alternative', 'best T-shirts under 500 India',
     'trendy T-shirts India', 'oversized graphic tees India', 'casual T-shirts men India',
+    'curated T-shirts for men India', 'handpicked oversized tees India', 'D2C brand T-shirts India',
+    'small brand T-shirts men India', 'no clutter T-shirt shopping India', 'best oversized tee brands India',
   ],
   Shirt: [
     'men shirts online India', 'buy men shirts India', 'shirt for men',
@@ -36,6 +38,8 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'corduroy shirts men', 'Oxford formal shirts India', 'mandarin collar shirts men',
     'flannel check shirts India', 'satin party wear shirts', 'spread collar shirts men',
     'resort wear shirts men', 'textured shirts for men', 'summer shirts men India',
+    'curated shirts for men India', 'D2C brand shirts India', 'handpicked linen shirts India',
+    'unique printed shirts men India', 'boutique shirt brands men India',
   ],
   Jeans: [
     'men jeans online India', 'buy men jeans India', 'jeans for men',
@@ -48,6 +52,8 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'baggy denim jeans men', 'wide leg jeans men India', 'relaxed fit jeans India',
     'bootcut jeans for men', 'vintage wash denim India', 'korean style jeans men',
     'raw denim jeans India', 'stretchable denim jeans men', 'cargo pants for men India',
+    'curated jeans for men India', 'Korean style baggy jeans India', 'D2C denim brands India',
+    'best baggy jeans brands India', 'unique fit jeans men India',
   ],
   Shoes: [
     'men shoes online India', 'buy men shoes India', 'shoes for men',
@@ -60,6 +66,8 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'chunky sneakers men India', 'high top sneakers men', 'canvas sneakers India',
     'retro trainers men', 'leather loafers men India', 'Chelsea boots men India',
     'formal Oxford shoes India', 'slip on shoes men', 'athleisure footwear men India',
+    'curated sneakers for men India', 'D2C sneaker brands India', 'unique sneaker brands men India',
+    'small brand sneakers India', 'trending sneaker drops India',
   ],
   Jacket: [
     'men jackets online India', 'buy men jackets India', 'jacket for men',
@@ -70,6 +78,7 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'branded jackets for men India', 'boys jacket online India',
     'varsity jackets men India', 'trench coats men', 'fleece jackets India',
     'biker leather jacket men', 'sleeveless gilet jackets men', 'blazer jackets men India',
+    'curated jackets for men India', 'D2C jacket brands India', 'unique bomber jacket brands India',
   ],
   Hoodies: [
     'men hoodies online India', 'buy men hoodies India', 'hoodie for men',
@@ -80,6 +89,7 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
     'men hoodies under 1000', 'men hoodies new arrival',
     'aesthetic hoodies men', 'fleece pullovers men', 'heavyweight hoodies India',
     'streetwear hoodies men India', 'drop shoulder hoodies men',
+    'curated hoodies for men India', 'D2C hoodie brands India', 'unique streetwear brands India',
   ],
   Sweatshirt: [
     'men sweatshirts online India', 'buy men sweatshirts India', 'sweatshirt for men',
@@ -155,4 +165,7 @@ export const FALLBACK_KEYWORDS = (label: string): string[] => [
   `best ${label.toLowerCase()} for men India`,
   `affordable ${label.toLowerCase()} men India`,
   `trending ${label.toLowerCase()} India`,
+  `curated ${label.toLowerCase()} for men India`,
+  `D2C brand ${label.toLowerCase()} India`,
+  `unique ${label.toLowerCase()} brands men India`,
 ];
