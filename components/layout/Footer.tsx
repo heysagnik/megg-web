@@ -2,9 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { genderPath } from '@/lib/genderPath'
+import { useGender } from '@/lib/useGender'
 
 export default function Footer() {
   const pathname = usePathname()
+  const gender = useGender()
   if (pathname.startsWith('/reel')) return null
 
   return (
@@ -17,7 +20,7 @@ export default function Footer() {
           {/* Brand */}
           <div className="space-y-1">
             <Link
-              href="/"
+              href={genderPath(gender)}
               className="font-sans text-2xl font-light tracking-[0.2em] uppercase text-white no-underline block"
             >
               MEGG
@@ -29,10 +32,10 @@ export default function Footer() {
 
           {/* Minimal Navigation links */}
           <div className="flex flex-wrap gap-x-8 gap-y-3 text-[0.725rem] font-normal tracking-[0.14em] uppercase text-neutral-400">
-            <Link href="/products" className="hover:text-white transition-colors duration-200 no-underline">
+            <Link href={genderPath(gender, '/products')} className="hover:text-white transition-colors duration-200 no-underline">
               ALL PRODUCTS
             </Link>
-            <Link href="/under699" className="hover:text-white transition-colors duration-200 no-underline">
+            <Link href={genderPath(gender, '/under699')} className="hover:text-white transition-colors duration-200 no-underline">
               UNDER RS. 699
             </Link>
             <Link href="/download" className="hover:text-white transition-colors duration-200 no-underline">

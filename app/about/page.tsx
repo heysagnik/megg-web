@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import JsonLd from '@/components/seo/JsonLd'
-import Link from 'next/link'
 
 export const metadata: Metadata = {
   title: { absolute: 'About MEGG — Curated Men\'s Fashion Platform India' },

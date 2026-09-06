@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import {
   genderFromSearchParams,
   type AvailableFilters,
+  type Gender,
   type Product,
 } from '@/lib/api'
 import { useBrowsePage } from '@/hooks/useBrowsePage'
@@ -21,6 +22,8 @@ export interface BrowseRouteProps {
   kind: BrowseKind
   /** URL category slug for `kind === 'category'` (ignored otherwise). */
   categorySlug?: string
+  /** Gender scope from the `[gender]` route segment. */
+  gender: Gender
   /** Keyword-bearing page title rendered as a screen-reader-only `<h1>`. */
   pageTitle: string
   initialProducts: Product[]
@@ -41,13 +44,14 @@ export interface BrowseRouteProps {
 export default function BrowseRoute({
   kind,
   categorySlug,
+  gender: routeGender,
   pageTitle,
   initialProducts,
   initialTotal,
   initialFilters,
 }: BrowseRouteProps) {
   const searchParams = useSearchParams()
-  const gender = genderFromSearchParams(searchParams)
+  const gender = searchParams?.get('gender') ? genderFromSearchParams(searchParams, routeGender) : routeGender
   const scope = { gender }
 
   // Resolve the per-route config + slot in any runtime override (slug).
@@ -89,6 +93,7 @@ export default function BrowseRoute({
 
   return (
     <BrowseLayout
+      gender={gender}
       pageTitle={pageTitle}
       products={state.products}
       total={state.total}

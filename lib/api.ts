@@ -32,6 +32,7 @@ export interface Product {
   is_active?: boolean;
   popularity?: number;
   clicks?: number;
+  gender?: Gender;
 }
 
 export interface ProductDetail extends Product {
@@ -631,10 +632,6 @@ export function parseGender(input: string | null | undefined, fallback: Gender =
  * only requires editing this single line.
  */
 export const DEFAULT_GENDER: Gender = 'men';
-
-export function resolveScope(override?: Gender | null): ScopeParams {
-  return { gender: override ?? parseGender(override) };
-}
 
 /** Read gender from a Next.js `searchParams`-like object. */
 export function genderFromSearchParams(

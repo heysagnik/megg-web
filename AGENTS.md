@@ -63,6 +63,7 @@ All schema markup uses `<JsonLd data={...} />` from `components/seo/JsonLd.tsx`.
 
 ## Notes for Future Changes
 - **Dead `getCdnImageUrl` opts**: the function ignores width/quality args. Callers that pass them are doing unnecessary work — the CDN serves the same URL regardless.
-- **Broken srcsets**: `ReelsSection` and `CategoryRow` generate srcsets with identical URLs under different width labels — the browser only fetches once. Needs a CDN resize param to actually vary the URL.
+- **Broken srcsets**: `CategoryRow` generates srcsets with identical URLs under different width labels — the browser only fetches once. Needs a CDN resize param to actually vary the URL.
 - **Page-size**: all browse pages use `BROWSE_PAGE_SIZE = 20`. Changing it changes one constant.
 - **SearchLayout auto-hide**: uses `useScrollHideOnIdle` — the old non-rAF version has been replaced.
+- **Dead components removed**: `ReelsSection.tsx` and `FilterTabs.tsx` were unused anywhere in the app (superseded by `BrowseLayout`'s tab strip / never wired up) — deleted.

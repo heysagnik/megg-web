@@ -2,15 +2,17 @@
 
 import { useRef, useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import type { Product } from '@/lib/api'
+import type { Gender, Product } from '@/lib/api'
+import { genderPath } from '@/lib/genderPath'
 import { cn } from '@/lib/utils'
 import ProductCard from '@/components/product/ProductCard'
 
 interface TrendingStripProps {
   products: Product[]
+  gender: Gender
 }
 
-export default function TrendingStrip({ products }: TrendingStripProps) {
+export default function TrendingStrip({ products, gender }: TrendingStripProps) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
   const [canScrollRight, setCanScrollRight] = useState(true)
@@ -93,37 +95,33 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
   if (!products || products.length === 0) return null
 
   return (
-    <section className="pt-8 sm:pt-14 pb-10 sm:pb-14 overflow-hidden">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-10 lg:px-12">
+    <section className="pt-xl pb-xl overflow-hidden">
+      <div className="mx-auto max-w-[var(--container-max)] px-[var(--container-px)]">
         {/* Header */}
-        <div className="flex items-end justify-between mb-5 sm:mb-8 gap-4">
-          <div className="min-w-0">
-            <p className="font-sans text-[0.625rem] sm:text-[0.675rem] font-semibold tracking-[0.16em] sm:tracking-[0.2em] uppercase text-neutral-400 mb-1">
-              WHAT EVERYONE&apos;S WEARING
-            </p>
-            <h2 className="font-sans text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light tracking-[0.03em] sm:tracking-[0.06em] uppercase text-black leading-tight">
-              TRENDING NOW
-            </h2>
+        <div className="flex items-end justify-between mb-lg gap-4">
+          <div className="min-w-0 flex flex-col gap-1">
+            <span className="text-label text-muted">What Everyone&apos;s Wearing</span>
+            <h2 className="text-section">Trending Now</h2>
           </div>
 
           <div className="flex items-center gap-4 sm:gap-6 shrink-0 pb-0.5">
             <Link
-              href="/products?sort=popular"
-              className="font-sans text-[0.65rem] sm:text-xs tracking-wider uppercase text-neutral-500 hover:text-black underline underline-offset-4 decoration-neutral-300 hover:decoration-black transition-colors whitespace-nowrap"
+              href={`${genderPath(gender, '/products')}?sort=popular`}
+              className="text-label text-muted hover:text-black transition-colors whitespace-nowrap"
             >
-              VIEW ALL
+              View All
             </Link>
 
             {/* Desktop Navigation Arrows */}
-            <div className="hidden md:flex items-center gap-1.5">
+            <div className="hidden md:flex items-center gap-4">
               <button
                 type="button"
                 onClick={() => handleScroll('left')}
                 disabled={!canScrollLeft}
                 aria-label="Previous trending items"
-                className="w-9 h-9 flex items-center justify-center rounded-full border border-neutral-200 bg-white hover:border-black text-black disabled:opacity-20 disabled:pointer-events-none transition-all duration-200 cursor-pointer"
+                className="flex items-center justify-center text-black disabled:opacity-20 disabled:pointer-events-none transition-opacity duration-200 cursor-pointer hover:opacity-60"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="15 18 9 12 15 6" />
                 </svg>
               </button>
@@ -132,9 +130,9 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
                 onClick={() => handleScroll('right')}
                 disabled={!canScrollRight}
                 aria-label="Next trending items"
-                className="w-9 h-9 flex items-center justify-center rounded-full border border-neutral-200 bg-white hover:border-black text-black disabled:opacity-20 disabled:pointer-events-none transition-all duration-200 cursor-pointer"
+                className="flex items-center justify-center text-black disabled:opacity-20 disabled:pointer-events-none transition-opacity duration-200 cursor-pointer hover:opacity-60"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="9 18 15 12 9 6" />
                 </svg>
               </button>
@@ -151,7 +149,7 @@ export default function TrendingStrip({ products }: TrendingStripProps) {
           onMouseLeave={handleMouseUpOrLeave}
           onClickCapture={handleClickCapture}
           className={cn(
-            'flex gap-3 sm:gap-6 overflow-x-auto hide-scrollbar snap-x snap-mandatory py-1 -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-10 md:px-10 lg:-mx-12 lg:px-12 select-none',
+            'flex gap-3 sm:gap-6 overflow-x-auto hide-scrollbar snap-x snap-mandatory py-1 -mx-[var(--container-px)] px-[var(--container-px)] select-none',
             isMouseDown ? 'scroll-auto cursor-grabbing' : 'scroll-smooth cursor-grab sm:cursor-auto'
           )}
         >

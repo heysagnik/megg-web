@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import { Button } from '@/components/ui'
 
 export default function NotFound() {
   return (
@@ -10,24 +10,9 @@ export default function NotFound() {
         Page not found
       </p>
       <div className="flex gap-sm flex-wrap justify-center">
-        <Link
-          href="/"
-          className="inline-flex items-center justify-center font-sans text-xs font-medium uppercase tracking-wider cursor-pointer transition bg-black text-white hover:opacity-[0.82] px-[2.25rem] py-[0.875rem]"
-        >
-          Home
-        </Link>
-        <Link
-          href="/products"
-          className="inline-flex items-center justify-center font-sans text-xs font-medium uppercase tracking-wider cursor-pointer transition border border-black bg-transparent text-black hover:bg-black hover:text-white px-[2.25rem] py-[0.875rem]"
-        >
-          Shop All
-        </Link>
-        <Link
-          href="/search"
-          className="inline-flex items-center justify-center font-sans text-xs font-medium uppercase tracking-wider cursor-pointer transition border border-black bg-transparent text-black hover:bg-black hover:text-white px-[2.25rem] py-[0.875rem]"
-        >
-          Search
-        </Link>
+        <Button href="/">Home</Button>
+        <Button href="/products" variant="outline">Shop All</Button>
+        <Button href="/search" variant="outline">Search</Button>
       </div>
     </div>
   )

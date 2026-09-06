@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { getProduct, getTrendingProducts } from '@/lib/api'
 import { getCdnImageUrl } from '@/lib/image'
 import { breadcrumbLdGraph, DEFAULT_RETURN_POLICY, DEFAULT_SHIPPING_DETAILS, SITE_URL } from '@/lib/seo/jsonld'
+import { genderPath } from '@/lib/genderPath'
 import JsonLd from '@/components/seo/JsonLd'
 import ProductPageClient from '@/components/product/ProductPageClient'
 
@@ -139,7 +140,7 @@ export default async function ProductPage({ params }: Props) {
         '@type': 'BreadcrumbList',
         itemListElement: [
           { '@type': 'ListItem', position: 1, name: 'Home', item: SITE_URL },
-          { '@type': 'ListItem', position: 2, name: product.category, item: `${SITE_URL}/category/${encodeURIComponent(product.category)}` },
+          { '@type': 'ListItem', position: 2, name: product.category, item: `${SITE_URL}${genderPath(product.gender ?? 'men', `/category/${encodeURIComponent(product.category)}`)}` },
           { '@type': 'ListItem', position: 3, name: product.name, item: canonicalUrl },
         ],
       },

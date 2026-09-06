@@ -6,15 +6,6 @@
 /** Page size for every catalog browse API request. */
 export const BROWSE_PAGE_SIZE = 20
 
-/** Default touch swipe delta (px) for carousels. */
-export const SWIPE_THRESHOLD_PX = 50
-
-/** Truncate the visible list of filter options per group (6 lines default). */
-export const FILTER_GROUP_VISIBLE_LIMIT = 6
-
-/** Truncate the visible list of filter options in the search panel. */
-export const SEARCH_FILTER_VISIBLE_LIMIT = 5
-
 /** ScrollRoot margin (px) used by IntersectionObserver for infinite scroll. */
 export const INFINITE_SCROLL_PRECEDENCE_PX = 600
 

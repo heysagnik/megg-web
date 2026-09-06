@@ -1,6 +1,8 @@
 import Link from 'next/link'
+import type { Gender } from '@/lib/api'
+import { genderPath } from '@/lib/genderPath'
 
-export default function Under699Banner() {
+export default function Under699Banner({ gender }: { gender: Gender }) {
   return (
     <section className="bg-black text-center py-[clamp(3rem,6vw,5rem)]">
       <div className="flex flex-col items-center gap-[1.25rem] px-[var(--container-px)]">
@@ -21,7 +23,7 @@ export default function Under699Banner() {
 
         {/* CTA */}
         <Link
-          href="/under699"
+          href={genderPath(gender, '/under699')}
           className="inline-flex items-center justify-center bg-white text-black font-sans text-xs tracking-wider uppercase px-10 py-[0.875rem] mt-1 transition-opacity hover:opacity-82 font-medium"
         >
           Shop Now

@@ -92,15 +92,6 @@ export function getColorHex(color: string): string {
 }
 
 /**
- * Returns true if the product colour is a valid, displayable value.
- */
-export function isValidColor(color: string | undefined | null): boolean {
-  if (!color) return false;
-  const c = color.trim().toLowerCase();
-  return c !== "" && c !== "na" && c !== "n/a" && c !== "none";
-}
-
-/**
  * Truncate a string to a maximum length, appending "…" if needed.
  */
 export function truncate(str: string, maxLength: number): string {

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
+import { Button } from '@/components/ui'
 
 export const metadata: Metadata = {
   title: 'Privacy Policy',
@@ -180,12 +180,9 @@ export default function PrivacyPage() {
       </div>
 
       <div className="border-t border-border pt-lg mt-lg">
-        <Link
-          href="/terms"
-          className="inline-flex items-center justify-center font-sans text-xs font-medium uppercase tracking-wider cursor-pointer transition bg-transparent text-black underline decoration-1 underline-offset-[3px] hover:opacity-60"
-        >
+        <Button href="/terms" variant="underline">
           View Terms & Conditions →
-        </Link>
+        </Button>
       </div>
     </div>
   )

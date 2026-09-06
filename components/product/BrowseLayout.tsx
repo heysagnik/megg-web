@@ -1,8 +1,9 @@
 'use client'
 
-import type { AvailableFilters, Product } from '@/lib/api'
+import type { AvailableFilters, Gender, Product } from '@/lib/api'
 import { BROWSE_EMPTY, SORT_OPTIONS, type BrowseFilters, type BrowseNavOption, countVisibleFilters } from '@/lib/browseFilters'
 import { PRODUCT_GRID_CLASS } from '@/lib/constants'
+import { genderPath } from '@/lib/genderPath'
 import { cn } from '@/lib/utils'
 import ProductCard from './ProductCard'
 import FilterPanel from './FilterPanel'
@@ -35,7 +36,7 @@ const mobileTabBtnClass = (active: boolean) => cn(
 )
 
 export interface BrowseLayoutProps {
-  /** Keyword-bearing page title rendered as a screen-reader-only `<h1>`. */
+  gender: Gender
   pageTitle: string
   products: Product[]
   total: number
@@ -62,7 +63,7 @@ export interface BrowseLayoutProps {
  * grid (with skeletons + empty state), and the slide-over FilterPanel.
  */
 export default function BrowseLayout({
-  pageTitle, products, total, loading, hasMore,
+  gender, pageTitle, products, total, loading, hasMore,
   filters, avail,
   filterOpen, showMbar, footerIntersecting,
   sentinelRef, navOptions, navFilterKey,
@@ -220,23 +221,42 @@ export default function BrowseLayout({
         {!hasMore && products.length > 0 && (
           <section className="px-4 py-12 mt-12 border-t border-neutral-200 text-neutral-600 max-w-4xl mx-auto normal-case">
             <h2 className="font-serif text-lg font-normal text-black uppercase tracking-wider mb-3">
-              Curated Men's Fashion — Quality Over Quantity
+              {gender === 'women'
+                ? "Curated Women's Fashion — Quality Over Quantity"
+                : "Curated Men's Fashion — Quality Over Quantity"}
             </h2>
             <p className="font-sans text-xs leading-relaxed text-neutral-600 mb-4">
-              MEGG is India's dedicated fashion discovery platform for modern menswear. Every item in our catalog — from oversized T-shirts, premium linen shirts, and baggy denim jeans to chunky sneakers and urban outerwear — is handpicked daily from top Indian D2C brands, national labels, and international fashion houses.
+              {gender === 'women'
+                ? "MEGG is India's dedicated fashion discovery platform for modern womenswear. Every item in our catalog — from dresses and co-ord sets to kurtas, skirts and footwear — is handpicked daily from top Indian D2C brands, national labels, and international fashion houses."
+                : "MEGG is India's dedicated fashion discovery platform for modern menswear. Every item in our catalog — from oversized T-shirts, premium linen shirts, and baggy denim jeans to chunky sneakers and urban outerwear — is handpicked daily from top Indian D2C brands, national labels, and international fashion houses."}
             </p>
             <p className="font-sans text-xs leading-relaxed text-neutral-600 mb-6">
-              Unlike generic marketplaces with unverified duplicate listings, MEGG organizes trending styles with transparent pricing and direct redirection to official brand stores. Explore budget-friendly picks starting under ₹699 or discover daily new arrivals tailored for Indian streetwear, formalwear, and casual wardrobe essentials.
+              Unlike generic marketplaces with unverified duplicate listings, MEGG organizes trending styles with transparent pricing and direct redirection to official brand stores. Explore budget-friendly picks starting under ₹699 or discover daily new arrivals tailored for Indian fashion essentials.
             </p>
 
             <div className="pt-4 border-t border-neutral-100 flex flex-wrap gap-x-6 gap-y-2 text-[0.725rem] font-sans tracking-wide uppercase text-neutral-500">
               <span className="font-medium text-black">Popular Categories:</span>
-              <a href="/category/Tshirt" className="hover:text-black transition-colors">Men's T-Shirts</a>
-              <a href="/category/Shirt" className="hover:text-black transition-colors">Men's Shirts</a>
-              <a href="/category/Jeans" className="hover:text-black transition-colors">Men's Jeans</a>
-              <a href="/category/Shoes" className="hover:text-black transition-colors">Men's Shoes</a>
-              <a href="/category/Jacket" className="hover:text-black transition-colors">Men's Jackets</a>
-              <a href="/under699" className="hover:text-black transition-colors font-medium text-black">Under ₹699 Store</a>
+              {(gender === 'women'
+                ? [
+                    { slug: 'Dresses', label: "Women's Dresses" },
+                    { slug: 'T-Shirts', label: "Women's T-Shirts" },
+                    { slug: 'Jeans', label: "Women's Jeans" },
+                    { slug: 'Footwear', label: "Women's Footwear" },
+                    { slug: 'Co-ord Sets', label: "Women's Co-ord Sets" },
+                  ]
+                : [
+                    { slug: 'Tshirt', label: "Men's T-Shirts" },
+                    { slug: 'Shirt', label: "Men's Shirts" },
+                    { slug: 'Jeans', label: "Men's Jeans" },
+                    { slug: 'Shoes', label: "Men's Shoes" },
+                    { slug: 'Jacket', label: "Men's Jackets" },
+                  ]
+              ).map((c) => (
+                <a key={c.slug} href={genderPath(gender, `/category/${encodeURIComponent(c.slug)}`)} className="hover:text-black transition-colors">
+                  {c.label}
+                </a>
+              ))}
+              <a href={genderPath(gender, '/under699')} className="hover:text-black transition-colors font-medium text-black">Under ₹699 Store</a>
             </div>
           </section>
         )}

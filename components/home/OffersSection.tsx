@@ -81,17 +81,17 @@ export default function OffersSection() {
                 href={offer.affiliate_link || '#'}
                 target={offer.affiliate_link ? '_blank' : '_self'}
                 rel="noopener noreferrer"
-                className="relative flex-none w-full aspect-[16/9] md:aspect-[21/9] block overflow-hidden no-underline"
+                className="relative flex-none w-full aspect-[16/9] block overflow-hidden no-underline"
               >
                 <img
                   src={offer.banner_image}
                   alt={offer.title || 'Offer'}
-                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                  className="w-full h-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                   draggable={false}
                 />
 
                 {/* Minimal Luxury Scrim & Text Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 md:p-10 text-white">
+                <div className="absolute inset-0 flex flex-col justify-end p-6 md:p-10 text-white">
                   {offer.affiliate_link && (
                     <div className="mt-4 flex items-center gap-2 font-sans text-[0.675rem] tracking-[0.2em] uppercase text-white font-medium group-hover:underline">
                       <span>DISCOVER OFFER</span>

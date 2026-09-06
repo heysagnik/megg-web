@@ -5,14 +5,17 @@ import { usePathname } from 'next/navigation'
 import Link from 'next/link'
 import NavSidebar from './NavSidebar'
 import { cn as CN } from '@/lib/utils'
+import { genderPath, otherGender } from '@/lib/genderPath'
+import { useGender } from '@/lib/useGender'
 
 export default function Header() {
   const pathname = usePathname()
+  const gender = useGender()
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [headerVisible, setHeaderVisible] = useState(true)
 
-  const isHomePage = pathname === '/'
+  const isHomePage = pathname === genderPath(gender)
 
   /* ── Close sidebar on route change ─────────────────── */
   useEffect(() => {
@@ -69,37 +72,45 @@ export default function Header() {
           >
             <span className="block w-[22px] h-px bg-black" />
             <span className="block w-[22px] h-px bg-black" />
-            <span className="block w-[22px] h-px bg-black" />
           </button>
 
           {/* CENTER — Logo */}
           <Link
-            href="/"
+            href={genderPath(gender)}
             aria-label="MEGG — go to homepage"
             className="absolute left-1/2 -translate-x-1/2 font-serif text-[1.5rem] font-normal tracking-tight uppercase text-black leading-none whitespace-nowrap select-none"
           >
             MEGG
           </Link>
 
-          {/* RIGHT — Dedicated Search Page Link */}
-          <Link
-            href="/search"
-            aria-label="Search"
-            className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer shrink-0 text-black hover:opacity-75 transition-opacity p-0"
-          >
-            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-              strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
-              aria-hidden="true" focusable="false">
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
-            </svg>
-          </Link>
+          {/* RIGHT — Gender switch + Search */}
+          <div className="flex items-center gap-3.5 shrink-0">
+            <Link
+              href={genderPath(otherGender(gender))}
+              className="font-sans text-[0.65rem] tracking-widest uppercase text-neutral-500 hover:text-black transition-colors whitespace-nowrap"
+            >
+              {otherGender(gender)}
+            </Link>
+            <Link
+              href="/search"
+              aria-label="Search"
+              className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer shrink-0 text-black hover:opacity-75 transition-opacity p-0"
+            >
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"
+                aria-hidden="true" focusable="false">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.35-4.35" />
+              </svg>
+            </Link>
+          </div>
         </div>
       </header>
 
       {/* ── Nav sidebar ──────────────────────────────────── */}
       <NavSidebar
         id="nav-sidebar"
+        gender={gender}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
       />

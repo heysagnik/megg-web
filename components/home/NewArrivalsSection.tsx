@@ -1,19 +1,14 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { getNewArrivals, genderFromSearchParams, type Product } from '@/lib/api'
+import { getNewArrivals, type Gender, type Product } from '@/lib/api'
 import ProductCard from '@/components/product/ProductCard'
 import CardSkeleton from '@/components/ui/CardSkeleton'
-import { EndOfFeed } from '@/components/ui'
+import { Button, EndOfFeed } from '@/components/ui'
 
 const PAGE_SIZE = 12
 
-// ─── NewArrivalsSection ─────────────────────────────────────────────────────────
-
-export default function NewArrivalsSection() {
-  const searchParams = useSearchParams()
-  const gender = genderFromSearchParams(searchParams)
+export default function NewArrivalsSection({ gender }: { gender: Gender }) {
 
   const [products, setProducts] = useState<Product[]>([])
   const [page, setPage] = useState(1)
@@ -120,13 +115,9 @@ export default function NewArrivalsSection() {
           <p className="font-sans text-xs text-muted tracking-wide uppercase">
             {error}
           </p>
-          <button
-            type="button"
-            className="inline-flex items-center justify-center border border-black bg-transparent text-black font-sans text-[0.65rem] font-medium tracking-wider uppercase px-[2.25rem] py-[0.875rem] cursor-pointer transition hover:bg-black hover:text-white"
-            onClick={() => fetchPage(page)}
-          >
+          <Button variant="outline" onClick={() => fetchPage(page)}>
             Try Again
-          </button>
+          </Button>
         </div>
       )}
 

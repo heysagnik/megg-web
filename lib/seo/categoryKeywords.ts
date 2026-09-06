@@ -158,7 +158,7 @@ export const CATEGORY_KEYWORDS: Record<string, string[]> = {
   ],
 };
 
-/** Fallback keywords for any unmapped category. */
+/** Fallback keywords for any unmapped men's category. */
 export const FALLBACK_KEYWORDS = (label: string): string[] => [
   `men ${label.toLowerCase()} online India`,
   `buy ${label.toLowerCase()} India`,
@@ -168,4 +168,16 @@ export const FALLBACK_KEYWORDS = (label: string): string[] => [
   `curated ${label.toLowerCase()} for men India`,
   `D2C brand ${label.toLowerCase()} India`,
   `unique ${label.toLowerCase()} brands men India`,
+];
+
+/** Fallback keywords for any unmapped women's category. */
+export const FALLBACK_KEYWORDS_WOMEN = (label: string): string[] => [
+  `women ${label.toLowerCase()} online India`,
+  `buy ${label.toLowerCase()} India`,
+  `best ${label.toLowerCase()} for women India`,
+  `affordable ${label.toLowerCase()} women India`,
+  `trending ${label.toLowerCase()} India`,
+  `curated ${label.toLowerCase()} for women India`,
+  `D2C brand ${label.toLowerCase()} India`,
+  `unique ${label.toLowerCase()} brands women India`,
 ];
