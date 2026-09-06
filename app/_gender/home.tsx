@@ -143,7 +143,7 @@ export default async function HomeContent({ gender }: { gender: Gender }) {
 
       <TrendingStrip products={trending} gender={gender} />
       <OffersSection />
-      <section id="new-arrivals" className="pt-12 pb-24">
+      <section id="new-arrivals" className="pt-4 pb-24">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-10 lg:px-12">
           <div className="mb-10">
             <p className="font-sans text-[0.675rem] font-semibold tracking-[0.2em] uppercase text-neutral-400 mb-1.5">

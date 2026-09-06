@@ -43,7 +43,7 @@ export default function OffersSection() {
   }
 
   return (
-    <section className="pt-12 pb-16 overflow-hidden font-sans">
+    <section className="pt-0 pb-8 overflow-hidden font-sans">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-10 lg:px-12">
         {/* Section Header */}
         <div className="mb-8 flex items-end justify-between">

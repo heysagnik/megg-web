@@ -120,6 +120,35 @@ export default function NavSidebar({ id, gender, isOpen, onClose }: NavSidebarPr
           </button>
         </div>
 
+        {/* Gender switch — mobile only; on larger screens it lives in the header */}
+        <div className="sm:hidden shrink-0 px-6 md:px-8 py-4 border-b border-border-mid">
+          <div className="relative grid grid-cols-2 bg-neutral-100 rounded-full p-1">
+            <span
+              aria-hidden="true"
+              className="absolute inset-y-1 left-1 w-[calc(50%-4px)] bg-black rounded-full transition-transform duration-300 ease-[cubic-bezier(0.76,0,0.24,1)]"
+              style={{ transform: gender === 'women' ? 'translateX(100%)' : 'translateX(0%)' }}
+            />
+            <Link
+              href={genderPath('men')}
+              onClick={onClose}
+              tabIndex={isOpen ? 0 : -1}
+              aria-current={gender === 'men' ? 'page' : undefined}
+              className={`relative z-10 flex items-center justify-center py-2 text-label no-underline transition-colors duration-300 ${gender === 'men' ? 'text-white' : 'text-neutral-500'}`}
+            >
+              Men
+            </Link>
+            <Link
+              href={genderPath('women')}
+              onClick={onClose}
+              tabIndex={isOpen ? 0 : -1}
+              aria-current={gender === 'women' ? 'page' : undefined}
+              className={`relative z-10 flex items-center justify-center py-2 text-label no-underline transition-colors duration-300 ${gender === 'women' ? 'text-white' : 'text-neutral-500'}`}
+            >
+              Women
+            </Link>
+          </div>
+        </div>
+
         {/* Scrollable body */}
         <nav aria-label="Main navigation" className="flex-1 min-h-0 overflow-y-auto hide-scrollbar">
 

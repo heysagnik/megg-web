@@ -87,7 +87,7 @@ export default function Header() {
           <div className="flex items-center gap-3.5 shrink-0">
             <Link
               href={genderPath(otherGender(gender))}
-              className="font-sans text-[0.65rem] tracking-widest uppercase text-neutral-500 hover:text-black transition-colors whitespace-nowrap"
+              className="hidden sm:flex items-center justify-center h-9 px-2.5 -mr-2.5 font-sans text-[0.65rem] tracking-widest uppercase text-neutral-500 hover:text-black active:text-black transition-colors whitespace-nowrap"
             >
               {otherGender(gender)}
             </Link>
