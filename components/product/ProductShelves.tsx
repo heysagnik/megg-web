@@ -10,23 +10,27 @@ export interface ProductShelfProps {
   eyebrow: string
   title: string
   products: Product[]
+  cta?: string
+  ctaTo?: string
 }
 
 /**
  * Horizontal scroll-snap shelf of ProductCards.
  * Used below the fold for "More from {brand}". Bleeds past the container
  * padding the same way the homepage's TrendingStrip does, so cards don't
- * feel clipped against the page edge.
+ * feel clipped against the page edge. `compact` on the header keeps this
+ * shelf visually secondary to the PDP's own product title above it.
  */
-export function HScrollShelf({ eyebrow, title, products }: ProductShelfProps) {
+export function HScrollShelf({ eyebrow, title, products, cta, ctaTo }: ProductShelfProps) {
   if (!products.length) return null
   return (
-    <Section className="border-t border-border-mid overflow-hidden">
+    <Section className="overflow-hidden">
       <div className="px-[var(--container-px)] max-w-[1280px] mx-auto">
-        <SectionHeader eyebrow={eyebrow} title={title} />
+        <SectionHeader eyebrow={eyebrow} title={title} cta={cta} ctaTo={ctaTo} compact />
       </div>
       <div
-        className="hide-scrollbar flex gap-4 sm:gap-5 overflow-x-auto pb-1 [scroll-snap-type:x_mandatory]"
+        data-h-scroll
+        className="hide-scrollbar flex gap-4 sm:gap-5 overflow-x-auto touch-pan-x pb-1 [scroll-snap-type:x_mandatory]"
         style={{
           paddingLeft:  'max(var(--container-px), calc((100vw - 1280px) / 2 + var(--container-px)))',
           paddingRight: 'var(--container-px)',
@@ -38,7 +42,7 @@ export function HScrollShelf({ eyebrow, title, products }: ProductShelfProps) {
             className="shrink-0 [scroll-snap-align:start]"
             style={{ width: 'clamp(160px, 42vw, 300px)' }}
           >
-            <ProductCard product={p} />
+            <ProductCard product={p} inStrip />
           </div>
         ))}
       </div>
@@ -54,9 +58,9 @@ export function HScrollShelf({ eyebrow, title, products }: ProductShelfProps) {
 export function GridShelf({ eyebrow, title, products }: ProductShelfProps) {
   if (!products.length) return null
   return (
-    <Section className="border-t border-border-mid">
+    <Section>
       <div className="px-[var(--container-px)] max-w-[1280px] mx-auto">
-        <SectionHeader eyebrow={eyebrow} title={title} />
+        <SectionHeader eyebrow={eyebrow} title={title} compact />
         <div className={PRODUCT_GRID_CLASS}>
           {products.slice(0, 12).map(p => <ProductCard key={p.id} product={p} />)}
         </div>

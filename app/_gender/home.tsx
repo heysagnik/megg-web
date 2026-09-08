@@ -145,13 +145,9 @@ export default async function HomeContent({ gender }: { gender: Gender }) {
       <OffersSection />
       <section id="new-arrivals" className="pt-4 pb-24">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-10 lg:px-12">
-          <div className="mb-10">
-            <p className="font-sans text-[0.675rem] font-semibold tracking-[0.2em] uppercase text-neutral-400 mb-1.5">
-              FRESH DROPS, EVERY DAY
-            </p>
-            <h2 className="font-sans text-2xl sm:text-3xl md:text-4xl font-light tracking-[0.06em] uppercase text-black">
-              NEW ARRIVALS
-            </h2>
+          <div className="flex flex-col gap-1 mb-lg">
+            <span className="text-label text-muted">Fresh Drops, Every Day</span>
+            <h2 className="text-section">New Arrivals</h2>
           </div>
           <NewArrivalsSection gender={gender} />
         </div>

@@ -32,6 +32,22 @@ export default function AppBottomSheet() {
     sessionStorage.setItem('megg_page_views', views.toString())
 
     let triggered = false
+    let timer: ReturnType<typeof setTimeout> | null = null
+    let engagementTimer: ReturnType<typeof setTimeout> | null = null
+
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight
+      if (scrollHeight > 0 && window.scrollY / scrollHeight >= 0.4) {
+        trigger()
+      }
+    }
+
+    const cleanup = () => {
+      if (timer) clearTimeout(timer)
+      if (engagementTimer) clearTimeout(engagementTimer)
+      window.removeEventListener('scroll', handleScroll)
+    }
+
     const trigger = () => {
       if (triggered) return
       triggered = true
@@ -41,27 +57,14 @@ export default function AppBottomSheet() {
 
     // Trigger on 2nd page view in the session
     if (views >= 2) {
-      const timer = setTimeout(trigger, 1500)
-      return () => clearTimeout(timer)
+      timer = setTimeout(trigger, 1500)
+    } else {
+      // Trigger after scrolling 40% of the page
+      window.addEventListener('scroll', handleScroll, { passive: true })
+      // Fallback: trigger after 12 seconds of active reading
+      engagementTimer = setTimeout(trigger, 12000)
     }
 
-    // Trigger after scrolling 40% of the page
-    const handleScroll = () => {
-      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight
-      if (scrollHeight > 0 && window.scrollY / scrollHeight >= 0.4) {
-        trigger()
-      }
-    }
-
-    // Fallback: trigger after 12 seconds of active reading
-    const engagementTimer = setTimeout(trigger, 12000)
-
-    const cleanup = () => {
-      window.removeEventListener('scroll', handleScroll)
-      clearTimeout(engagementTimer)
-    }
-
-    window.addEventListener('scroll', handleScroll, { passive: true })
     return cleanup
   }, [])
 

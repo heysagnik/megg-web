@@ -134,18 +134,18 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
         <div className={INFO_PANEL_CLASS}>
           <div className={INFO_INNER_CLASS}>
 
-            <p className="font-sans text-xs font-semibold tracking-widest text-muted uppercase mb-1">
+            <p className="text-label text-muted mb-1">
               {product.brand}
             </p>
 
-            <h1 className="font-sans font-normal text-black leading-[1.25] tracking-tight uppercase mb-[0.75rem] text-[clamp(1.1rem,1.5vw,1.4rem)]">
+            <h1 className="font-sans font-normal text-black leading-[1.15] tracking-tight uppercase mb-sm text-[clamp(1.4rem,2.4vw,2rem)]">
               {product.name}
             </h1>
 
             {/* Price + inline share */}
-            <div className="flex items-center justify-between mb-sm">
+            <div className="flex items-center justify-between mb-md">
               <div className="flex items-baseline gap-2.5 flex-wrap">
-                <span className="font-sans text-[1.4rem] font-medium text-black -tracking-[0.01em] tabular-nums leading-none">
+                <span className="font-sans text-[1.15rem] md:text-[1.25rem] font-semibold text-black -tracking-[0.01em] tabular-nums leading-none">
                   {price}
                 </span>
                 {hasDiscount && (
@@ -170,7 +170,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                 {[product.category, product.subcategory].filter(Boolean).map(tag => (
                   <span
                     key={tag}
-                    className="font-sans text-[0.7rem] tracking-[0.1em] uppercase text-muted border border-border-mid py-[0.2rem] px-[0.6rem]"
+                    className="text-label text-muted border border-border-mid py-[0.25rem] px-[0.65rem]"
                   >
                     {tag}
                   </span>
@@ -186,10 +186,8 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
 
             {/* Size selector */}
             {product.sizes && product.sizes.length > 0 && (
-              <div className="mb-sm">
-                <div className="flex justify-between items-center mb-[0.6rem]">
-                  <p className="font-sans text-[0.7rem] tracking-wider uppercase text-muted">Sizes</p>
-                </div>
+              <div className="mb-md">
+                <p className="text-label text-muted mb-[0.6rem]">Sizes</p>
                 <div className="flex gap-1 flex-wrap">
                   {product.sizes.map((size: { label: string; available?: boolean }, i: number) => {
                     const isSelected = activeSize === size.label

@@ -7,7 +7,7 @@ export default function Under699Banner({ gender }: { gender: Gender }) {
     <section className="bg-black text-center py-[clamp(3rem,6vw,5rem)]">
       <div className="flex flex-col items-center gap-[1.25rem] px-[var(--container-px)]">
         {/* Eyebrow */}
-        <span className="font-sans text-xs tracking-widest text-gray-400 uppercase">
+        <span className="text-label text-gray-400">
           Limited Time
         </span>
 

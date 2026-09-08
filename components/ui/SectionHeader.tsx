@@ -7,6 +7,14 @@ interface SectionHeaderProps {
   cta?: string;
   ctaTo?: string;
   className?: string;
+  /**
+   * Use inside a page whose own content (e.g. a PDP's product title) must
+   * stay the dominant element — a recommendation/upsell shelf shouldn't
+   * out-shout the thing the visitor came for. Swaps the big serif display
+   * treatment for a quieter sans-serif heading, matched in voice and scale
+   * to sit clearly below that primary content.
+   */
+  compact?: boolean;
 }
 
 export default function SectionHeader({
@@ -15,9 +23,10 @@ export default function SectionHeader({
   cta,
   ctaTo,
   className,
+  compact = false,
 }: SectionHeaderProps) {
   return (
-    <div className={cn('mb-xl', className)}>
+    <div className={cn(compact ? 'mb-lg' : 'mb-xl', className)}>
       <div
         className={cn(
           'flex items-end justify-between gap-sm',
@@ -29,7 +38,15 @@ export default function SectionHeader({
           {eyebrow && (
             <span className="text-label text-muted">{eyebrow}</span>
           )}
-          <h2 className="text-section">{title}</h2>
+          <h2
+            className={
+              compact
+                ? 'font-sans font-normal text-black uppercase tracking-tight leading-[1.15] text-[clamp(1.15rem,1.8vw,1.5rem)]'
+                : 'text-section'
+            }
+          >
+            {title}
+          </h2>
         </div>
 
         {/* Right: CTA — underline button styled as plain utilities */}

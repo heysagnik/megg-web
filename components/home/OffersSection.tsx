@@ -2,6 +2,18 @@
 
 import { useEffect, useState, useRef } from 'react'
 import { getOffers, type Offer } from '@/lib/api'
+import { getResizedOfferBanner } from '@/lib/image'
+
+// Matches the banner's own h-[…] breakpoints below — each candidate is
+// server-cropped/resized to these exact pixels via /api/offer-banner, so
+// the browser only ever downloads an already-correctly-sized image instead
+// of the full original asset scaled down by CSS.
+const BANNER_SIZES = [
+  { w: 480,  h: 260 },
+  { w: 768,  h: 340 },
+  { w: 1024, h: 420 },
+  { w: 1280, h: 480 },
+] as const
 
 export default function OffersSection() {
   const [offers, setOffers] = useState<Offer[]>([])
@@ -46,23 +58,22 @@ export default function OffersSection() {
     <section className="pt-0 pb-8 overflow-hidden font-sans">
       <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-10 lg:px-12">
         {/* Section Header */}
-        <div className="mb-8 flex items-end justify-between">
-          <div>
-            <p className="font-sans text-[0.675rem] font-semibold tracking-[0.2em] uppercase text-neutral-400 mb-1.5">
-              EXCLUSIVE PERKS
-            </p>
-            <h2 className="font-sans text-2xl sm:text-3xl md:text-4xl font-light tracking-[0.06em] uppercase text-black">
-              SPECIAL OFFERS
-            </h2>
+        <div className="mb-lg flex items-end justify-between gap-4">
+          <div className="flex flex-col gap-1">
+            <span className="text-label text-muted">Exclusive Perks</span>
+            <h2 className="text-section">Special Offers</h2>
           </div>
           {offers.length > 1 && (
-            <span className="font-sans text-[0.65rem] tracking-[0.18em] uppercase text-neutral-400 font-mono">
+            <span className="font-sans text-[0.65rem] tracking-[0.18em] uppercase text-muted font-mono shrink-0 pb-0.5">
               0{activeIdx + 1} / 0{offers.length}
             </span>
           )}
         </div>
 
-        {/* Minimal Widescreen Offer Banner Display */}
+        {/* Minimal Widescreen Offer Banner Display — full container width,
+            fixed (shorter-than-native) height. object-cover only trims the
+            sides to fill that wider aspect; centered content (logo/CTA
+            text) stays intact since crop is horizontal, not vertical. */}
         <div
           className="relative w-full overflow-hidden bg-neutral-900 group"
           onMouseEnter={() => setIsHovered(true)}
@@ -81,12 +92,16 @@ export default function OffersSection() {
                 href={offer.affiliate_link || '#'}
                 target={offer.affiliate_link ? '_blank' : '_self'}
                 rel="noopener noreferrer"
-                className="relative flex-none w-full aspect-[16/9] block overflow-hidden no-underline"
+                className="relative flex-none w-full h-[260px] sm:h-[340px] md:h-[420px] lg:h-[480px] block overflow-hidden no-underline"
               >
                 <img
-                  src={offer.banner_image}
+                  src={getResizedOfferBanner(offer.banner_image, 1280, 480)}
+                  srcSet={BANNER_SIZES
+                    .map(({ w, h }) => `${getResizedOfferBanner(offer.banner_image, w, h)} ${w}w`)
+                    .join(', ')}
+                  sizes="(min-width: 1280px) 1280px, 100vw"
                   alt={offer.title || 'Offer'}
-                  className="w-full h-full object-contain transition-transform duration-700 ease-out group-hover:scale-[1.02]"
+                  className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.02]"
                   draggable={false}
                 />
 

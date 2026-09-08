@@ -1,21 +1,9 @@
 @import "tailwindcss";
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   MEGG — Tailwind v4 Design System
-   ═══════════════════════════════════════════════════════════════════════════
-   Tailwind v4 auto-generates utilities from every --* token declared in
-   @theme.  For example:
-     --color-muted     →  text-muted, bg-muted, border-muted
-     --text-xs         →  text-xs
-     --tracking-wider  →  tracking-wider
-     --space-md        →  p-md, m-md, gap-md, w-md …  (all spacing utilities)
-   ═══════════════════════════════════════════════════════════════════════════ */
 @theme {
-  /* ── Fonts ─────────────────────────────────────────────────────────────── */
   --font-serif: var(--font-futura), "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-sans:  'FuturaCyrillic', "Helvetica Neue", Helvetica, Arial, sans-serif;
 
-  /* ── Palette ───────────────────────────────────────────────────────────── */
   --color-black:       #0a0a0a;
   --color-white:       #ffffff;
   --color-off-white:   #f8f7f5;
@@ -33,7 +21,6 @@
   --color-border:      #e8e8e8;
   --color-border-mid:  #cccccc;
 
-  /* ── Type scale ─────────────────────────────────────────────────────────── */
   --text-2xs:   0.75rem;
   --text-xs:    0.75rem;
   --text-sm:    0.8125rem;
@@ -41,14 +28,12 @@
   --text-md:    1rem;
   --text-lg:    1.25rem;
 
-  /* ── Letter-spacing ─────────────────────────────────────────────────────── */
   --tracking-tight:    -0.02em;
   --tracking-normal:    0;
   --tracking-wide:      0.06em;
   --tracking-wider:     0.12em;
   --tracking-widest:    0.18em;
 
-  /* ── Spacing scale (auto-generates p-*, m-*, gap-*, w-*, h-*) ──────────── */
   --spacing-xs:   0.5rem;
   --spacing-sm:   1rem;
   --spacing-md:   1.5rem;
@@ -57,19 +42,56 @@
   --spacing-2xl:  5rem;
   --spacing-3xl:  8rem;
 
-  /* ── Layout ─────────────────────────────────────────────────────────────── */
   --container-max:  1440px;
   --container-px:   1.5rem;
   --header-height:  52px;
+
+  --animate-fade-in:        fade-in 0.3s ease both;
+  --animate-fade-out:       fade-out 0.3s ease both;
+  --animate-sheet-up:       sheet-up 300ms cubic-bezier(0.32, 0.72, 0, 1) both;
+  --animate-slide-in:       slide-in-left 0.38s cubic-bezier(0.76, 0, 0.24, 1) both;
+  --animate-slide-out:      slide-out-left 0.38s cubic-bezier(0.76, 0, 0.24, 1) both;
+  --animate-marquee:        marquee 30s linear infinite;
+  --animate-spin:           spin 0.9s linear infinite;
+  --animate-skeleton:       skeleton-loading 1.6s ease infinite;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+  @keyframes fade-out {
+    from { opacity: 1; }
+    to   { opacity: 0; }
+  }
+  @keyframes sheet-up {
+    from { transform: translateY(100%); }
+    to   { transform: translateY(0); }
+  }
+  @keyframes slide-in-left {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(0); }
+  }
+  @keyframes slide-out-left {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-100%); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @keyframes skeleton-loading {
+    0%   { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes nav-row-in {
+    from { opacity: 0; transform: translateX(-8px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   Base element styling
-   Wrapped in @layer base so Tailwind utilities (e.g. text-white on a <Link>)
-   always win the cascade — an unlayered rule here would beat ANY layered
-   utility class regardless of specificity, which previously made `text-white`
-   invisible on any <a> (it silently lost to this file's plain `a{color:inherit}`).
-   ═══════════════════════════════════════════════════════════════════════════ */
 @layer base {
   html, body {
     overflow-x: clip;
@@ -80,7 +102,10 @@
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
   }
-  html[data-scroll-instant="true"] { scroll-behavior: auto; }
+
+  html[data-scroll-instant="true"] {
+    scroll-behavior: auto;
+  }
 
   body {
     font-family: 'FuturaCyrillic', "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -106,71 +131,30 @@
     background: var(--color-black);
     color: var(--color-white);
   }
+
+  *, *::before, *::after {
+    border-radius: 0 !important;
+  }
+
+  ::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-gray-200);
+    border-radius: 0;
+  }
 }
 
-/* ── Enforce 100% sharp architectural square corners everywhere ── */
-*, *::before, *::after {
-  border-radius: 0 !important;
-}
-
-::-webkit-scrollbar       { width: 3px; height: 3px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--color-gray-200); border-radius: 0; }
-
-/* Global container padding tightens on mobile — cascades to utility users */
 @media (max-width: 480px) {
-  :root { --container-px: 1rem; }
+  :root {
+    --container-px: 1rem;
+  }
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   Keyframes
-   ═══════════════════════════════════════════════════════════════════════════ */
-@keyframes skeleton-loading {
-  0%   { transform: translateX(-100%); }
-  100% { transform: translateX(100%);  }
-}
-@keyframes card-img-in {
-  from { opacity: 0; transform: translateX(6px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes card-img-in-left {
-  from { opacity: 0; transform: translateX(-6px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-@keyframes card-fade-in {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
-}
-@keyframes fade-in        { from { opacity: 0; } to { opacity: 1; } }
-@keyframes fade-out       { from { opacity: 1; } to { opacity: 0; } }
-@keyframes slide-in-left  { from { transform: translateX(-100%); } to { transform: translateX(0); } }
-@keyframes slide-out-left { from { transform: translateX(0); }    to { transform: translateX(-100%); } }
-@keyframes sheet-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
-@keyframes spin {
-  to { transform: rotate(360deg); }
-}
-@keyframes nav-row-in {
-  from { opacity: 0; transform: translateX(-8px); }
-  to   { opacity: 1; transform: translateX(0); }
-}
-
-.nav-row-in {
-  animation: nav-row-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-@media (prefers-reduced-motion: reduce) {
-  .nav-row-in { animation: none; }
-}
-
-/* ═══════════════════════════════════════════════════════════════════════════
-   Editorial typography primitives — exposed as Tailwind @utility so they
-   compose with variant modifiers (hover:, md:, etc.). Use as classes:
-     <h1 className="text-display">…</h1>
-     <span className="text-label md:text-caption">…</span>
-   ═══════════════════════════════════════════════════════════════════════════ */
 @utility text-display {
   font-family: var(--font-serif);
   font-size: clamp(2.8rem, 7vw, 6.5rem);
@@ -215,29 +199,25 @@
   text-transform: uppercase;
 }
 
-/* ═══════════════════════════════════════════════════════════════════════════
-   Behavioural primitives
-   ═══════════════════════════════════════════════════════════════════════════ */
 @utility skeleton {
   background: var(--color-gray-100);
   position: relative;
   overflow: hidden;
-}
-/* The shimmer itself is a ::after — declared here so it can be composed with
-   any size utility the consumer applies to the .skeleton element. */
-.skeleton::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
-  animation: skeleton-loading 1.6s ease infinite;
-  will-change: transform;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%);
+    animation: var(--animate-skeleton);
+    will-change: transform;
+  }
 }
 
 @utility marquee-track {
   display: flex;
   width: max-content;
-  animation: marquee 30s linear infinite;
+  animation: var(--animate-marquee);
 }
 
 @utility progress-bar {
@@ -252,25 +232,19 @@
   pointer-events: none;
 }
 
-@utility animate-card-fade-in {
-  animation: card-fade-in 180ms ease both;
-}
-@utility animate-card-img-in {
-  animation: card-img-in 180ms ease both;
-}
-@utility animate-card-img-in-left {
-  animation: card-img-in-left 180ms ease both;
-}
-@utility animate-fade-in    { animation: fade-in 0.3s ease both; }
-@utility animate-fade-out   { animation: fade-out 0.3s ease both; }
-@utility animate-slide-in   { animation: slide-in-left 0.38s cubic-bezier(0.76,0,0.24,1) both; }
-@utility animate-slide-out  { animation: slide-out-left 0.38s cubic-bezier(0.76,0,0.24,1) both; }
-@utility animate-spin       { animation: spin 0.9s linear infinite; }
-@utility animate-sheet-up  { animation: sheet-up 300ms cubic-bezier(0.32,0.72,0,1) both; }
+@utility nav-row-in {
+  animation: nav-row-in 320ms cubic-bezier(0.16, 1, 0.3, 1) both;
 
-/* Hide scrollbar cross-browser (used by horizontal scroll rows) */
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
 @utility hide-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
-.hide-scrollbar::-webkit-scrollbar { display: none; }

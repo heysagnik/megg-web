@@ -20,7 +20,7 @@ export default function Accordion({ label, children }: AccordionProps) {
         onClick={() => setOpen(v => !v)}
         className="font-sans w-full flex items-center justify-between min-h-12 py-[0.6rem] bg-transparent border-none cursor-pointer text-black uppercase"
       >
-        <span className="tracking-wider text-xs">{label}</span>
+        <span className="text-label">{label}</span>
         <span
           className="text-[1.1rem] leading-none font-light text-muted inline-block transition-transform duration-200 ease-out"
           style={{

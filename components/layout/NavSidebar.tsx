@@ -52,12 +52,6 @@ export default function NavSidebar({ id, gender, isOpen, onClose }: NavSidebarPr
   const drawerRef = useRef<HTMLDivElement>(null)
   const pathname = usePathname() ?? ''
 
-  const SHOP_ITEMS = [
-    { label: 'New Arrivals',  to: `${genderPath(gender)}#new-arrivals` },
-    { label: 'All Products',  to: genderPath(gender, '/products') },
-    { label: 'Under Rs. 699', to: genderPath(gender, '/under699') },
-  ]
-
   const CATEGORY_ITEMS = (gender === 'women' ? WOMEN_CATEGORY_ITEMS : MEN_CATEGORY_ITEMS)
     .map(c => ({ label: c.label, to: genderPath(gender, `/category/${encodeURIComponent(c.slug)}`) }))
 
@@ -152,32 +146,8 @@ export default function NavSidebar({ id, gender, isOpen, onClose }: NavSidebarPr
         {/* Scrollable body */}
         <nav aria-label="Main navigation" className="flex-1 min-h-0 overflow-y-auto hide-scrollbar">
 
-          {/* Shop utility strip */}
-          <div className="px-6 md:px-8 pt-4 pb-1 border-b border-border">
-            <ul>
-              {SHOP_ITEMS.map((item) => (
-                <li key={item.label} className="border-b border-border last:border-b-0">
-                  <Link
-                    href={item.to}
-                    onClick={onClose}
-                    tabIndex={isOpen ? 0 : -1}
-                    className="text-label group flex items-center justify-between py-3.5 text-black no-underline"
-                  >
-                    <span>{item.label}</span>
-                    <svg width="10" height="10" viewBox="0 0 12 12" fill="none"
-                      className="shrink-0 text-muted transition-transform duration-200 group-hover:translate-x-0.5"
-                      aria-hidden="true">
-                      <path d="M1 11L11 1M11 1H4M11 1V8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
           {/* Category index — the drawer's editorial centerpiece */}
           <div className="px-6 md:px-8 pt-6 pb-8">
-            <p className="text-caption mb-2">Shop by Category</p>
             <ul>
               {CATEGORY_ITEMS.map((item, i) => {
                 const isActive = pathname === item.to

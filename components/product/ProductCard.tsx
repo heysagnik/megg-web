@@ -11,7 +11,18 @@ export interface ProductCardProps {
   fetchPriority?: 'high' | 'low' | 'auto'
   cardBgClass?: string
   aspectClass?: string
-  disableSwipe?: boolean
+  /**
+   * Card lives inside a horizontally scroll-snapping strip (e.g. Trending,
+   * "More from brand"). On touch, a plain left/right drag is ambiguous
+   * between "scroll the strip" and "swipe this card's photo" — both are
+   * the same gesture. In this mode we don't fight the browser for the
+   * gesture: native scroll drives the drag, and once it settles we check
+   * whether the strip actually snapped to a different card (== scroll,
+   * leave the photo alone) or snapped back to this one (== a photo swipe,
+   * advance the image). The strip's scroll container must carry
+   * `data-h-scroll` for this to find it.
+   */
+  inStrip?: boolean
 }
 
 export default function ProductCard({
@@ -19,7 +30,7 @@ export default function ProductCard({
   fetchPriority = 'auto',
   cardBgClass = 'bg-[#f2efea]',
   aspectClass = 'aspect-[3/4]',
-  disableSwipe = false,
+  inStrip = false,
 }: ProductCardProps) {
   const [imgIdx, setImgIdx] = useState(0)
   const [hovered, setHovered] = useState(false)
@@ -34,6 +45,12 @@ export default function ProductCard({
   const hasSwiped = useRef(false)
   const touchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const transitionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Strip mode: arbitrate the gesture after native scroll settles
+  const stripContainer = useRef<HTMLElement | null>(null)
+  const stripStartScrollLeft = useRef(0)
+  const stripLastDelta = useRef({ x: 0, y: 0 })
+  const stripSettleGuard = useRef(0)
 
   const images = product.images ?? []
   const hasMultiple = images.length > 1
@@ -61,8 +78,95 @@ export default function ProductCard({
     changeSlide(prev => (prev === images.length - 1 ? 0 : prev + 1))
   }
 
+  /* ── Strip mode: cooperative gesture arbitration ──
+   * We never capture the pointer or preventDefault here — the browser's
+   * native scroll owns the drag. We just watch where the strip's
+   * scrollLeft ends up once it settles. */
+  const runStripSettleCheck = (container: HTMLElement, startScrollLeft: number, deltaX: number) => {
+    const guardId = ++stripSettleGuard.current
+    let finished = false
+
+    const finish = () => {
+      if (finished || guardId !== stripSettleGuard.current) return
+      finished = true
+      const moved = Math.abs(container.scrollLeft - startScrollLeft)
+      if (moved < 12) {
+        // Strip snapped right back — this was a photo swipe, not a scroll
+        if (deltaX < 0) changeSlide(prev => (prev === images.length - 1 ? prev : prev + 1))
+        else changeSlide(prev => (prev === 0 ? prev : prev - 1))
+      }
+    }
+
+    if ('onscrollend' in (window as unknown as Record<string, unknown>)) {
+      container.addEventListener('scrollend', finish, { once: true })
+      // Safety net in case scrollend never fires (e.g. gesture had no momentum)
+      setTimeout(finish, 450)
+    } else {
+      // Poll for scrollLeft to stop changing
+      let last = container.scrollLeft
+      let stableFrames = 0
+      const tick = () => {
+        if (finished || guardId !== stripSettleGuard.current) return
+        if (container.scrollLeft === last) {
+          stableFrames++
+          if (stableFrames > 3) return finish()
+        } else {
+          stableFrames = 0
+          last = container.scrollLeft
+        }
+        requestAnimationFrame(tick)
+      }
+      requestAnimationFrame(tick)
+      setTimeout(finish, 450)
+    }
+  }
+
+  const handleStripPointerDown = (e: React.PointerEvent<HTMLElement>) => {
+    if (e.pointerType === 'mouse') return
+    pointerStartPos.current = { x: e.clientX, y: e.clientY }
+    maxDragDist.current = 0
+    isPointerDown.current = true
+    hasSwiped.current = false
+    stripLastDelta.current = { x: 0, y: 0 }
+    setIsInteracting(true)
+    if (touchTimerRef.current) clearTimeout(touchTimerRef.current)
+
+    const container = (e.currentTarget as HTMLElement).closest<HTMLElement>('[data-h-scroll]')
+    stripContainer.current = container
+    stripStartScrollLeft.current = container ? container.scrollLeft : 0
+  }
+
+  const handleStripPointerMove = (e: React.PointerEvent<HTMLElement>) => {
+    if (!isPointerDown.current || !hasMultiple) return
+    const deltaX = e.clientX - pointerStartPos.current.x
+    const deltaY = e.clientY - pointerStartPos.current.y
+    stripLastDelta.current = { x: deltaX, y: deltaY }
+    const dist = Math.hypot(deltaX, deltaY)
+    if (dist > maxDragDist.current) maxDragDist.current = dist
+  }
+
+  const handleStripPointerUp = () => {
+    if (!isPointerDown.current) return
+    isPointerDown.current = false
+
+    const { x: deltaX, y: deltaY } = stripLastDelta.current
+    const container = stripContainer.current
+    const isHorizontal = Math.abs(deltaX) > 8 && Math.abs(deltaX) > Math.abs(deltaY)
+
+    if (container && hasMultiple && isHorizontal && maxDragDist.current > 15) {
+      hasSwiped.current = true
+      runStripSettleCheck(container, stripStartScrollLeft.current, deltaX)
+    } else {
+      hasSwiped.current = false
+    }
+
+    touchTimerRef.current = setTimeout(() => {
+      setIsInteracting(false)
+      hasSwiped.current = false
+    }, 600)
+  }
+
   const handlePointerDown = (e: React.PointerEvent<HTMLElement>) => {
-    if (disableSwipe) return
     // Only primary mouse button (0) or touch/pen
     if (e.pointerType === 'mouse' && e.button !== 0) return
 
@@ -77,7 +181,7 @@ export default function ProductCard({
   }
 
   const handlePointerMove = (e: React.PointerEvent<HTMLElement>) => {
-    if (disableSwipe || !isPointerDown.current || !hasMultiple) return
+    if (!isPointerDown.current || !hasMultiple) return
 
     const deltaX = e.clientX - pointerStartPos.current.x
     const deltaY = e.clientY - pointerStartPos.current.y
@@ -114,7 +218,7 @@ export default function ProductCard({
   }
 
   const handlePointerUp = (e: React.PointerEvent<HTMLElement>) => {
-    if (disableSwipe || !isPointerDown.current) return
+    if (!isPointerDown.current) return
     isPointerDown.current = false
 
     try {
@@ -163,7 +267,7 @@ export default function ProductCard({
   }
 
   const showControls = hasMultiple && (hovered || isInteracting)
-  const isDragging = !disableSwipe && isHorizontalSwipe.current === true && dragOffset !== 0
+  const isDragging = !inStrip && isHorizontalSwipe.current === true && dragOffset !== 0
 
   return (
     <a
@@ -172,15 +276,21 @@ export default function ProductCard({
       rel="noopener noreferrer"
       className={cn(
         'group block w-full uppercase tracking-normal text-black outline-none no-underline select-none',
-        !disableSwipe && 'touch-pan-y',
-        hasMultiple && !disableSwipe ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'
+        // Strip mode biases the browser toward horizontal (the strip's own
+        // scroll axis) instead of leaving it ambiguous — touch-action: auto
+        // let a slightly diagonal swipe get interpreted as a vertical page
+        // scroll instead of committing to the strip. pan-x still lets a
+        // clearly-vertical drag fall through to the page; it only removes
+        // the ambiguity for near-horizontal ones.
+        inStrip ? 'touch-pan-x' : 'touch-pan-y',
+        hasMultiple && !inStrip ? 'cursor-grab active:cursor-grabbing' : 'cursor-pointer'
       )}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
-      onPointerDown={disableSwipe ? undefined : handlePointerDown}
-      onPointerMove={disableSwipe ? undefined : handlePointerMove}
-      onPointerUp={disableSwipe ? undefined : handlePointerUp}
-      onPointerCancel={disableSwipe ? undefined : handlePointerUp}
+      onPointerDown={inStrip ? handleStripPointerDown : handlePointerDown}
+      onPointerMove={inStrip ? handleStripPointerMove : handlePointerMove}
+      onPointerUp={inStrip ? handleStripPointerUp : handlePointerUp}
+      onPointerCancel={inStrip ? handleStripPointerUp : handlePointerUp}
       onClick={handleClick}
       aria-label={`${product.brand} — ${product.name}`}
     >
@@ -331,14 +441,9 @@ export default function ProductCard({
             {formatPrice(product.price)}
           </span>
           {product.mrp && Number(product.mrp) > Number(product.price) && (
-            <>
-              <span className="text-[0.65rem] text-neutral-400 font-normal line-through tracking-normal tabular-nums leading-none shrink-0">
-                {formatPrice(product.mrp)}
-              </span>
-              <span className="text-[0.625rem] text-[#ff3e6c] font-semibold tracking-normal uppercase leading-none shrink-0">
-                {Math.round(((Number(product.mrp) - Number(product.price)) / Number(product.mrp)) * 100)}% OFF
-              </span>
-            </>
+            <span className="text-[0.65rem] text-neutral-400 font-normal line-through tracking-normal tabular-nums leading-none shrink-0">
+              {formatPrice(product.mrp)}
+            </span>
           )}
         </div>
       </div>
