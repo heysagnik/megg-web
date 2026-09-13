@@ -1,5 +1,5 @@
 import { type NextRequest } from 'next/server'
-import type { PhotonImage as PhotonImageType } from '@cf-wasm/photon'
+import type { PhotonImage as PhotonImageType } from '@cf-wasm/photon/workerd'
 
 export const runtime = 'edge'
 
@@ -43,10 +43,10 @@ export async function GET(req: NextRequest) {
   const targetW = Math.round(w)
   const targetH = Math.round(h)
 
-  let PhotonImage: typeof PhotonImageType, SamplingFilter: typeof import('@cf-wasm/photon').SamplingFilter,
-    crop: typeof import('@cf-wasm/photon').crop, resize: typeof import('@cf-wasm/photon').resize
+  let PhotonImage: typeof PhotonImageType, SamplingFilter: typeof import('@cf-wasm/photon/workerd').SamplingFilter,
+    crop: typeof import('@cf-wasm/photon/workerd').crop, resize: typeof import('@cf-wasm/photon/workerd').resize
   try {
-    ;({ PhotonImage, SamplingFilter, crop, resize } = await import('@cf-wasm/photon'))
+    ;({ PhotonImage, SamplingFilter, crop, resize } = await import('@cf-wasm/photon/workerd'))
   } catch (err) {
     return new Response(`@cf-wasm/photon failed to load: ${errMessage(err)}`, { status: 500 })
   }
