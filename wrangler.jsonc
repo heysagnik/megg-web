@@ -22,5 +22,11 @@
       "binding": "VINEXT_KV_CACHE",
       "id": "1705a9d358be46e8ae5425c381f8ed60"
     }
-  ]
+  ],
+  "observability": {
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true
+    }
+  }
 }
