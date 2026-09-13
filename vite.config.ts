@@ -26,6 +26,7 @@ export default defineConfig({
     exclude: ["@cf-wasm/photon"],
   },
   ssr: {
+    noExternal: ["@cf-wasm/photon"],
     optimizeDeps: {
       exclude: ["@cf-wasm/photon"],
     },
