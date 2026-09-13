@@ -26,7 +26,7 @@ export default function SectionHeader({
   compact = false,
 }: SectionHeaderProps) {
   return (
-    <div className={cn(compact ? 'mb-lg' : 'mb-xl', className)}>
+    <div className={cn(compact ? 'mb-3 sm:mb-lg' : 'mb-xl', className)}>
       <div
         className={cn(
           'flex items-end justify-between gap-sm',

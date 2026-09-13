@@ -38,9 +38,14 @@ export async function GET(req: NextRequest) {
     return new Response('Source host not allowed', { status: 403 })
   }
 
-  const upstream = await fetch(sourceUrl.toString())
+  let upstream: Response
+  try {
+    upstream = await fetch(sourceUrl.toString())
+  } catch (err) {
+    return new Response(`Upstream fetch threw: ${errMessage(err)}`, { status: 502 })
+  }
   if (!upstream.ok) {
-    return new Response('Failed to fetch source image', { status: 502 })
+    return new Response(`Failed to fetch source image (status ${upstream.status})`, { status: 502 })
   }
   const inputBytes = new Uint8Array(await upstream.arrayBuffer())
 
@@ -90,9 +95,19 @@ export async function GET(req: NextRequest) {
         'Cache-Control': 'public, max-age=600, s-maxage=600, stale-while-revalidate=3600',
       },
     })
+  } catch (err) {
+    // Surface the real failure instead of an opaque 500 — this endpoint has
+    // no request body/PII to worry about leaking, so it's safe to return
+    // the message directly and read it straight off the network tab.
+    return new Response(`Photon processing failed: ${errMessage(err)}`, { status: 500 })
   } finally {
     input?.free()
     cropped?.free()
     output?.free()
   }
+}
+
+function errMessage(err: unknown): string {
+  if (err instanceof Error) return `${err.name}: ${err.message}`
+  return String(err)
 }

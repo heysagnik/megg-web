@@ -24,7 +24,7 @@ export interface ProductShelfProps {
 export function HScrollShelf({ eyebrow, title, products, cta, ctaTo }: ProductShelfProps) {
   if (!products.length) return null
   return (
-    <Section className="overflow-hidden">
+    <Section className="overflow-hidden pt-sm pb-0 sm:pt-xl sm:pb-xl">
       <div className="px-[var(--container-px)] max-w-[1280px] mx-auto">
         <SectionHeader eyebrow={eyebrow} title={title} cta={cta} ctaTo={ctaTo} compact />
       </div>
@@ -58,7 +58,7 @@ export function HScrollShelf({ eyebrow, title, products, cta, ctaTo }: ProductSh
 export function GridShelf({ eyebrow, title, products }: ProductShelfProps) {
   if (!products.length) return null
   return (
-    <Section>
+    <Section className="pt-8 pb-sm sm:pt-xl sm:pb-xl">
       <div className="px-[var(--container-px)] max-w-[1280px] mx-auto">
         <SectionHeader eyebrow={eyebrow} title={title} compact />
         <div className={PRODUCT_GRID_CLASS}>
