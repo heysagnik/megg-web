@@ -22,4 +22,12 @@ export default defineConfig({
       "sharp": path.resolve(__dirname, "empty-stub.js"),
     },
   },
+  optimizeDeps: {
+    exclude: ["@cf-wasm/photon"],
+  },
+  ssr: {
+    optimizeDeps: {
+      exclude: ["@cf-wasm/photon"],
+    },
+  },
 });
