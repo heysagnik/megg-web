@@ -65,6 +65,14 @@ export default function BrowseRoute({
           fetch: makeCategoryFetcher(categorySlug),
           resolveNav: (_filters, avail) => avail.subcategories ?? [],
           navFilterKey: 'subcategory',
+          initialPageIsFiltered: (url) =>
+            !!(
+              url?.get('subcategory') ||
+              url?.get('color') ||
+              url?.get('brand') ||
+              url?.get('sort') ||
+              url?.get('maxPrice')
+            ),
         }
       }
       const cfg = BROWSE_ROUTES[kind]
