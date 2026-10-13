@@ -78,8 +78,8 @@ export function useSearch() {
     p.set('page', String(page))
     p.set('limit', String(BROWSE_PAGE_SIZE))
 
-    searchProductsRaw(p)
-      .then(res => {
+  searchProductsRaw(p, { signal: ctrl.signal })
+    .then(res => {
         if (ctrl.signal.aborted) return
         const seen   = new Set(accumulated.current.map(x => x.id))
         const merged = page === 1
