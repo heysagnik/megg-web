@@ -80,23 +80,20 @@ export default async function CategoryRow({ gender }: { gender: Gender }) {
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
-      <div className="mx-auto max-w-[var(--container-max)] px-[var(--container-px)]">
-        <div className="flex flex-col gap-1 mb-lg">
+      <div className="mx-auto max-w-[var(--container-max)]">
+        <div className="flex flex-col gap-1 mb-lg px-[var(--container-px)]">
           <span className="text-label text-muted">Explore by Style</span>
           <h2 className="text-section">Shop by Category</h2>
         </div>
 
         <nav aria-label="Product categories">
           <ul
-            className="hide-scrollbar flex gap-sm overflow-x-auto list-none p-0 pb-1 [scroll-snap-type:x_mandatory] -mx-[var(--container-px)] px-[var(--container-px)]"
+            className="hide-scrollbar flex gap-sm overflow-x-auto list-none p-0 pb-1 [scroll-snap-type:x_mandatory] -mx-[var(--container-px)] px-[var(--container-px)] md:mx-[25px] md:px-0 md:gap-6"
           >
             {bento.map((cat) => (
               <li
                 key={cat.slug}
-                className="shrink-0 group [scroll-snap-align:start]"
-                style={{
-                  width:           'clamp(140px, 42vw, 280px)',
-                }}
+                className="group w-[clamp(140px,42vw,280px)] shrink-0 [scroll-snap-align:start] md:w-[calc((100%_-_6rem)_/_5)]"
               >
                 <Link
                   href={genderPath(gender, `/category/${encodeURIComponent(cat.slug)}`)}
@@ -109,7 +106,7 @@ export default async function CategoryRow({ gender }: { gender: Gender }) {
                       srcSet={cat.isAsset
                         ? undefined
                         : `${getCdnImageUrl(cat.img)} 240w, ${getCdnImageUrl(cat.img)} 320w`}
-                      sizes="clamp(140px, 42vw, 280px)"
+                      sizes="(min-width: 768px) 20vw, clamp(140px, 42vw, 280px)"
                       alt={`${cat.keyword} — Shop on MEGG`}
                       className="absolute inset-0 w-full h-full object-cover transition-transform duration-600 ease-out group-hover:scale-105"
                       loading="lazy"

@@ -50,7 +50,7 @@ All catalog listing pages (`/products`, `/under699`, `/category/[slug]`) use one
 All schema markup uses `<JsonLd data={...} />` from `components/seo/JsonLd.tsx`. Common partials (`collectionPageLd`, `breadcrumbLdGraph`, `productItemList`) live in `lib/seo/jsonld.ts`.
 
 ### Hooks
-- `useBrowsePage` — shared paging/filter/infinite-scroll state for browse pages.
+- `useBrowsePage` — shared page-navigation/filter state for browse pages.
 - `useScrollHideOnIdle` — rAF-throttled mobile-bar autohide.
 - `useFooterVisibility` — observer for footer-in-viewport detection.
 - `useFocusTrap` — WAI-ARIA focus lock for modal/slideover panels.

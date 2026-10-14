@@ -4,15 +4,28 @@ import { genderPath } from '@/lib/genderPath'
 
 export default function Under699Banner({ gender }: { gender: Gender }) {
   return (
-    <section className="bg-black text-center py-[clamp(3rem,6vw,5rem)]">
-      <div className="flex flex-col items-center gap-[1.25rem] px-[var(--container-px)]">
+    <section className="relative isolate overflow-hidden bg-black text-center py-[clamp(3rem,6vw,5rem)]">
+      <img
+        src="https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/699Banner.png"
+        alt=""
+        aria-hidden="true"
+        loading="lazy"
+        decoding="async"
+        fetchPriority="low"
+        className="absolute inset-0 -z-20 h-full w-full object-cover object-center"
+      />
+      <div aria-hidden="true" className="absolute inset-0 -z-10 bg-black/50" />
+      <div className="relative z-10 flex flex-col items-center gap-[1.25rem] px-[var(--container-px)]">
         {/* Eyebrow */}
         <span className="text-label text-gray-400">
           Limited Time
         </span>
 
         {/* Title */}
-        <h2 className="font-serif text-white uppercase leading-[1.05] text-[clamp(2rem,5vw,3.5rem)] font-normal tracking-[-0.02em]">
+        <h2
+          className="font-serif text-white uppercase leading-[1.05] text-[clamp(2rem,5vw,3.5rem)] font-normal tracking-[-0.02em]"
+          style={{ textShadow: '0 1px 0 #d0d0d0, 0 2px 0 #aaa, 0 3px 0 #777, 0 8px 16px rgb(0 0 0 / 65%)' }}
+        >
           Shop Under <span className="normal-case">Rs.</span> 699
         </h2>
 

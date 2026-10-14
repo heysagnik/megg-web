@@ -18,7 +18,7 @@ export { default as PageHeader } from "./PageHeader";
 
 // Feedback / state
 export { default as CardSkeleton } from "./CardSkeleton";
-export { EndOfFeed } from "./EndOfFeed";
+export { Pagination } from "./Pagination";
 
 // Atoms
 export { Badge } from "./Badge";

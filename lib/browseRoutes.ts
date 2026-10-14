@@ -2,7 +2,7 @@
 import type { AvailableFilters, Product, ScopeParams } from '@/lib/api'
 import { listProducts, getUnder699 } from '@/lib/api'
 import {
-  BROWSE_EMPTY,
+  browseFiltersFromSearchParams,
   toApiSort,
   type BrowseFilters,
   type BrowseNavOption,
@@ -67,9 +67,9 @@ export const BROWSE_ROUTES: Partial<Record<BrowseKind, BrowseRouteConfig>> = {
         page,
         limit: BROWSE_PAGE_SIZE,
         category: f.category || undefined,
-        subcategory: f.subcategory || undefined,
-        color: f.color || undefined,
-        brand: f.brand || undefined,
+        subcategory: f.subcategory.length ? f.subcategory : undefined,
+        color: f.color.length ? f.color : undefined,
+        brand: f.brand.length ? f.brand : undefined,
         sort: toApiSort(f.sort),
         maxPrice: f.maxPrice ?? undefined,
         gender: scope.gender,
@@ -97,10 +97,10 @@ export const BROWSE_ROUTES: Partial<Record<BrowseKind, BrowseRouteConfig>> = {
         page,
         limit: BROWSE_PAGE_SIZE,
         category: f.category || undefined,
-        subcategory: f.subcategory || undefined,
+        subcategory: f.subcategory.length ? f.subcategory : undefined,
         sort: toApiSort(f.sort),
-        color: f.color || undefined,
-        brand: f.brand || undefined,
+        color: f.color.length ? f.color : undefined,
+        brand: f.brand.length ? f.brand : undefined,
         maxPrice: f.maxPrice ?? undefined,
         gender: scope.gender,
       }),
@@ -126,27 +126,7 @@ export const BROWSE_ROUTES: Partial<Record<BrowseKind, BrowseRouteConfig>> = {
  * browse route now, so this needs no per-kind mapping.
  */
 export function initialBrowseFilters(url: URLSearchParams | null): BrowseFilters {
-  if (!url) return BROWSE_EMPTY
-
-  const category = (url.get('category') || '').trim()
-  const subcategory = (url.get('subcategory') || '').trim()
-  const color = (url.get('color') || '').trim()
-  const brand = (url.get('brand') || '').trim()
-  const sortRaw = (url.get('sort') || '').trim()
-  const maxPriceRaw = url.get('maxPrice')
-
-  const validSorts = ['relevance', 'price_asc', 'price_desc', 'newest', 'popular', 'popularity']
-  const sort = validSorts.includes(sortRaw) ? (sortRaw as BrowseFilters['sort']) : ''
-  const maxPrice = maxPriceRaw && !isNaN(Number(maxPriceRaw)) ? Number(maxPriceRaw) : null
-
-  return {
-    category,
-    subcategory,
-    color,
-    brand,
-    sort,
-    maxPrice,
-  }
+  return browseFiltersFromSearchParams(url)
 }
 
 /* The `category` route's fetcher needs the URL slug threaded through.
@@ -158,9 +138,9 @@ export function makeCategoryFetcher(slug: string): BrowseRouteConfig['fetch'] {
       page,
       limit: BROWSE_PAGE_SIZE,
       category: slug,
-      subcategory: f.subcategory || undefined,
-      color: f.color || undefined,
-      brand: f.brand || undefined,
+      subcategory: f.subcategory.length ? f.subcategory : undefined,
+      color: f.color.length ? f.color : undefined,
+      brand: f.brand.length ? f.brand : undefined,
       sort: toApiSort(f.sort),
       maxPrice: f.maxPrice ?? undefined,
       gender: scope.gender,

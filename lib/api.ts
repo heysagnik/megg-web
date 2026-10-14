@@ -226,10 +226,10 @@ export interface ListParams extends ScopeParams {
   page?: number;
   limit?: number;
   category?: string;
-  subcategory?: string;
+  subcategory?: string | string[];
   sort?: SortOption | 'relevance';
-  brand?: string;
-  color?: string;
+  brand?: string | string[];
+  color?: string | string[];
   minPrice?: number;
   maxPrice?: number;
 }
@@ -240,14 +240,26 @@ export interface ListParams extends ScopeParams {
  * Build URL search params from a flat record, omitting empty values.
  * Single utility so every endpoint serialises identically.
  */
-function qs(params: Record<string, string | number | null | undefined>): URLSearchParams {
+
+function qs(
+  params: Record<string, string | number | string[] | null | undefined>,
+): URLSearchParams {
   const p = new URLSearchParams();
+
   for (const [k, v] of Object.entries(params)) {
     if (v == null || v === '') continue;
-    p.set(k, String(v));
+
+    if (Array.isArray(v)) {
+      const values = v.map(value => value.trim()).filter(Boolean);
+      if (values.length) p.set(k, values.join(','));
+    } else {
+      p.set(k, String(v));
+    }
   }
+
   return p;
 }
+
 
 interface FetchNext extends Omit<RequestInit, 'next'> {
   next?: { revalidate?: number | false; tags?: string[] };
@@ -405,10 +417,10 @@ export async function getUnder699(params: {
   page?: number;
   limit?: number;
   category?: string;
-  subcategory?: string;
+  subcategory?: string | string[];
   sort?: SortOption;
-  color?: string;
-  brand?: string;
+  color?: string | string[];
+  brand?: string | string[];
   maxPrice?: number;
 } & ScopeParams = {}): Promise<ProductsResponse> {
   const path = `/products/under699?${qs({

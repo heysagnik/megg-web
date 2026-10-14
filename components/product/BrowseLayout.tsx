@@ -1,14 +1,14 @@
 'use client'
 
 import type { AvailableFilters, Gender, Product } from '@/lib/api'
-import { BROWSE_EMPTY, SORT_OPTIONS, type BrowseFilters, type BrowseNavOption, countVisibleFilters } from '@/lib/browseFilters'
+import { BROWSE_EMPTY, PRICE_OPTIONS, SORT_OPTIONS, type BrowseFilters, type BrowseNavOption, countVisibleFilters } from '@/lib/browseFilters'
 import { PRODUCT_GRID_CLASS } from '@/lib/constants'
 import { genderPath } from '@/lib/genderPath'
 import { cn } from '@/lib/utils'
 import ProductCard from './ProductCard'
 import FilterPanel from './FilterPanel'
 import CardSkeleton from '@/components/ui/CardSkeleton'
-import { EndOfFeed } from '@/components/ui'
+import { Pagination } from '@/components/ui'
 
 const GRID_CLASS =
   `w-full ${PRODUCT_GRID_CLASS} max-w-[1280px] mx-auto px-3 sm:px-4 md:px-6 transition-all duration-300`
@@ -41,18 +41,19 @@ export interface BrowseLayoutProps {
   products: Product[]
   total: number
   loading: boolean
-  hasMore: boolean
+  page: number
+  totalPages: number
   filters: BrowseFilters
   avail: AvailableFilters
   filterOpen: boolean
   showMbar: boolean
   footerIntersecting: boolean
-  sentinelRef: React.RefObject<HTMLDivElement | null>
   /** Ordered list of options for left sidebar / mobile tabs. */
   navOptions: ReadonlyArray<BrowseNavOption>
   /** Which `filters` field the sidebar/mobile-tab nav reads/writes. */
   navFilterKey: 'category' | 'subcategory'
   onFilterChange: (next: BrowseFilters) => void
+  onPageChange: (page: number) => void
   onOpenFilterPanel: () => void
   onCloseFilterPanel: () => void
 }
@@ -63,14 +64,54 @@ export interface BrowseLayoutProps {
  * grid (with skeletons + empty state), and the slide-over FilterPanel.
  */
 export default function BrowseLayout({
-  gender, pageTitle, products, total, loading, hasMore,
+  gender, pageTitle, products, total, loading, page, totalPages,
   filters, avail,
   filterOpen, showMbar, footerIntersecting,
-  sentinelRef, navOptions, navFilterKey,
-  onFilterChange, onOpenFilterPanel, onCloseFilterPanel,
+  navOptions, navFilterKey,
+  onFilterChange, onPageChange, onOpenFilterPanel, onCloseFilterPanel,
 }: BrowseLayoutProps) {
   const filterCount = countVisibleFilters(filters)
-  const activeNavValue = filters[navFilterKey]
+  const isNavActive = (value: string) => navFilterKey === 'category'
+    ? filters.category === value
+    : filters.subcategory.includes(value)
+  const toggleNav = (value: string) => {
+    if (navFilterKey === 'category') {
+      onFilterChange({ ...filters, category: filters.category === value ? '' : value })
+      return
+    }
+    onFilterChange({
+      ...filters,
+      subcategory: filters.subcategory.includes(value)
+        ? filters.subcategory.filter(item => item !== value)
+        : [...filters.subcategory, value],
+    })
+  }
+  const clearNav = () => onFilterChange({
+    ...filters,
+    [navFilterKey]: navFilterKey === 'category' ? '' : [],
+  })
+
+  const selectedFilters = [
+    ...(filters.category ? [{ key: 'category' as const, value: filters.category, label: filters.category }] : []),
+    ...filters.subcategory.map(value => ({ key: 'subcategory' as const, value, label: value })),
+    ...filters.brand.map(value => ({ key: 'brand' as const, value, label: value })),
+    ...filters.color.map(value => ({ key: 'color' as const, value, label: value })),
+    ...(filters.maxPrice != null ? [{
+      key: 'price' as const,
+      value: String(filters.maxPrice),
+      label: PRICE_OPTIONS.find(option => option.value === filters.maxPrice)?.label ?? `Under Rs ${filters.maxPrice}`,
+    }] : []),
+  ]
+
+  const removeSelected = (key: (typeof selectedFilters)[number]['key'], value: string) => {
+    if (key === 'category') {
+      onFilterChange({ ...filters, category: '', subcategory: [], color: [], brand: [] })
+    } else if (key === 'price') {
+      onFilterChange({ ...filters, maxPrice: null })
+    } else {
+      onFilterChange({ ...filters, [key]: filters[key].filter(item => item !== value) })
+    }
+  }
 
   const sidebarNav = (
     <div className="flex flex-col justify-center my-auto w-full py-6">
@@ -78,22 +119,19 @@ export default function BrowseLayout({
         <li>
           <button
             type="button"
-            onClick={() => onFilterChange({ ...filters, [navFilterKey]: '' })}
-            className={navBtnClass(!activeNavValue)}
+            onClick={clearNav}
+            className={navBtnClass(navFilterKey === 'category' ? !filters.category : filters.subcategory.length === 0)}
           >
             VIEW ALL
           </button>
         </li>
         {navOptions.map((opt) => {
-          const isActive = activeNavValue === opt.name
+          const isActive = isNavActive(opt.name)
           return (
             <li key={opt.name}>
               <button
                 type="button"
-                onClick={() => onFilterChange({
-                  ...filters,
-                  [navFilterKey]: isActive ? '' : opt.name,
-                })}
+                onClick={() => toggleNav(opt.name)}
                 className={navBtnClass(isActive)}
               >
                 {opt.name}
@@ -159,8 +197,8 @@ export default function BrowseLayout({
           <div className="hide-scrollbar flex overflow-x-auto gap-5 py-2">
             <button
               type="button"
-              onClick={() => onFilterChange({ ...filters, [navFilterKey]: '' })}
-              className={mobileTabBtnClass(!activeNavValue)}
+              onClick={clearNav}
+              className={mobileTabBtnClass(navFilterKey === 'category' ? !filters.category : filters.subcategory.length === 0)}
             >
               ALL
             </button>
@@ -168,17 +206,37 @@ export default function BrowseLayout({
               <button
                 key={opt.name}
                 type="button"
-                onClick={() => onFilterChange({
-                  ...filters,
-                  [navFilterKey]: activeNavValue === opt.name ? '' : opt.name,
-                })}
-                className={mobileTabBtnClass(activeNavValue === opt.name)}
+                onClick={() => toggleNav(opt.name)}
+                className={mobileTabBtnClass(isNavActive(opt.name))}
               >
                 {opt.name}
               </button>
             ))}
           </div>
         </div>
+
+        {selectedFilters.length > 0 && (
+          <div className="flex flex-wrap items-center gap-2 px-4 py-3 md:px-6" aria-label="Selected filters">
+            {selectedFilters.map(item => (
+              <button
+                key={`${item.key}:${item.value}`}
+                type="button"
+                onClick={() => removeSelected(item.key, item.value)}
+                aria-label={`Remove ${item.label} filter`}
+                className="inline-flex items-center gap-2 border border-neutral-300 bg-white px-2.5 py-1.5 font-sans text-[0.65rem] tracking-wider uppercase text-neutral-700 hover:border-black hover:text-black"
+              >
+                {item.label}<span aria-hidden="true">×</span>
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => onFilterChange(BROWSE_EMPTY)}
+              className="border-none bg-transparent px-1 py-1.5 font-sans text-[0.65rem] tracking-wider uppercase text-neutral-500 underline underline-offset-2 hover:text-black"
+            >
+              Clear all
+            </button>
+          </div>
+        )}
 
         {/* Product grid */}
         <div className={GRID_CLASS}>
@@ -211,14 +269,12 @@ export default function BrowseLayout({
           </div>
         )}
 
-        <div ref={sentinelRef} aria-hidden="true" className="h-px" />
-
         <div className="px-4 md:px-0">
-          <EndOfFeed loading={loading} hasMore={hasMore} count={products.length} />
+          <Pagination page={page} totalPages={totalPages} loading={loading} onPageChange={onPageChange} />
         </div>
 
         {/* Semantic SEO & Discovery Footer Section */}
-        {!hasMore && products.length > 0 && (
+        {page >= totalPages && products.length > 0 && (
           <section className="px-4 py-12 mt-12 border-t border-neutral-200 text-neutral-600 max-w-4xl mx-auto normal-case">
             <h2 className="font-serif text-lg font-normal text-black uppercase tracking-wider mb-3">
               {gender === 'women'
@@ -290,6 +346,7 @@ export default function BrowseLayout({
         avail={avail}
         total={total}
         onChange={onFilterChange}
+        onClearAll={() => onFilterChange(BROWSE_EMPTY)}
       />
     </div>
   )

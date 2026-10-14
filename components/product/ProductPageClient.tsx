@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import type { ProductDetail, ProductVariant } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { getCdnImageUrl } from '@/lib/image'
@@ -18,9 +18,9 @@ import { HScrollShelf, GridShelf } from './ProductShelves'
 // ── Layout class constants (kept here, not in lib, because they only apply
 //    to this component's specific 2-column / sticky / carousel arrangement).
 const LAYOUT_CLASS          = 'flex flex-col md:flex-row md:items-start bg-white'
-const IMAGES_DESKTOP_CLASS  = 'hidden md:flex md:w-1/2 md:flex-row'
+const IMAGES_DESKTOP_CLASS  = 'hidden md:flex md:w-1/2 md:h-[100svh] md:sticky md:top-0 md:flex-row md:overflow-y-auto'
 const IMAGES_MOBILE_CLASS   = 'flex flex-row overflow-x-auto hide-scrollbar snap-x snap-mandatory w-full'
-const INFO_PANEL_CLASS       = 'w-full md:w-1/2 md:sticky md:top-0 md:h-[100svh] md:flex md:items-center md:justify-center md:border-l md:border-border md:overflow-y-auto border-t md:border-t-0 border-border'
+const INFO_PANEL_CLASS       = 'w-full md:w-1/2 md:sticky md:top-0 md:min-h-[100svh] md:flex md:items-center md:justify-center md:border-l md:border-border border-t md:border-t-0 border-border'
 const INFO_INNER_CLASS       = 'w-full md:w-[72%] py-0 md:py-lg px-[var(--container-px)] md:px-0 mt-lg md:mt-0 lg:max-w-[90%]'
 
 export interface ProductPageClientProps {
@@ -35,7 +35,8 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
   const [activeVariant, setActiveVariant] = useState<ProductVariant | null>(null)
   const [activeSize, setActiveSize]       = useState<string | null>(null)
   const [scrollProgress, setScrollProgress] = useState(0)
-  const imgRefs = useRef<(HTMLDivElement | null)[]>([])
+  const galleryRef = useRef<HTMLDivElement | null>(null)
+  const lastPageScrollY = useRef(0)
 
   const images = (activeVariant ? activeVariant.images : product.images).filter(Boolean)
   const variants        = product.variants        ?? []
@@ -53,6 +54,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
   // Reset state + track view on product change.
   useEffect(() => {
     window.scrollTo(0, 0)
+    if (galleryRef.current) galleryRef.current.scrollTop = 0
     setScrollProgress(0)
     setActiveVariant(null)
     setActiveSize(null)
@@ -71,24 +73,69 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
     })
   }, [images])
 
-  // Desktop scroll progress strip mapping.
-  const setImgRef = useCallback((el: HTMLDivElement | null, i: number) => {
-    imgRefs.current[i] = el
-  }, [])
-
+  // Desktop scroll progress follows the independently scrolling image gallery.
   useEffect(() => {
     const n = images.length
+    const gallery = galleryRef.current
+    if (!gallery) return
+
     const handleScroll = () => {
-      const first = imgRefs.current[0]
-      if (!first) return
-      const containerTop = first.getBoundingClientRect().top + window.scrollY
-      const progress = (window.scrollY - containerTop) / window.innerHeight
+      const progress = gallery.scrollTop / window.innerHeight
       setScrollProgress(Math.max(0, Math.min(n, progress)))
     }
-    window.addEventListener('scroll', handleScroll, { passive: true })
+    gallery.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleScroll)
     handleScroll()
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      gallery.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleScroll)
+    }
   }, [product.id, images.length])
+
+  // Gently advance the product gallery while the main page scrolls.
+// This keeps the image column visually moving without taking over page scrolling.
+useEffect(() => {
+  const gallery = galleryRef.current
+
+  if (!gallery || window.innerWidth < 768) return
+
+  lastPageScrollY.current = window.scrollY
+
+  const handlePageScroll = () => {
+    const currentScrollY = window.scrollY
+    const delta = currentScrollY - lastPageScrollY.current
+
+    lastPageScrollY.current = currentScrollY
+
+    if (!delta) return
+
+    const maxGalleryScroll =
+      gallery.scrollHeight - gallery.clientHeight
+
+    if (maxGalleryScroll <= 0) return
+
+    // Move the gallery only a fraction of the page scroll.
+    const galleryDelta = delta * 1
+
+    gallery.scrollTop = Math.max(
+      0,
+      Math.min(
+        maxGalleryScroll,
+        gallery.scrollTop + galleryDelta
+      )
+    )
+  }
+
+  window.addEventListener('scroll', handlePageScroll, { passive: true })
+
+  return () => {
+    window.removeEventListener('scroll', handlePageScroll)
+  }
+}, [product.id, images.length])
+
+  useEffect(() => {
+    if (galleryRef.current) galleryRef.current.scrollTop = 0
+  }, [activeVariant?.id])
 
   return (
     <>
@@ -105,16 +152,15 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
         />
 
         {/* DESKTOP: left image stack + progress strip */}
-        <div className={IMAGES_DESKTOP_CLASS}>
-          <div className="hidden md:flex">
+        <div ref={galleryRef} className={IMAGES_DESKTOP_CLASS}>
+          <div className="absolute left-0 top-0 z-10 hidden md:flex">
             <ScrollProgressStrip count={images.length} progress={scrollProgress} />
           </div>
-          <div className="flex-1">
+          <div className="min-w-0 flex-1">
             {images.map((img: string, i: number) => (
               <div
                 key={`${activeVariant?.id ?? 'base'}-${i}`}
-                ref={el => setImgRef(el, i)}
-                className="max-h-[85vh] aspect-[3/4] relative overflow-hidden bg-surface-2 mx-auto mb-2 flex items-center justify-center"
+                className="relative mb-2 aspect-[3/4] w-full overflow-hidden bg-surface-2"
               >
                 <img
                   src={getCdnImageUrl(img)}
@@ -122,7 +168,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                   loading={i === 0 ? 'eager' : 'lazy'}
                   decoding="async"
                   fetchPriority={i === 0 ? 'high' : 'auto'}
-                  className="w-full h-full object-cover object-center select-none"
+                  className="block h-full w-full object-cover object-center select-none"
                   draggable={false}
                 />
               </div>
@@ -153,7 +199,7 @@ export default function ProductPageClient({ product }: ProductPageClientProps) {
                     <span className="font-sans text-sm text-neutral-400 font-normal line-through -tracking-[0.01em] tabular-nums leading-none">
                       {mrpStr}
                     </span>
-                    <span className="font-sans text-xs text-[#ff3e6c] font-semibold tracking-[0.04em] uppercase leading-none">
+                    <span className="font-sans text-xs text-[#377e48] font-semibold tracking-[0.04em] uppercase leading-none">
                       {discountPct}% OFF
                     </span>
                   </>

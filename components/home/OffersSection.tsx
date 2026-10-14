@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { getOffers, type Offer } from '@/lib/api'
 import { getResizedOfferBanner } from '@/lib/image'
+import { HOME_CONTENT_CLASS, HOME_HEADING_STACK_CLASS } from './homeLayout'
 
 // Matches the banner's own h-[…] breakpoints below — each candidate is
 // server-cropped/resized to these exact pixels via /api/offer-banner, so
@@ -56,10 +57,10 @@ export default function OffersSection() {
 
   return (
     <section className="pt-0 pb-8 overflow-hidden font-sans">
-      <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-10 lg:px-12">
+      <div className={HOME_CONTENT_CLASS}>
         {/* Section Header */}
         <div className="mb-lg flex items-end justify-between gap-4">
-          <div className="flex flex-col gap-1">
+          <div className={HOME_HEADING_STACK_CLASS}>
             <span className="text-label text-muted">Exclusive Perks</span>
             <h2 className="text-section">Special Offers</h2>
           </div>

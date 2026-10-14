@@ -106,16 +106,17 @@ export default function BrowseRoute({
       products={state.products}
       total={state.total}
       loading={state.loading}
-      hasMore={state.hasMore}
+      page={state.page}
+      totalPages={state.totalPages}
       filters={state.filters}
       avail={state.avail}
       filterOpen={state.filterOpen}
       showMbar={state.showMbar}
       footerIntersecting={state.footerIntersecting}
-      sentinelRef={state.sentinelRef}
       navOptions={navOptions}
       navFilterKey={config.navFilterKey}
       onFilterChange={state.changeFilters}
+      onPageChange={state.changePage}
       onOpenFilterPanel={() => state.setFilterOpen(true)}
       onCloseFilterPanel={() => state.setFilterOpen(false)}
     />
