@@ -18,6 +18,11 @@ interface FilterPanelProps {
   total: number
   onChange: (next: BrowseFilters) => void
   onClearAll: () => void
+  showZeroCountOptions?: boolean
+  moodGroups?: { value: string; label: string }[]
+  selectedMoodGroups?: string[]
+  onMoodGroupToggle?: (value: string) => void
+  hasCustomSelection?: boolean
 }
 
 const ITEM_LIMIT = 6
@@ -29,6 +34,11 @@ export default function FilterPanel({
   avail,
   onChange,
   onClearAll,
+  showZeroCountOptions = false,
+  moodGroups = [],
+  selectedMoodGroups = [],
+  onMoodGroupToggle,
+  hasCustomSelection = false,
 }: FilterPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -38,9 +48,12 @@ export default function FilterPanel({
   // a 0-count option is a dead end if clicked.
   const hasCount = (o: { count: number }) => o.count > 0
 
-  const subcategories = (avail.subcategories ?? []).filter(hasCount)
-  const colors        = (avail.colors        ?? []).filter(hasCount)
-  const brands        = (avail.brands        ?? []).filter(hasCount)
+  const filterAvailable = <T extends { count: number }>(options: T[]) =>
+    showZeroCountOptions ? options : options.filter(hasCount)
+  const subcategories = filterAvailable(avail.subcategories ?? [])
+  const colors = filterAvailable(avail.colors ?? [])
+  const brands = filterAvailable(avail.brands ?? [])
+
 
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
 
@@ -62,7 +75,7 @@ export default function FilterPanel({
         ? filters[key].filter(item => item !== value)
         : [...filters[key], value],
     })
-  const activeCount = countVisibleFilters(filters)
+  const activeCount = countVisibleFilters(filters) + Number(hasCustomSelection)
 
   const visibleSubcats = expanded['subcategory'] ? subcategories : subcategories.slice(0, ITEM_LIMIT)
   const visibleColors  = expanded['color']       ? colors        : colors.slice(0, ITEM_LIMIT)
@@ -110,6 +123,35 @@ export default function FilterPanel({
 
         {/* Body — Scrollable filter groups */}
         <div className="flex-1 overflow-y-auto pr-2 hide-scrollbar space-y-6 md:space-y-7">
+
+          {moodGroups.length > 0 && onMoodGroupToggle && (
+            <div className="flex items-start">
+              <div className="w-[100px] shrink-0 font-sans text-[0.675rem] tracking-[0.14em] uppercase text-neutral-400 font-normal pt-0.5">
+                CATEGORY
+              </div>
+              <div className="flex-1 min-w-0 space-y-2 font-sans">
+                {moodGroups.map(group => {
+                  const isActive = selectedMoodGroups.includes(group.value)
+                  return (
+                    <label
+                      key={group.value}
+                      className="flex w-full items-center gap-2.5 text-left uppercase text-[0.75rem] tracking-wider cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isActive}
+                        onChange={() => onMoodGroupToggle(group.value)}
+                        className="h-4 w-4 shrink-0 accent-black"
+                      />
+                      <span className={isActive ? 'font-bold text-black' : 'text-neutral-500 hover:text-black font-normal'}>
+                        {group.label}
+                      </span>
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
+          )}
 
           {/* 2. SUBCATEGORY */}
           {subcategories.length > 0 && (

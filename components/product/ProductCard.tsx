@@ -299,7 +299,8 @@ export default function ProductCard({
         {/* Sliding image track with GPU acceleration */}
         <div
           className={cn(
-            'flex flex-row w-full h-full will-change-transform',
+            'flex flex-row w-full h-full',
+            (isDragging || isTransitioning) && 'will-change-transform',
             isDragging
               ? 'transition-none'
               : 'transition-transform duration-[380ms] ease-[cubic-bezier(0.16,1,0.3,1)]'
