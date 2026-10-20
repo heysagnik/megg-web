@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import type { ReactNode, RefObject } from 'react'
+import type { ReactNode } from 'react'
 import {
   getSearchSuggestions,
   type AppliedFilters,
@@ -15,7 +15,7 @@ import {
 } from '@/lib/api'
 import ProductCard from '@/components/product/ProductCard'
 import CardSkeleton from '@/components/ui/CardSkeleton'
-import { EndOfFeed } from '@/components/ui'
+import { Pagination } from '@/components/ui'
 import { cn as CN } from '@/lib/utils'
 import { useScrollHideOnIdle } from '@/hooks/useScrollHideOnIdle'
 import { useFooterVisibility } from '@/hooks/useFooterVisibility'
@@ -36,8 +36,8 @@ export interface SearchLayoutProps {
   products: Product[]
   total:    number
   loading:  boolean
-  hasMore:  boolean
-  sentinel: RefObject<HTMLDivElement | null>
+  page: number
+  totalPages: number
   categories:        { label: string; slug: string; count?: number }[]
   categoriesLoading: boolean
   filters:          ActiveFilters
@@ -48,10 +48,12 @@ export interface SearchLayoutProps {
   searchMode:       string | null
   defaultSort:      SearchSort
   onQueryChange:       (query: string) => void
+  onPageChange:        (page: number) => void
   onCategorySelect:    (slug: string) => void
   onToggleMulti:       (key: 'color' | 'brand' | 'subcategory', value: string) => void
   onSortChange:        (sort: string) => void
   onClearAll:          () => void
+  onClearSearch:       () => void
   onRemoveApplied:     (kind: 'query' | 'category' | 'subcategory' | 'color' | 'brand' | 'minPrice' | 'maxPrice', value?: string) => void
   onApplySuggested:    (patch: { category?: string; subcategory?: string[]; color?: string[]; brand?: string[] }) => void
   onSelectPriceFilter: (value: string | null) => void
@@ -74,33 +76,43 @@ function DedicatedSearchBar({
   query,
   hasSearch,
   onQueryChange,
-  onClearAll,
+  onClearSearch,
 }: {
   query: string
   hasSearch: boolean
   onQueryChange: (query: string) => void
-  onClearAll: () => void
+  onClearSearch: () => void
 }) {
   const [inputVal, setInputVal] = useState(query || '')
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout>>(null)
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => {
+      inputRef.current?.focus({ preventScroll: true })
+    })
+    return () => window.cancelAnimationFrame(frame)
+  }, [])
 
   useEffect(() => {
     setInputVal(query || '')
   }, [query])
 
-  useEffect(() => {
-    inputRef.current?.focus()
-  }, [])
-
   const queryTimerRef = useRef<ReturnType<typeof setTimeout>>(null)
+
+  const clearPendingRequests = () => {
+    if (timerRef.current) clearTimeout(timerRef.current)
+    if (queryTimerRef.current) clearTimeout(queryTimerRef.current)
+    timerRef.current = null
+    queryTimerRef.current = null
+  }
+
+  useEffect(() => clearPendingRequests, [])
 
   const handleChange = (val: string) => {
     setInputVal(val)
-    if (timerRef.current) clearTimeout(timerRef.current)
-    if (queryTimerRef.current) clearTimeout(queryTimerRef.current)
+    clearPendingRequests()
 
     queryTimerRef.current = setTimeout(() => {
       onQueryChange(val.trim())
@@ -156,13 +168,14 @@ function DedicatedSearchBar({
           <button
             type="button"
             onClick={() => {
+              clearPendingRequests()
               setInputVal('')
               setSuggestions([])
               setShowSuggestions(false)
-              onQueryChange('')
-              onClearAll()
+              onClearSearch()
               inputRef.current?.focus()
             }}
+            aria-label="Clear search and filters"
             className="bg-transparent border-none cursor-pointer p-1 text-neutral-400 hover:text-black text-sm leading-none shrink-0"
           >✕</button>
         )}
@@ -204,6 +217,7 @@ function DedicatedSearchBar({
               type="button"
               onMouseDown={(e) => {
                 e.preventDefault()
+                clearPendingRequests()
                 setInputVal(s.value)
                 setShowSuggestions(false)
                 onQueryChange(s.value)
@@ -353,19 +367,18 @@ function SearchFilterDrawer({
                 {visibleSubcats.map(s => {
                   const isActive = filters.subcategories.includes(s.name)
                   return (
-                    <button
+                    <label
                       key={s.name}
-                      type="button"
-                      onClick={() => onToggleMulti('subcategory', s.name)}
-                      className="font-sans text-[0.7rem] tracking-[0.05em] uppercase bg-transparent border-b border-neutral-100 py-2.5 cursor-pointer text-left w-full flex justify-between items-center transition-colors"
+                      className="font-sans text-[0.7rem] tracking-[0.05em] uppercase border-b border-neutral-100 py-2.5 cursor-pointer text-left w-full flex items-center gap-3 transition-colors"
                     >
+                      <input type="checkbox" checked={isActive} onChange={() => onToggleMulti('subcategory', s.name)} className="h-4 w-4 shrink-0 accent-black" />
                       <span className={isActive ? 'font-bold text-black' : 'text-neutral-500 hover:text-black font-normal'}>
                         {s.name}
                       </span>
-                      <span className={CN('text-[0.65rem]', isActive ? 'font-bold text-black' : 'text-neutral-400 font-mono')}>
+                      <span className={CN('ml-auto text-[0.65rem]', isActive ? 'font-bold text-black' : 'text-neutral-400 font-mono')}>
                         {s.count}
                       </span>
-                    </button>
+                    </label>
                   )
                 })}
               </div>
@@ -389,19 +402,18 @@ function SearchFilterDrawer({
                 {visibleColors.map(c => {
                   const isActive = filters.colors.includes(c.name)
                   return (
-                    <button
+                    <label
                       key={c.name}
-                      type="button"
-                      onClick={() => onToggleMulti('color', c.name)}
-                      className="font-sans text-[0.7rem] tracking-[0.05em] uppercase bg-transparent border-b border-neutral-100 py-2.5 cursor-pointer text-left w-full flex justify-between items-center transition-colors"
+                      className="font-sans text-[0.7rem] tracking-[0.05em] uppercase border-b border-neutral-100 py-2.5 cursor-pointer text-left w-full flex items-center gap-3 transition-colors"
                     >
+                      <input type="checkbox" checked={isActive} onChange={() => onToggleMulti('color', c.name)} className="h-4 w-4 shrink-0 accent-black" />
                       <span className={isActive ? 'font-bold text-black' : 'text-neutral-500 hover:text-black font-normal'}>
                         {c.name}
                       </span>
-                      <span className={CN('text-[0.65rem]', isActive ? 'font-bold text-black' : 'text-neutral-400 font-mono')}>
+                      <span className={CN('ml-auto text-[0.65rem]', isActive ? 'font-bold text-black' : 'text-neutral-400 font-mono')}>
                         {c.count}
                       </span>
-                    </button>
+                    </label>
                   )
                 })}
               </div>
@@ -425,19 +437,18 @@ function SearchFilterDrawer({
                 {visibleBrands.map(b => {
                   const isActive = filters.brands.includes(b.name)
                   return (
-                    <button
+                    <label
                       key={b.name}
-                      type="button"
-                      onClick={() => onToggleMulti('brand', b.name)}
-                      className="font-sans text-[0.7rem] tracking-[0.05em] uppercase bg-transparent border-b border-neutral-100 py-2.5 cursor-pointer text-left w-full flex justify-between items-center transition-colors"
+                      className="font-sans text-[0.7rem] tracking-[0.05em] uppercase border-b border-neutral-100 py-2.5 cursor-pointer text-left w-full flex items-center gap-3 transition-colors"
                     >
+                      <input type="checkbox" checked={isActive} onChange={() => onToggleMulti('brand', b.name)} className="h-4 w-4 shrink-0 accent-black" />
                       <span className={isActive ? 'font-bold text-black' : 'text-neutral-500 hover:text-black font-normal'}>
                         {b.name}
                       </span>
-                      <span className={CN('text-[0.65rem]', isActive ? 'font-bold text-black' : 'text-neutral-400 font-mono')}>
+                      <span className={CN('ml-auto text-[0.65rem]', isActive ? 'font-bold text-black' : 'text-neutral-400 font-mono')}>
                         {b.count}
                       </span>
-                    </button>
+                    </label>
                   )
                 })}
               </div>
@@ -461,16 +472,15 @@ function SearchFilterDrawer({
                 {af.priceFilters.map(p => {
                   const isActive = filters.maxPrice === p.value
                   return (
-                    <button
+                    <label
                       key={p.value}
-                      type="button"
-                      onClick={() => onSelectPriceFilter(isActive ? null : p.value)}
-                      className="font-sans text-[0.7rem] tracking-[0.05em] uppercase bg-transparent border-b border-neutral-100 py-2.5 cursor-pointer text-left w-full flex justify-between items-center transition-colors"
+                      className="font-sans text-[0.7rem] tracking-[0.05em] uppercase border-b border-neutral-100 py-2.5 cursor-pointer text-left w-full flex items-center gap-3 transition-colors"
                     >
+                      <input type="radio" name="search-price-range" checked={isActive} onChange={() => onSelectPriceFilter(isActive ? null : p.value)} className="h-4 w-4 shrink-0 accent-black" />
                       <span className={isActive ? 'font-bold text-black' : 'text-neutral-500 hover:text-black font-normal'}>
                         {p.label}
                       </span>
-                    </button>
+                    </label>
                   )
                 })}
               </div>
@@ -584,11 +594,11 @@ function SortBottomSheet({
 // ─── SearchLayout Main Component ───────────────────────────────────────────────
 
 export default function SearchLayout({
-  title, products, total, loading, hasMore, sentinel,
+  title, products, total, loading, page, totalPages,
   categories, categoriesLoading,
   filters, availableFilters,
   appliedFilters, suggestedFilters, banners, searchMode, defaultSort,
-  onQueryChange, onCategorySelect, onToggleMulti, onSortChange, onClearAll,
+  onQueryChange, onPageChange, onCategorySelect, onToggleMulti, onSortChange, onClearAll, onClearSearch,
   onRemoveApplied, onApplySuggested,
   onSelectPriceFilter, onPriceRangeChange,
 }: SearchLayoutProps) {
@@ -616,7 +626,6 @@ export default function SearchLayout({
     (filters.sort && filters.sort !== defaultSort ? 1 : 0)
 
   const hasSearch = Boolean(
-    (appliedFilters?.query && appliedFilters.query.trim()) ||
     (filters.query && filters.query.trim()) ||
     filters.category ||
     filters.subcategories.length > 0 ||
@@ -636,7 +645,7 @@ export default function SearchLayout({
   })()
 
   const hasChips =
-    !!appliedFilters?.query || !!filters.category ||
+    !!filters.query || !!filters.category ||
     filters.subcategories.length > 0 || filters.colors.length > 0 ||
     filters.brands.length > 0 || !!(filters.minPrice || filters.maxPrice)
 
@@ -669,7 +678,7 @@ export default function SearchLayout({
 
   // ── Desktop left sidebar navigation ──
   const sidebarNav = (
-    <div className="flex flex-col justify-center my-auto w-full py-6">
+    <div className="flex w-full flex-col justify-start py-6">
       <ul className="list-none space-y-2.5 font-sans text-[0.725rem] tracking-wider uppercase text-left">
         {hasSubcategories ? (
           <>
@@ -759,7 +768,7 @@ export default function SearchLayout({
 
   // ── Desktop right sidebar navigation for SORT BY ──
   const rightSidebarNav = (
-    <div className="flex flex-col justify-center my-auto w-full py-6">
+    <div className="flex w-full flex-col justify-start py-6">
       <p className="font-sans text-[0.625rem] tracking-[0.16em] uppercase text-neutral-400 mb-3 font-medium text-left">
         SORT BY
       </p>
@@ -788,12 +797,7 @@ export default function SearchLayout({
   const gridInnerClass =
     'grid w-full grid-cols-2 md:grid-cols-3 gap-x-5 sm:gap-x-8 md:gap-x-12 lg:gap-x-14 gap-y-10 md:gap-y-14 max-w-[1280px] mx-auto px-3 sm:px-4 md:px-6 transition-all duration-300'
 
-  const activeSearchTerm =
-    appliedFilters?.query ||
-    filters.query ||
-    (filters.subcategories && filters.subcategories.length > 0 ? filters.subcategories.join(', ') : '') ||
-    filters.category ||
-    ''
+  const activeSearchTerm = filters.query ?? ''
 
   return (
     <div className="flex min-h-[100vh] w-full flex-col">
@@ -803,14 +807,35 @@ export default function SearchLayout({
           query={activeSearchTerm}
           hasSearch={hasSearch}
           onQueryChange={onQueryChange}
-          onClearAll={onClearAll}
+          onClearSearch={onClearSearch}
         />
       </div>
+
+      {hasChips && (
+        <div className="hidden" aria-label="Selected search filters">
+          {filters.query && (
+            <Chip label={`“${appliedFilters?.query || filters.query}”`} onRemove={() => onRemoveApplied('query')} />
+          )}
+          {filters.category && <Chip label={filters.category} onRemove={() => onRemoveApplied('category')} />}
+          {filters.subcategories.map(value => <Chip key={`sub:${value}`} label={value} onRemove={() => onRemoveApplied('subcategory', value)} />)}
+          {filters.colors.map(value => <Chip key={`color:${value}`} label={value} onRemove={() => onRemoveApplied('color', value)} />)}
+          {filters.brands.map(value => <Chip key={`brand:${value}`} label={value} onRemove={() => onRemoveApplied('brand', value)} />)}
+          {filters.minPrice && <Chip label={`From Rs ${filters.minPrice}`} onRemove={() => onRemoveApplied('minPrice')} />}
+          {filters.maxPrice && <Chip label={priceChipLabel ?? `Up to Rs ${filters.maxPrice}`} onRemove={() => onRemoveApplied('maxPrice')} />}
+          <button
+            type="button"
+            onClick={onClearAll}
+            className="border-none bg-transparent px-1 py-1 font-sans text-[0.65rem] tracking-wider uppercase text-neutral-500 underline underline-offset-2 hover:text-black"
+          >
+            Clear all
+          </button>
+        </div>
+      )}
 
       <div className="flex flex-1 w-full">
         {/* ── Left sidebar (sticky & vertically centered) — ONLY show when search is active ── */}
         {hasSearch && (
-          <aside className="font-sans hidden md:flex flex-col justify-center w-[160px] xl:w-[180px] shrink-0 px-4 py-8 sticky top-[var(--header-height,52px)] h-[calc(100vh-var(--header-height,52px))] self-start overflow-y-auto hide-scrollbar">
+          <aside className="font-sans sticky top-[calc(var(--header-height,52px)+4rem)] hidden h-[calc(100vh-var(--header-height,52px)-4rem)] w-[160px] shrink-0 self-start overflow-y-auto px-4 py-2 md:flex xl:w-[180px]">
             {sidebarNav}
           </aside>
         )}
@@ -819,7 +844,7 @@ export default function SearchLayout({
         <div className="flex-1 min-w-0 py-2 md:py-4">
           {/* ── Mobile top category navigation strip (sticky) — ONLY show when search is active ── */}
           {hasSearch && (
-            <div className="md:hidden sticky top-[var(--header-height,52px)] z-[90] bg-white/97 backdrop-blur-md px-4 pt-1 pb-1 border-b border-neutral-200">
+            <div className="hidden" aria-hidden="true">
               <div className="hide-scrollbar flex overflow-x-auto gap-5 py-2">
                 {hasSubcategories ? (
                   <>
@@ -897,12 +922,9 @@ export default function SearchLayout({
           )}
 
           {hasSearch && (
-            <>
-              <div ref={sentinel} aria-hidden="true" className="h-px" />
-              <div className="px-4 md:px-0">
-                <EndOfFeed loading={loading} hasMore={hasMore} count={products.length} />
-              </div>
-            </>
+            <div className="px-4 md:px-0">
+              <Pagination page={page} totalPages={totalPages} loading={loading} onPageChange={onPageChange} />
+            </div>
           )}
         </div>
 
@@ -933,7 +955,7 @@ export default function SearchLayout({
 
         {/* ── Right sidebar (sticky & vertically centered with SORT BY) — ONLY show when search is active ── */}
         {hasSearch && (
-          <aside className="font-sans hidden md:flex flex-col justify-center w-[160px] xl:w-[180px] shrink-0 px-4 py-8 sticky top-[var(--header-height,52px)] h-[calc(100vh-var(--header-height,52px))] self-start overflow-y-auto hide-scrollbar">
+          <aside className="font-sans sticky top-[calc(var(--header-height,52px)+4rem)] hidden h-[calc(100vh-var(--header-height,52px)-4rem)] w-[160px] shrink-0 self-start overflow-y-auto px-4 py-2 md:flex xl:w-[180px]">
             {rightSidebarNav}
           </aside>
         )}

@@ -226,10 +226,10 @@ export interface ListParams extends ScopeParams {
   page?: number;
   limit?: number;
   category?: string;
-  subcategory?: string;
+  subcategory?: string | string[];
   sort?: SortOption | 'relevance';
-  brand?: string;
-  color?: string;
+  brand?: string | string[];
+  color?: string | string[];
   minPrice?: number;
   maxPrice?: number;
 }
@@ -240,14 +240,26 @@ export interface ListParams extends ScopeParams {
  * Build URL search params from a flat record, omitting empty values.
  * Single utility so every endpoint serialises identically.
  */
-function qs(params: Record<string, string | number | null | undefined>): URLSearchParams {
+
+function qs(
+  params: Record<string, string | number | string[] | null | undefined>,
+): URLSearchParams {
   const p = new URLSearchParams();
+
   for (const [k, v] of Object.entries(params)) {
     if (v == null || v === '') continue;
-    p.set(k, String(v));
+
+    if (Array.isArray(v)) {
+      const values = v.map(value => value.trim()).filter(Boolean);
+      if (values.length) p.set(k, values.join(','));
+    } else {
+      p.set(k, String(v));
+    }
   }
+
   return p;
 }
+
 
 interface FetchNext extends Omit<RequestInit, 'next'> {
   next?: { revalidate?: number | false; tags?: string[] };
@@ -267,14 +279,34 @@ const HEADERS: Readonly<Record<string, string>> = Object.freeze({
 });
 
 async function fetchJSON<T>(path: string, { revalidate = 600, ...rest }: FetchOptions = {}): Promise<T> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15_000);
+    const controller = new AbortController()
+    const externalSignal = rest.signal
 
-  const fetchOptions: RequestInit = {
-    ...rest,
-    headers: { ...HEADERS, ...(rest.headers ?? {}) },
-    signal: controller.signal,
-  };
+    const abortFromExternal = () => {
+      controller.abort()
+    }
+
+    if (externalSignal?.aborted) {
+      controller.abort()
+    } else {
+      externalSignal?.addEventListener('abort', abortFromExternal, {
+        once: true,
+      })
+    }
+
+    const timer = setTimeout(() => {
+      controller.abort()
+    }, 15_000)
+
+    const fetchOptions: RequestInit = {
+      ...rest,
+      headers: {
+        ...HEADERS,
+        ...(rest.headers ?? {}),
+      },
+      signal: controller.signal,
+    }
+
 
   if (rest.cache === 'no-store' || rest.cache === 'no-cache') {
     fetchOptions.cache = rest.cache;
@@ -289,9 +321,11 @@ async function fetchJSON<T>(path: string, { revalidate = 600, ...rest }: FetchOp
       if (!res.ok) throw new Error(`API ${res.status}: ${path}`);
       return res.json() as Promise<T>;
     });
-  } finally {
-    clearTimeout(timer);
+  }finally {
+   clearTimeout(timer)
+   externalSignal?.removeEventListener('abort', abortFromExternal)
   }
+
 }
 
 /**
@@ -383,10 +417,10 @@ export async function getUnder699(params: {
   page?: number;
   limit?: number;
   category?: string;
-  subcategory?: string;
+  subcategory?: string | string[];
   sort?: SortOption;
-  color?: string;
-  brand?: string;
+  color?: string | string[];
+  brand?: string | string[];
   maxPrice?: number;
 } & ScopeParams = {}): Promise<ProductsResponse> {
   const path = `/products/under699?${qs({
@@ -472,9 +506,18 @@ export async function searchProducts(params: SearchParams & ScopeParams): Promis
 }
 
 /** Search via pre-built URLSearchParams (e.g. URL state in the hook). */
-export async function searchProductsRaw(params: URLSearchParams): Promise<SearchResult> {
-  return unwrapPaginated<SearchResult>(await fetchJSON(`/search?${params}`));
+
+export async function searchProductsRaw(
+  params: URLSearchParams,
+  options: { signal?: AbortSignal } = {},
+): Promise<SearchResult> {
+  return unwrapPaginated<SearchResult>(
+    await fetchJSON(`/search?${params}`, {
+      signal: options.signal,
+    }),
+  )
 }
+
 
 /** Search filters — GET /search/filters */
 export async function getSearchFilters(params: SearchParams & ScopeParams = {}): Promise<SearchFilters> {

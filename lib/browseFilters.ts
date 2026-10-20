@@ -4,18 +4,18 @@ import type { SortOption } from '@/lib/api'
 
 export interface BrowseFilters {
   category: string
-  subcategory: string
-  color: string
-  brand: string
+  subcategory: string[]
+  color: string[]
+  brand: string[]
   sort: SortOption | 'relevance' | ''
   maxPrice: number | null
 }
 
 export const BROWSE_EMPTY: BrowseFilters = {
   category: '',
-  subcategory: '',
-  color: '',
-  brand: '',
+  subcategory: [],
+  color: [],
+  brand: [],
   sort: '',
   maxPrice: null,
 }
@@ -56,12 +56,56 @@ export function toApiSort(sort: BrowseFilters['sort']): SortOption | undefined {
 export function browseFiltersToSearchParams(f: BrowseFilters): URLSearchParams {
   const params = new URLSearchParams()
   if (f.category) params.set('category', f.category)
-  if (f.subcategory) params.set('subcategory', f.subcategory)
-  if (f.color) params.set('color', f.color)
-  if (f.brand) params.set('brand', f.brand)
+  f.subcategory.forEach(value => params.append('subcategory', value))
+  f.color.forEach(value => params.append('color', value))
+  f.brand.forEach(value => params.append('brand', value))
   if (f.sort && f.sort !== 'relevance') params.set('sort', f.sort)
   if (f.maxPrice != null) params.set('maxPrice', String(f.maxPrice))
   return params
+}
+
+/**
+ * Build the UI filter state represented by a browse URL.
+ * Repeated values and comma-delimited values are both accepted so links
+ * created by older versions remain usable.
+ */
+export function browseFiltersFromSearchParams(url: URLSearchParams | null): BrowseFilters {
+  if (!url) return BROWSE_EMPTY
+
+  const category = (url.get('category') || '').trim()
+  const values = (key: string) => url.getAll(key)
+    .flatMap(value => value.split(','))
+    .map(value => value.trim())
+    .filter(Boolean)
+  const subcategory = values('subcategory')
+  const color = values('color')
+  const brand = values('brand')
+  const sortRaw = (url.get('sort') || '').trim()
+  const maxPriceRaw = url.get('maxPrice')
+
+  const validSorts = ['relevance', 'price_asc', 'price_desc', 'newest', 'popular', 'popularity']
+  const sort = validSorts.includes(sortRaw) ? (sortRaw as BrowseFilters['sort']) : ''
+  const maxPrice = maxPriceRaw && !isNaN(Number(maxPriceRaw)) ? Number(maxPriceRaw) : null
+
+  return {
+    category,
+    subcategory,
+    color,
+    brand,
+    sort,
+    maxPrice,
+  }
+}
+
+export function hasBrowseFilterSelections(filters: BrowseFilters): boolean {
+  return Boolean(
+    filters.category ||
+    filters.subcategory.length ||
+    filters.color.length ||
+    filters.brand.length ||
+    filters.sort ||
+    filters.maxPrice != null,
+  )
 }
 
 // ─── Derived selectors ───────────────────────────────────────────────────────
@@ -70,11 +114,11 @@ export function browseFiltersToSearchParams(f: BrowseFilters): URLSearchParams {
 // here so the client files stay thin.
 
 /**
- * Count of "visible" (panel-only) filters: colour + brand.
+ * Count of selected category, type, colour, brand, and price filters.
  * Shown as `Filters (n)` on the mobile bar / sidebar trigger.
  */
 export function countVisibleFilters(f: BrowseFilters): number {
-  return [f.color, f.brand].filter(Boolean).length
+  return Number(!!f.category) + f.subcategory.length + f.color.length + f.brand.length + Number(f.maxPrice != null)
 }
 
 /**

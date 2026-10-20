@@ -6,9 +6,6 @@
 /** Page size for every catalog browse API request. */
 export const BROWSE_PAGE_SIZE = 20
 
-/** ScrollRoot margin (px) used by IntersectionObserver for infinite scroll. */
-export const INFINITE_SCROLL_PRECEDENCE_PX = 600
-
 /** ScrollY threshold (px) past which the mobile sticky bar starts auto-hiding. */
 export const MOBILE_BAR_MIN_SCROLL_Y = 100
 

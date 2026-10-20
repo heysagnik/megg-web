@@ -4,20 +4,20 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { getNewArrivals, type Gender, type Product } from '@/lib/api'
 import ProductCard from '@/components/product/ProductCard'
 import CardSkeleton from '@/components/ui/CardSkeleton'
-import { Button, EndOfFeed } from '@/components/ui'
+import { Button } from '@/components/ui'
+import { Pagination } from '@/components/ui/Pagination'
 
-const PAGE_SIZE = 12
+const NEW_ARRIVALS_PAGE_SIZE = 30
+const PAGE_SIZE = NEW_ARRIVALS_PAGE_SIZE
 
 export default function NewArrivalsSection({ gender }: { gender: Gender }) {
 
   const [products, setProducts] = useState<Product[]>([])
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [hasMore, setHasMore] = useState(true)
+  const [total, setTotal] = useState(0)
   const [error, setError] = useState<string | null>(null)
 
-  const sentinelRef = useRef<HTMLDivElement>(null)
-  // Prevent duplicate fetches when the observer fires multiple times
   const fetchingRef = useRef(false)
 
 
@@ -33,16 +33,8 @@ export default function NewArrivalsSection({ gender }: { gender: Gender }) {
       const data = await getNewArrivals(pageNum, PAGE_SIZE, { gender })
       const incoming = data.products ?? []
 
-      setProducts((prev) => {
-        // Deduplicate by id in case of re-fetch
-        const seen = new Set(prev.map((p) => p.id))
-        const fresh = incoming.filter((p) => !seen.has(p.id))
-        return [...prev, ...fresh]
-      })
-
-      const total = data.total ?? Infinity
-      const fetched = (pageNum - 1) * PAGE_SIZE + incoming.length
-      setHasMore(incoming.length === PAGE_SIZE && fetched < total)
+      setProducts(incoming)
+      setTotal(data.total ?? 0)
     } catch (err) {
       console.error('[NewArrivalsSection] fetch error:', err)
       setError('Failed to load products. Please try again.')
@@ -55,36 +47,30 @@ export default function NewArrivalsSection({ gender }: { gender: Gender }) {
   useEffect(() => {
     setProducts([])
     setPage(1)
-    setHasMore(true)
+    setTotal(0)
     fetchingRef.current = false
     fetchPage(1)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gender])
 
-  useEffect(() => {
-    const sentinel = sentinelRef.current
-    if (!sentinel) return
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const entry = entries[0]
-        if (entry.isIntersecting && hasMore && !loading && !fetchingRef.current) {
-          setPage((prev) => {
-            const next = prev + 1
-            fetchPage(next)
-            return next
-          })
-        }
-      },
-      {
-        rootMargin: '200px',
-        threshold: 0,
-      },
-    )
+  const goToPage = (nextPage: number) => {
+    const boundedPage = Math.min(Math.max(nextPage, 1), totalPages)
+    if (boundedPage === page || loading || fetchingRef.current) return
+    setPage(boundedPage)
+    void fetchPage(boundedPage)
 
-    observer.observe(sentinel)
-    return () => observer.disconnect()
-  }, [hasMore, loading, fetchPage])
+    const section = document.getElementById('new-arrivals')
+    if (section) {
+      const headerHeight = Number.parseInt(
+        getComputedStyle(document.documentElement).getPropertyValue('--header-height'),
+        10,
+      ) || 0
+      const top = section.getBoundingClientRect().top + window.scrollY - headerHeight
+      window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' })
+    }
+  }
 
   const showSkeletons = loading && products.length === 0
   const skeletonCount = PAGE_SIZE
@@ -103,10 +89,6 @@ export default function NewArrivalsSection({ gender }: { gender: Gender }) {
               <ProductCard key={product.id} product={product} fetchPriority="auto" />
             ))}
 
-        {loading && products.length > 0 &&
-          Array.from({ length: 4 }).map((_, i) => (
-            <CardSkeleton key={`skel-more-${page}-${i}`} />
-          ))}
       </div>
 
       {/* Error state */}
@@ -121,15 +103,11 @@ export default function NewArrivalsSection({ gender }: { gender: Gender }) {
         </div>
       )}
 
-      {/* Invisible sentinel — IntersectionObserver target */}
-      <div ref={sentinelRef} aria-hidden="true" className="h-px" />
-
-      {/* End-of-feed indicator */}
-      <EndOfFeed
+      <Pagination
+        page={page}
+        totalPages={totalPages}
         loading={loading}
-        hasMore={hasMore}
-        count={products.length}
-        message="You've seen all new arrivals"
+        onPageChange={goToPage}
       />
     </>
   )

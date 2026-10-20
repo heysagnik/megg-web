@@ -5,6 +5,7 @@ import type { AvailableFilters } from '@/lib/api'
 import {
   type BrowseFilters,
   PRICE_OPTIONS,
+  countVisibleFilters,
 } from '@/lib/browseFilters'
 import { getColorHex } from '@/lib/utils'
 import { useFocusTrap } from '@/hooks/useFocusTrap'
@@ -16,6 +17,12 @@ interface FilterPanelProps {
   avail: AvailableFilters
   total: number
   onChange: (next: BrowseFilters) => void
+  onClearAll: () => void
+  showZeroCountOptions?: boolean
+  moodGroups?: { value: string; label: string }[]
+  selectedMoodGroups?: string[]
+  onMoodGroupToggle?: (value: string) => void
+  hasCustomSelection?: boolean
 }
 
 const ITEM_LIMIT = 6
@@ -26,6 +33,12 @@ export default function FilterPanel({
   filters,
   avail,
   onChange,
+  onClearAll,
+  showZeroCountOptions = false,
+  moodGroups = [],
+  selectedMoodGroups = [],
+  onMoodGroupToggle,
+  hasCustomSelection = false,
 }: FilterPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null)
 
@@ -35,10 +48,12 @@ export default function FilterPanel({
   // a 0-count option is a dead end if clicked.
   const hasCount = (o: { count: number }) => o.count > 0
 
-  const categories    = (avail.categories    ?? []).filter(hasCount)
-  const subcategories = (avail.subcategories ?? []).filter(hasCount)
-  const colors        = (avail.colors        ?? []).filter(hasCount)
-  const brands        = (avail.brands        ?? []).filter(hasCount)
+  const filterAvailable = <T extends { count: number }>(options: T[]) =>
+    showZeroCountOptions ? options : options.filter(hasCount)
+  const subcategories = filterAvailable(avail.subcategories ?? [])
+  const colors = filterAvailable(avail.colors ?? [])
+  const brands = filterAvailable(avail.brands ?? [])
+
 
   const [expanded, setExpanded] = useState<Record<string, boolean>>({})
 
@@ -46,14 +61,22 @@ export default function FilterPanel({
     setExpanded(prev => ({ ...prev, [key]: !prev[key] }))
   }
 
-  const setCategory = (value: string) =>
-    onChange({ ...filters, category: filters.category === value ? '' : value, subcategory: '' })
   const setSubcategory = (value: string) =>
-    onChange({ ...filters, subcategory: filters.subcategory === value ? '' : value })
+    onChange({
+      ...filters,
+      subcategory: filters.subcategory.includes(value)
+        ? filters.subcategory.filter(item => item !== value)
+        : [...filters.subcategory, value],
+    })
   const toggle = (key: 'color' | 'brand', value: string) =>
-    onChange({ ...filters, [key]: filters[key] === value ? '' : value })
+    onChange({
+      ...filters,
+      [key]: filters[key].includes(value)
+        ? filters[key].filter(item => item !== value)
+        : [...filters[key], value],
+    })
+  const activeCount = countVisibleFilters(filters) + Number(hasCustomSelection)
 
-  const visibleCats    = expanded['category']    ? categories    : categories.slice(0, ITEM_LIMIT)
   const visibleSubcats = expanded['subcategory'] ? subcategories : subcategories.slice(0, ITEM_LIMIT)
   const visibleColors  = expanded['color']       ? colors        : colors.slice(0, ITEM_LIMIT)
   const visibleBrands  = expanded['brand']       ? brands        : brands.slice(0, ITEM_LIMIT)
@@ -101,6 +124,35 @@ export default function FilterPanel({
         {/* Body — Scrollable filter groups */}
         <div className="flex-1 overflow-y-auto pr-2 hide-scrollbar space-y-6 md:space-y-7">
 
+          {moodGroups.length > 0 && onMoodGroupToggle && (
+            <div className="flex items-start">
+              <div className="w-[100px] shrink-0 font-sans text-[0.675rem] tracking-[0.14em] uppercase text-neutral-400 font-normal pt-0.5">
+                CATEGORY
+              </div>
+              <div className="flex-1 min-w-0 space-y-2 font-sans">
+                {moodGroups.map(group => {
+                  const isActive = selectedMoodGroups.includes(group.value)
+                  return (
+                    <label
+                      key={group.value}
+                      className="flex w-full items-center gap-2.5 text-left uppercase text-[0.75rem] tracking-wider cursor-pointer"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isActive}
+                        onChange={() => onMoodGroupToggle(group.value)}
+                        className="h-4 w-4 shrink-0 accent-black"
+                      />
+                      <span className={isActive ? 'font-bold text-black' : 'text-neutral-500 hover:text-black font-normal'}>
+                        {group.label}
+                      </span>
+                    </label>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
           {/* 2. SUBCATEGORY */}
           {subcategories.length > 0 && (
             <div className="flex items-start">
@@ -109,18 +161,17 @@ export default function FilterPanel({
               </div>
               <div className="flex-1 min-w-0 space-y-2 font-sans">
                 {visibleSubcats.map(s => {
-                  const isActive = filters.subcategory === s.name
+                  const isActive = filters.subcategory.includes(s.name)
                   return (
-                    <button
+                    <label
                       key={s.name}
-                      type="button"
-                      onClick={() => setSubcategory(s.name)}
-                      className="block w-full text-left uppercase text-[0.75rem] tracking-wider transition-colors border-none bg-transparent p-0 cursor-pointer"
+                      className="flex w-full items-center gap-2.5 text-left uppercase text-[0.75rem] tracking-wider cursor-pointer"
                     >
+                      <input type="checkbox" checked={isActive} onChange={() => setSubcategory(s.name)} className="h-4 w-4 shrink-0 accent-black" />
                       <span className={isActive ? 'font-bold text-black' : 'text-neutral-500 hover:text-black font-normal'}>
                         {s.name}
                       </span>
-                    </button>
+                    </label>
                   )
                 })}
                 {subcategories.length > ITEM_LIMIT && (
@@ -144,18 +195,17 @@ export default function FilterPanel({
               </div>
               <div className="flex-1 min-w-0 space-y-2 font-sans">
                 {visibleBrands.map(b => {
-                  const isActive = filters.brand === b.name
+                  const isActive = filters.brand.includes(b.name)
                   return (
-                    <button
+                    <label
                       key={b.name}
-                      type="button"
-                      onClick={() => toggle('brand', b.name)}
-                      className="block w-full text-left uppercase text-[0.75rem] tracking-wider transition-colors border-none bg-transparent p-0 cursor-pointer"
+                      className="flex w-full items-center gap-2.5 text-left uppercase text-[0.75rem] tracking-wider cursor-pointer"
                     >
+                      <input type="checkbox" checked={isActive} onChange={() => toggle('brand', b.name)} className="h-4 w-4 shrink-0 accent-black" />
                       <span className={isActive ? 'font-bold text-black' : 'text-neutral-500 hover:text-black font-normal'}>
                         {b.name}
                       </span>
-                    </button>
+                    </label>
                   )
                 })}
                 {brands.length > ITEM_LIMIT && (
@@ -179,15 +229,14 @@ export default function FilterPanel({
               </div>
               <div className="flex-1 min-w-0 space-y-2.5 font-sans">
                 {visibleColors.map(c => {
-                  const isActive = filters.color === c.name
+                  const isActive = filters.color.includes(c.name)
                   const hex = getColorHex(c.name)
                   return (
-                    <button
+                    <label
                       key={c.name}
-                      type="button"
-                      onClick={() => toggle('color', c.name)}
-                      className="flex items-center w-full text-left uppercase text-[0.75rem] tracking-wider transition-colors border-none bg-transparent p-0 cursor-pointer"
+                      className="flex items-center w-full gap-2.5 text-left uppercase text-[0.75rem] tracking-wider cursor-pointer"
                     >
+                      <input type="checkbox" checked={isActive} onChange={() => toggle('color', c.name)} className="h-4 w-4 shrink-0 accent-black" />
                       <span
                         className="w-3.5 h-3.5 rounded-[1px] border border-neutral-300 inline-block mr-2.5 shrink-0"
                         style={{ backgroundColor: hex }}
@@ -195,7 +244,7 @@ export default function FilterPanel({
                       <span className={isActive ? 'font-bold text-black' : 'text-neutral-500 hover:text-black font-normal'}>
                         {c.name}
                       </span>
-                    </button>
+                    </label>
                   )
                 })}
                 {colors.length > ITEM_LIMIT && (
@@ -220,16 +269,22 @@ export default function FilterPanel({
               {PRICE_OPTIONS.map(o => {
                   const isActive = filters.maxPrice === o.value
                   return (
-                    <button
+                    <label
                       key={o.value}
-                      type="button"
-                      onClick={() => onChange({ ...filters, maxPrice: isActive ? null : o.value })}
-                      className="block w-full text-left uppercase text-[0.75rem] tracking-wider transition-colors border-none bg-transparent p-0 cursor-pointer"
+                      className="flex w-full items-center gap-2.5 text-left uppercase text-[0.75rem] tracking-wider cursor-pointer"
                     >
+                      <input
+                        type="radio"
+                        name="browse-price-range"
+                        checked={isActive}
+                        onChange={() => onChange({ ...filters, maxPrice: o.value })}
+                        onClick={() => { if (isActive) onChange({ ...filters, maxPrice: null }) }}
+                        className="h-4 w-4 shrink-0 accent-black"
+                      />
                       <span className={isActive ? 'font-bold text-black' : 'text-neutral-500 hover:text-black font-normal'}>
                         {o.label}
                       </span>
-                    </button>
+                    </label>
                   )
                 })}
               </div>
@@ -238,11 +293,20 @@ export default function FilterPanel({
         </div>
 
         {/* Footer Action */}
-        <div className="pt-4 shrink-0">
+        <div className="pt-4 shrink-0 flex gap-3">
+          {activeCount > 0 && (
+            <button
+              type="button"
+              onClick={onClearAll}
+              className="flex-1 border border-neutral-300 text-neutral-600 bg-white font-sans text-[0.725rem] font-medium tracking-[0.14em] uppercase py-3 hover:border-black hover:text-black transition-colors text-center cursor-pointer"
+            >
+              CLEAR ALL
+            </button>
+          )}
           <button
             type="button"
             onClick={onClose}
-            className="w-full border border-black text-black bg-white font-sans text-[0.725rem] font-medium tracking-[0.2em] uppercase py-3 hover:bg-black hover:text-white transition-colors duration-200 text-center cursor-pointer"
+            className="flex-[2] border border-black text-black bg-white font-sans text-[0.725rem] font-medium tracking-[0.2em] uppercase py-3 hover:bg-black hover:text-white transition-colors duration-200 text-center cursor-pointer"
           >
             VIEW RESULTS
           </button>

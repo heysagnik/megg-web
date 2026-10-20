@@ -3,8 +3,8 @@ import { getTrendingProducts, type Gender } from '@/lib/api'
 import JsonLd from '@/components/seo/JsonLd'
 import HeroSection from '@/components/home/HeroSection'
 import CategoryRow from '@/components/home/CategoryRow'
+import MatchTheMood from '@/components/home/MatchTheMood'
 import Under699Banner from '@/components/home/Under699Banner'
-import OffersSection from '@/components/home/OffersSection'
 import TrendingStrip from '@/components/home/TrendingStrip'
 import NewArrivalsSection from '@/components/home/NewArrivalsSection'
 
@@ -142,7 +142,8 @@ export default async function HomeContent({ gender }: { gender: Gender }) {
       <Under699Banner gender={gender} />
 
       <TrendingStrip products={trending} gender={gender} />
-      <OffersSection />
+      <MatchTheMood gender={gender} />
+      {/* <OffersSection /> */}
       <section id="new-arrivals" className="pt-4 pb-24">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-10 lg:px-12">
           <div className="flex flex-col gap-1 mb-lg">

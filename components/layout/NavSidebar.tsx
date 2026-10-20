@@ -148,6 +148,9 @@ export default function NavSidebar({ id, gender, isOpen, onClose }: NavSidebarPr
 
           {/* Category index — the drawer's editorial centerpiece */}
           <div className="px-6 md:px-8 pt-6 pb-8">
+            <p className="mb-3 font-sans text-[0.65rem] font-medium uppercase tracking-[0.18em] text-neutral-400">
+              Shop by category
+            </p>
             <ul>
               {CATEGORY_ITEMS.map((item, i) => {
                 const isActive = pathname === item.to
@@ -162,11 +165,10 @@ export default function NavSidebar({ id, gender, isOpen, onClose }: NavSidebarPr
                       onClick={onClose}
                       tabIndex={isOpen ? 0 : -1}
                       aria-current={isActive ? 'page' : undefined}
-                      className="text-section group flex items-baseline justify-between py-2.5 no-underline"
-                      style={{ fontSize: 'clamp(1.15rem, 4vw, 1.5rem)' }}
+                      className="group flex items-baseline justify-between py-3 font-sans text-[0.95rem] font-medium leading-none tracking-[0.035em] text-black no-underline transition-colors duration-200 hover:text-neutral-500 sm:text-[1rem]"
                     >
                       <span
-                        className="relative text-black transition-opacity duration-200 group-hover:opacity-60"
+                        className="relative text-black text-[0.90rem] transition-opacity duration-200 group-hover:opacity-60 uppercase"
                       >
                         {item.label}
                         <span

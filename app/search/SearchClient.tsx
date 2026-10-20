@@ -1,6 +1,6 @@
 'use client'
 
-import { Suspense, useCallback, useEffect, useRef } from 'react'
+import { Suspense, useCallback } from 'react'
 import { useSearch } from '@/hooks/useSearch'
 import SearchLayout from '@/components/search/SearchLayout'
 
@@ -14,22 +14,9 @@ export default function SearchClient() {
 
 function SearchInner() {
   const {
-    data, loading, filters, hasMore, defaultSort, availableFilters,
-    update, toggleMulti, addMulti, clearAll, loadMore,
+    data, loading, filters, page, totalPages, defaultSort, availableFilters,
+    update, toggleMulti, addMulti, clearAll, changePage,
   } = useSearch()
-
-  const sentinel = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const el = sentinel.current
-    if (!el || !hasMore || loading) return
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) loadMore() },
-      { rootMargin: '400px' },
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [hasMore, loading, loadMore])
 
   const onCategory = useCallback((slug: string) => {
     update({ category: slug || null })
@@ -74,8 +61,8 @@ function SearchInner() {
       products={data?.products ?? []}
       total={data?.total ?? 0}
       loading={loading}
-      hasMore={hasMore}
-      sentinel={sentinel}
+      page={page}
+      totalPages={totalPages}
       categories={categories}
       categoriesLoading={!data && loading}
       filters={filters}
@@ -86,10 +73,12 @@ function SearchInner() {
       searchMode={data?.searchMode ?? null}
       defaultSort={defaultSort}
       onQueryChange={q => update({ query: q || null })}
+      onPageChange={changePage}
       onCategorySelect={onCategory}
       onToggleMulti={(key, value) => toggleMulti(key, value)}
       onSortChange={onSort}
       onClearAll={() => clearAll({ keepQuery: true })}
+      onClearSearch={() => clearAll()}
       onRemoveApplied={onRemove}
       onApplySuggested={onSuggest}
       onSelectPriceFilter={v => update({ maxPrice: v, minPrice: null })}
