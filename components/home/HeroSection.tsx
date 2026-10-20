@@ -167,7 +167,6 @@ export default function HeroSection() {
         style={{
           top:        '50%',
           transform:  'translateX(-50%) translateY(-50%)',
-          willChange: 'top, font-size, color',
         }}
       >
         MEGG

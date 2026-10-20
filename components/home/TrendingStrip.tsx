@@ -17,7 +17,7 @@ interface TrendingStripProps {
 export default function TrendingStrip({ products, gender }: TrendingStripProps) {
   if (!products.length) return null
   return (
-    <section className="pt-xl pb-xl overflow-hidden">
+    <section className="w-full min-w-0 overflow-hidden pt-xl pb-xl">
       <div className="mx-auto max-w-[var(--container-max)]">
         <div className="flex items-end justify-between mb-lg gap-4 px-[var(--container-px)]">
           <div className="flex flex-col gap-1">
@@ -32,18 +32,20 @@ export default function TrendingStrip({ products, gender }: TrendingStripProps) 
           </Link>
         </div>
 
-        <div
-          data-h-scroll
-          className="hide-scrollbar flex gap-3 sm:gap-6 overflow-x-auto touch-pan-x snap-x snap-mandatory py-1 -mx-[var(--container-px)] px-[var(--container-px)] md:mx-[25px] md:px-0"
-        >
-          {products.map((product) => (
-            <div
-              key={product.id}
-              className="w-[150px] xs:w-[165px] sm:w-[220px] md:w-[calc((100%_-_6rem)_/_5)] shrink-0 snap-start"
-            >
-              <ProductCard product={product} fetchPriority="auto" inStrip />
-            </div>
-          ))}
+        <div className="px-[calc(var(--container-px)_+_0.5rem)] md:mx-[25px] md:px-2">
+          <div
+            data-h-scroll
+            className="hide-scrollbar flex min-w-0 gap-3 sm:gap-6 overflow-x-auto touch-pan-x snap-x snap-mandatory py-1"
+          >
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="w-[150px] xs:w-[165px] sm:w-[220px] md:w-[calc((100%_-_6rem)_/_5)] shrink-0 snap-start"
+              >
+                <ProductCard product={product} fetchPriority="auto" inStrip />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>

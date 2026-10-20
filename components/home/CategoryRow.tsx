@@ -76,7 +76,7 @@ export default async function CategoryRow({ gender }: { gender: Gender }) {
   return (
     <section
       aria-label={`Shop ${gender === 'women' ? "women's" : "men's"} fashion by category`}
-      className="pt-xl pb-xl overflow-hidden"
+      className="w-full min-w-0 overflow-hidden pt-xl pb-xl"
     >
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
@@ -86,9 +86,12 @@ export default async function CategoryRow({ gender }: { gender: Gender }) {
           <h2 className="text-section">Shop by Category</h2>
         </div>
 
-        <nav aria-label="Product categories">
+        <nav
+          aria-label="Product categories"
+          className="px-[calc(var(--container-px)_+_0.5rem)] md:mx-[25px] md:px-2"
+        >
           <ul
-            className="hide-scrollbar flex gap-sm overflow-x-auto list-none p-0 pb-1 [scroll-snap-type:x_mandatory] -mx-[var(--container-px)] px-[var(--container-px)] md:mx-[25px] md:px-0 md:gap-6"
+            className="hide-scrollbar flex min-w-0 gap-sm overflow-x-auto list-none p-0 pb-1 [scroll-snap-type:x_mandatory] md:gap-6"
           >
             {bento.map((cat) => (
               <li
