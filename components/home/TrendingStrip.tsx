@@ -11,7 +11,7 @@ interface TrendingStripProps {
 /**
  * Homepage "Trending Now" strip. Same scroll-snap track and card treatment
  * as the PDP's "More from {brand}" shelf, but with its own header at the
- * page's standard section-heading size — homepage sections are peers, with
+ * page's standard section-heading size â€” homepage sections are peers, with
  * no dominant element (like a PDP's product title) for this one to defer to.
  */
 export default function TrendingStrip({ products, gender }: TrendingStripProps) {
@@ -19,18 +19,21 @@ export default function TrendingStrip({ products, gender }: TrendingStripProps) 
   return (
     <section className="w-full min-w-0 overflow-hidden pt-xl pb-xl">
       <div className="mx-auto max-w-[var(--container-max)]">
-        <div className="flex items-end justify-between mb-lg gap-4 px-[var(--container-px)]">
-          <div className="flex flex-col gap-1">
-            <span className="text-label text-muted">What Everyone&apos;s Wearing</span>
+        <div className="relative mb-lg px-[var(--container-px)]">
+          <div className="flex flex-col items-center gap-1 text-center">
+            <span className="text-label text-muted">
+              What Everyone&apos;s Wearing
+            </span>
             <h2 className="text-section">Trending Now</h2>
           </div>
           <Link
             href={`${genderPath(gender, '/products')}?sort=popular`}
-            className="text-label text-muted hover:text-black transition-colors whitespace-nowrap pb-0.5"
+            className="absolute right-[var(--container-px)] top-1/2 -translate-y-1/2 text-label text-muted hover:text-black transition-colors whitespace-nowrap"
           >
             View All
           </Link>
         </div>
+
 
         <div className="px-[calc(var(--container-px)_+_0.5rem)] md:mx-[25px] md:px-2">
           <div
