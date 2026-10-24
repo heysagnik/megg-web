@@ -136,16 +136,14 @@
     border-radius: 0 !important;
   }
 
-  ::-webkit-scrollbar {
-    width: 3px;
-    height: 3px;
+  /* Hide scrollbar visuals while preserving natural scrolling */
+  html {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
   }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: var(--color-gray-200);
-    border-radius: 0;
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
   }
 }
 
