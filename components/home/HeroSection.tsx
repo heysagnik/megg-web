@@ -4,15 +4,18 @@ import { useEffect, useRef, useCallback, useState } from 'react'
 import Link from 'next/link'
 import { getCdnVideoUrl } from '@/lib/image'
 
-// q_auto:low — reduces bitrate ~60-70% vs original; vc_auto serves WebM to Chrome
+// q_auto:low â€” reduces bitrate ~60-70% vs original; vc_auto serves WebM to Chrome
 const PANELS = [
   {
     src: 'https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/banner1.MP4',
+    // Keep your existing panel properties and add these poster paths.
+    poster: "/images/hero-men-poster.webp",
     label: 'Men',
     href: '/',
   },
   {
-    src: 'https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/banner3.mp4',
+    src: 'https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/banner3-test-crf23.mp4',
+    poster: "/images/hero-women-poster.webp",
     label: 'Women',
     href: '/women',
   },
@@ -24,29 +27,38 @@ export default function HeroSection() {
   const rafRef    = useRef<number | null>(null)
   const [activePanel, setActivePanel] = useState<number | null>(null)
 
-  // ── Video play/pause ──────────────────────────────────────────────────────
-  const tryPlay = useCallback((idx: number) => {
-    videoRefs.current[idx]?.play().catch(() => {})
-  }, [])
+  // Video playback: load and play only the panel being used.
+    const tryPlay = useCallback((idx: number) => {
+      const video = videoRefs.current[idx]
+      if (!video) return
 
-  useEffect(() => {
-    tryPlay(0)
-    tryPlay(1)
-  }, [tryPlay])
+      video.play().catch(() => {
+        // Autoplay or playback may be blocked by the browser.
+        // The poster remains visible as the fallback.
+      })
+    }, [])
 
-  const handleEnter = useCallback((idx: number) => {
-    setActivePanel(idx)
-    videoRefs.current[idx === 0 ? 1 : 0]?.pause()
-    tryPlay(idx)
-  }, [tryPlay])
+    const handleEnter = useCallback(
+      (idx: number) => {
+        setActivePanel(idx)
 
-  const handleBannerLeave = useCallback(() => {
-    setActivePanel(null)
-    tryPlay(0)
-    tryPlay(1)
-  }, [tryPlay])
+        const otherVideo = videoRefs.current[idx === 0 ? 1 : 0]
+        otherVideo?.pause()
 
-  // ── Logo morph on scroll — rAF throttled, zero React state ───────────────
+        tryPlay(idx)
+      },
+      [tryPlay]
+    )
+
+    const handleBannerLeave = useCallback(
+      (idx: number) => {
+        videoRefs.current[idx]?.pause()
+        setActivePanel((current) => (current === idx ? null : current))
+      },
+      []
+    )
+
+  // â”€â”€ Logo morph on scroll â€” rAF throttled, zero React state â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   useEffect(() => {
   const logo = logoRef.current
   if (!logo) return
@@ -119,22 +131,29 @@ export default function HeroSection() {
     <>
       <div
         className="relative flex h-[100svh] min-h-0 w-full flex-col overflow-hidden min-[1200px]:flex-row"        >
-        {PANELS.map(({ src, label, href }, idx) => (
+        {PANELS.map(({ src, poster, label, href }, idx) => (
           <div
             key={src}
-            className="relative h-1/2 min-h-0 w-full flex-1 overflow-hidden min-[1200px]:h-full min-[1200px]:w-1/2 min-[1200px]:flex-none" onMouseEnter={() => handleEnter(idx)}            >
+            className="relative h-1/2 min-h-0 w-full flex-1 overflow-hidden min-[1200px]:h-full min-[1200px]:w-1/2 min-[1200px]:flex-none" onMouseEnter={() => handleEnter(idx)}  onMouseLeave={() => handleBannerLeave(idx)}
+            onFocusCapture={() => handleEnter(idx)}          >
             <video
-              ref={(el) => { videoRefs.current[idx] = el }}
-              autoPlay
+              ref={(el) => {
+                videoRefs.current[idx] = el;
+              }}
               muted
               loop
               playsInline
               preload="auto"
-              aria-label={`MEGG curated fashion editorial ${idx === 0 ? 'left' : 'right'} panel`}
-              className="absolute inset-0 w-full h-full object-cover block"
+              poster={poster}
+              aria-label={`MEGG curated fashion editorial ${
+                idx === 0 ? "left" : "right"
+              } panel`}
+              className="absolute inset-0 block h-full w-full object-cover"
             >
-              <source src={getCdnVideoUrl(`${src}.webm`)} type="video/webm" />
-              <source src={getCdnVideoUrl(`${src}`)} type="video/mp4" />
+              <source
+                src={getCdnVideoUrl(src)}
+                type="video/mp4"
+              />
             </video>
             <div
               aria-hidden="true"
@@ -159,7 +178,7 @@ export default function HeroSection() {
 
       </div>
 
-      {/* Logo — manipulated via ref, no React state/re-renders */}
+      {/* Logo â€” manipulated via ref, no React state/re-renders */}
       <div
         ref={logoRef}
         aria-hidden="true"

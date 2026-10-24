@@ -20,21 +20,21 @@ const MOODS: Record<Gender, readonly Mood[]> = {
       title: 'Formal',
       subtitle: 'Wear',
       slug: 'formal',
-      image: '/assets/match-the-mood/formal.png',
+      image: 'https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/moodBanner/formal.webp',
       alt: "Men's formal clothing collection",
     },
     {
       title: 'Traditional',
       subtitle: 'Wear',
       slug: 'traditional',
-      image: '/assets/match-the-mood/traditional.png',
+      image: 'https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/moodBanner/traditional.webp',
       alt: "Men's traditional clothing collection",
     },
     {
       title: 'Winter',
       subtitle: 'Wear',
       slug: 'winter',
-      image: '/assets/match-the-mood/winter.png',
+      image: 'https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/moodBanner/winter.webp',
       alt: "Men's winter clothing collection",
     },
   ],
@@ -43,21 +43,21 @@ const MOODS: Record<Gender, readonly Mood[]> = {
       title: 'Formal',
       subtitle: 'Wear',
       slug: 'formal',
-      image: '/assets/match-the-mood/women-formal.png',
+      image: 'https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/moodBanner/women-formal.webp',
       alt: "Women's formal clothing collection",
     },
     {
       title: 'Traditional',
       subtitle: 'Wear',
       slug: 'traditional',
-      image: '/assets/match-the-mood/women-traditional.png',
+      image: 'https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/moodBanner/women-traditional.webp',
       alt: "Women's traditional clothing collection",
     },
     {
       title: 'Winter',
       subtitle: 'Wear',
       slug: 'winter',
-      image: '/assets/match-the-mood/women-winter.png',
+      image: 'https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/moodBanner/women-winter.webp',
       alt: "Women's winter clothing collection",
     },
   ],
@@ -94,7 +94,7 @@ export default function MatchTheMood({ gender }: { gender: Gender }) {
   }
 
   return (
-    <section className="mx-auto w-full max-w-[var(--container-max)] px-[var(--container-px)] py-8 sm:py-10 lg:py-14">
+    <section className="mx-auto w-full max-w-[var(--container-max)] px-[var(--container-px)] pt-6 pb-8 sm:pt-8 sm:pb-10 lg:pt-12 lg:pb-14">
       <div className="mb-5 flex justify-center text-center sm:mb-8">
         <div>
           <p className="text-[10px] uppercase tracking-[0.24em] text-neutral-500 sm:text-xs">

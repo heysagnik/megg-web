@@ -81,7 +81,7 @@ export default async function CategoryRow({ gender }: { gender: Gender }) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
 
       <div className="mx-auto max-w-[var(--container-max)]">
-        <div className="flex flex-col gap-1 mb-lg px-[var(--container-px)]">
+        <div className="flex flex-col items-center text-center gap-1 mb-lg px-[var(--container-px)]">
           <span className="text-label text-muted">Explore by Style</span>
           <h2 className="text-section">Shop by Category</h2>
         </div>

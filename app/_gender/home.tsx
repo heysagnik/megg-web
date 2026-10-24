@@ -1,3 +1,4 @@
+import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { getTrendingProducts, type Gender } from '@/lib/api'
 import JsonLd from '@/components/seo/JsonLd'
@@ -101,8 +102,36 @@ const H1: Record<Gender, string> = {
   women: "MEGG — Shop Women's Dresses, Co-ord Sets, Jeans, Kurtas & More Online India",
 }
 
-export default async function HomeContent({ gender }: { gender: Gender }) {
+async function TrendingContent({ gender }: { gender: Gender }) {
   const trending = await getTrendingProducts({ gender }).catch(() => [])
+
+  const trendingJsonLd =
+    trending.length > 0
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'ItemList',
+          name:
+            gender === 'women'
+              ? "Trending Women's Products on MEGG"
+              : "Trending Men's Products on MEGG",
+          itemListElement: trending.slice(0, 10).map((p, i) => ({
+            '@type': 'ListItem',
+            position: i + 1,
+            url: `https://www.meggfashion.in/product/${p.id}`,
+            name: p.name,
+          })),
+        }
+      : null
+
+  return (
+    <>
+      {trendingJsonLd && <JsonLd data={trendingJsonLd} />}
+      <TrendingStrip products={trending} gender={gender} />
+    </>
+  )
+}
+
+export default async function HomeContent({ gender }: { gender: Gender }) {
 
   const faqJsonLd = {
     '@context': 'https://schema.org',
@@ -114,24 +143,10 @@ export default async function HomeContent({ gender }: { gender: Gender }) {
     })),
   }
 
-  const trendingJsonLd = trending.length > 0 ? {
-    '@context': 'https://schema.org',
-    '@type': 'ItemList',
-    name: gender === 'women' ? "Trending Women's Products on MEGG" : "Trending Men's Products on MEGG",
-    itemListElement: trending.slice(0, 10).map((p, i) => ({
-      '@type': 'ListItem',
-      position: i + 1,
-      url: `https://www.meggfashion.in/product/${p.id}`,
-      name: p.name,
-    })),
-  } : null
 
   return (
     <main>
       <JsonLd data={faqJsonLd} />
-      {trendingJsonLd && (
-        <JsonLd data={trendingJsonLd} />
-      )}
       <h1 className="sr-only">
         {H1[gender]}
       </h1>
@@ -141,12 +156,22 @@ export default async function HomeContent({ gender }: { gender: Gender }) {
       <CategoryRow gender={gender} />
       <Under699Banner gender={gender} />
 
-      <TrendingStrip products={trending} gender={gender} />
+      <Suspense
+        fallback={
+          <section
+            className="w-full min-w-0 overflow-hidden pt-xl pb-xl"
+            aria-label="Loading trending products"
+          />
+        }
+      >
+        <TrendingContent gender={gender} />
+      </Suspense>
+
       <MatchTheMood gender={gender} />
       {/* <OffersSection /> */}
       <section id="new-arrivals" className="pt-4 pb-24">
         <div className="max-w-[1280px] mx-auto px-4 sm:px-6 md:px-10 lg:px-12">
-          <div className="flex flex-col gap-1 mb-lg">
+          <div className="flex flex-col items-center text-center gap-1 mb-lg">
             <span className="text-label text-muted">Fresh Drops, Every Day</span>
             <h2 className="text-section">New Arrivals</h2>
           </div>

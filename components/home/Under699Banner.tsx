@@ -5,15 +5,21 @@ import { genderPath } from '@/lib/genderPath'
 export default function Under699Banner({ gender }: { gender: Gender }) {
   return (
     <section className="relative isolate overflow-hidden bg-black text-center py-[clamp(3rem,6vw,5rem)]">
-      <img
-        src="https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/699Banner.png"
-        alt=""
-        aria-hidden="true"
-        loading="lazy"
-        decoding="async"
-        fetchPriority="low"
-        className="absolute inset-0 -z-20 h-full w-full object-cover object-center"
-      />
+      <picture>
+        <source
+          media="(max-width: 767px)"
+          srcSet="https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/Moody%20Luxury%20Sneaker%20Showroom.png"
+        />
+        <img
+          src="https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/699Banner.png"
+          alt=""
+          aria-hidden="true"
+          loading="lazy"
+          decoding="async"
+          fetchPriority="low"
+          className="absolute inset-0 -z-20 h-full w-full object-cover object-center"
+        />
+      </picture>
       <div aria-hidden="true" className="absolute inset-0 -z-10 bg-black/50" />
       <div className="relative z-10 flex flex-col items-center gap-[1.25rem] px-[var(--container-px)]">
         {/* Eyebrow */}
