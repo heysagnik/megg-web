@@ -28,7 +28,7 @@ export default function TrendingStrip({ products, gender }: TrendingStripProps) 
           </div>
           <Link
             href={`${genderPath(gender, '/products')}?sort=popular`}
-            className="absolute right-[var(--container-px)] top-1/2 -translate-y-1/2 text-label text-muted hover:text-black transition-colors whitespace-nowrap"
+            className="hidden sm:inline-block absolute right-[var(--container-px)] top-1/2 -translate-y-1/2 text-label text-muted transition-colors hover:text-black whitespace-nowrap"
           >
             View All
           </Link>
@@ -48,6 +48,30 @@ export default function TrendingStrip({ products, gender }: TrendingStripProps) 
                 <ProductCard product={product} fetchPriority="auto" inStrip />
               </div>
             ))}
+            <Link
+              href={`${genderPath(gender, '/products')}?sort=popular`}
+              aria-label="Explore all trending products"
+              className="group flex w-12 shrink-0 snap-start items-center justify-center self-stretch sm:hidden"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-300 text-black transition-all duration-300 group-hover:border-black group-hover:bg-black group-hover:text-white">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  className="transition-transform duration-300 group-hover:translate-x-0.5"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </span>
+            </Link>
           </div>
         </div>
       </div>
