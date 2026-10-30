@@ -32,21 +32,22 @@ const WOMEN_BENTO: BentoItem[] = [
   { label: 'Tops', slug: 'Tops', keyword: "Women's Stylish Tops Online India", img: '/assets/top.webp', isAsset: true },
   { label: 'Jackets', slug: 'Jackets', keyword: "Women's Jackets Online India", img: '/assets/jacketsW.webp', isAsset: true },
   { label: 'Jeans', slug: 'Jeans', keyword: "Women's Jeans Online India", img: '/assets/jeansW.webp', isAsset: true },
-  { label: 'Co-ord Sets', slug: 'Co-ord Sets', keyword: "Women's Co-ord Sets Online India", img: '/assets/co-ord-sets.webp', isAsset: true },
+  { label: 'Sweaters', slug: 'Sweater', keyword: "Women's Sweaters Online India", img: '/assets/sweatersW.webp', isAsset: true },
   { label: 'T-Shirts', slug: 'Tshirt', keyword: "Women's T-Shirts Online India", img: '/assets/wtshirts.webp', isAsset: true },
+  { label: 'Hoodies', slug: 'Hoodies', keyword: "Women's Hoodies Online India", img: '/assets/hoodiesW.webp', isAsset: true },
+  { label: 'Co-ord Sets', slug: 'Co-ord Sets', keyword: "Women's Co-ord Sets Online India", img: '/assets/co-ord-sets.webp', isAsset: true },
+  { label: 'Sweatshirts', slug: 'Sweatshirt', keyword: "Women's Sweatshirts Online India", img: '/assets/sweatshirt-alternative.webp', isAsset: true },
+  { label: 'Footwear', slug: 'Footwear', keyword: "Women's Footwear Online India", img: '/assets/footwear.webp', isAsset: true },
   { label: 'Gym Wear', slug: 'Gym Wear', keyword: "Women's Gym Wear Online India", img: '/assets/gym-wear.webp', isAsset: true },
   { label: 'Dresses', slug: 'Dresses', keyword: "Women's Dresses Online India", img: '/assets/dresses.webp', isAsset: true },
   { label: 'Shirts', slug: 'Shirts', keyword: "Women's Shirts Online India", img: '/assets/women-shirts.webp', isAsset: true },
   { label: 'Accessories', slug: 'Accessories', keyword: "Women's Accessories Online India", img: '/assets/accessories.webp', isAsset: true },
-  { label: 'Footwear', slug: 'Footwear', keyword: "Women's Footwear Online India", img: '/assets/footwear.webp', isAsset: true },
   { label: 'Perfume', slug: 'Perfume', keyword: "Women's Perfumes Online India", img: '/assets/perfumes.webp', isAsset: true },
   { label: 'Shorts', slug: 'Shorts', keyword: "Women's Shorts Online India", img: '/assets/shorts.webp', isAsset: true },
   { label: 'Skirts', slug: 'Skirts', keyword: "Women's Skirts Online India", img: '/assets/skirts.webp', isAsset: true },
-  { label: 'Hoodies', slug: 'Hoodies', keyword: "Women's Hoodies Online India", img: '/assets/hoodiesW.webp', isAsset: true },
   { label: 'Kurtas & Ethnic Wear', slug: 'Kurtas & Ethnic Wear', keyword: "Women's Sarees Online India", img: '/assets/sarees.webp', isAsset: true },
-  { label: 'Sweaters', slug: 'Sweater', keyword: "Women's Sweaters Online India", img: '/assets/sweatersW.webp', isAsset: true },
   { label: 'Trousers & Bottoms', slug: 'Trousers and Bottoms', keyword: "Women's Trousers and Bottoms Online India", img: '/assets/trouserbottom.webp', isAsset: true },
-  { label: 'Sweatshirts', slug: 'Sweatshirt', keyword: "Women's Sweatshirts Online India", img: '/assets/sweatshirt-alternative.webp', isAsset: true },
+  
 ]
 export default async function CategoryRow({ gender }: { gender: Gender }) {
   const bento = gender === 'women' ? WOMEN_BENTO : MEN_BENTO
