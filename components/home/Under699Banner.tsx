@@ -8,10 +8,15 @@ export default function Under699Banner({ gender }: { gender: Gender }) {
       <picture>
         <source
           media="(max-width: 767px)"
-          srcSet="/images/under699-mobile-banner.png"
+          srcSet="https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/under699-mobile.webp"
+          type="image/webp"
+        />
+        <source
+          srcSet="https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/under699-desktop.webp"
+          type="image/webp"
         />
         <img
-          src="https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/699Banner.png"
+          src="https://pub-c1be4f1247d5405a8678960f074cc084.r2.dev/under699-desktop.webp"
           alt=""
           aria-hidden="true"
           loading="lazy"

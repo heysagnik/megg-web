@@ -1,8 +1,7 @@
 import Link from 'next/link'
-import { getCategories, listProducts, type Gender } from '@/lib/api'
 import { getCdnImageUrl } from '@/lib/image'
+import type { Gender } from '@/lib/api'
 import { genderPath } from '@/lib/genderPath'
-import { getCategoryDisplay } from '@/lib/utils'
 
 interface BentoItem {
   label: string
@@ -24,39 +23,33 @@ const MEN_BENTO: BentoItem[] = [
   { label: 'Sweater',          slug: 'Sweater',          keyword: "Men's Sweaters Online India",      img: '/assets/SWEATER.webp', isAsset: true },
   { label: 'Sweatshirt',       slug: 'Sweatshirt',       keyword: "Men's Sweatshirts Online India",   img: '/assets/SWEATSHIRT.webp', isAsset: true },
   { label: 'Track Pants',      slug: 'Trackpants',       keyword: "Men's Track Pants Online India",   img: '/assets/TRACKPANTS.webp', isAsset: true },
-  { label: 'Traditional',      slug: 'Traditional',      keyword: "Men's Ethnic Wear Online India",   img: 'https://media.meggfashion.in/products/temp_1770915875275_1x39ncroh/image_0.webp', isAsset: false },
+  { label: 'Traditional',      slug: 'Traditional',      keyword: "Men's Ethnic Wear Online India",   img: '/assets/FORMAL-TEXTURED-OUTFIT.webp', isAsset: true },
   { label: 'Perfume',          slug: 'Perfume',          keyword: "Men's Perfume Online India",       img: '/assets/PERFUME.webp', isAsset: true },
   { label: 'Body Care',        slug: 'Body Care',        keyword: "Men's Body Care Products India",   img: '/assets/SKINCARE.webp', isAsset: true },
-  { label: 'Daily Essentials', slug: 'Daily Essentials', keyword: "Men's Daily Essentials India",     img: 'https://media.meggfashion.in/products/567a62c2-116d-4fa5-b465-faaff4fc3c9d/1773829639379_0.webp', isAsset: false },
 ]
 
-/**
- * Women's category art isn't shot/exported yet (see docs/gender-split-plan.md
- * — Stage B). Until then, tile art is auto-derived: one representative
- * product per category, its first image used as the tile background —
- * same technique this file already used for `Traditional`/`Daily Essentials`.
- */
-async function buildWomenBento(): Promise<BentoItem[]> {
-  const categories = await getCategories({ gender: 'women' }).catch(() => [])
-  const names = categories
-    .map(c => (typeof c === 'string' ? c : (c as unknown as { category: string }).category))
-    .filter(Boolean)
-
-  const items = await Promise.all(
-    names.map(async (name): Promise<BentoItem | null> => {
-      const res = await listProducts({ category: name, gender: 'women', page: 1, limit: 1 }).catch(() => null)
-      const img = res?.products?.[0]?.images?.[0]
-      if (!img) return null
-      const label = getCategoryDisplay(name)
-      return { label, slug: name, keyword: `Women's ${label} Online India`, img, isAsset: false }
-    }),
-  )
-
-  return items.filter((i): i is BentoItem => i !== null)
-}
-
+const WOMEN_BENTO: BentoItem[] = [
+  { label: 'Tops', slug: 'Tops', keyword: "Women's Stylish Tops Online India", img: '/assets/top.webp', isAsset: true },
+  { label: 'Jackets', slug: 'Jackets', keyword: "Women's Jackets Online India", img: '/assets/jacketsW.webp', isAsset: true },
+  { label: 'Jeans', slug: 'Jeans', keyword: "Women's Jeans Online India", img: '/assets/jeansW.webp', isAsset: true },
+  { label: 'Co-ord Sets', slug: 'Co-ord Sets', keyword: "Women's Co-ord Sets Online India", img: '/assets/co-ord-sets.webp', isAsset: true },
+  { label: 'T-Shirts', slug: 'Tshirt', keyword: "Women's T-Shirts Online India", img: '/assets/wtshirts.webp', isAsset: true },
+  { label: 'Gym Wear', slug: 'Gym Wear', keyword: "Women's Gym Wear Online India", img: '/assets/gym-wear.webp', isAsset: true },
+  { label: 'Dresses', slug: 'Dresses', keyword: "Women's Dresses Online India", img: '/assets/dresses.webp', isAsset: true },
+  { label: 'Shirts', slug: 'Shirts', keyword: "Women's Shirts Online India", img: '/assets/women-shirts.webp', isAsset: true },
+  { label: 'Accessories', slug: 'Accessories', keyword: "Women's Accessories Online India", img: '/assets/accessories.webp', isAsset: true },
+  { label: 'Footwear', slug: 'Footwear', keyword: "Women's Footwear Online India", img: '/assets/footwear.webp', isAsset: true },
+  { label: 'Perfume', slug: 'Perfume', keyword: "Women's Perfumes Online India", img: '/assets/perfumes.webp', isAsset: true },
+  { label: 'Shorts', slug: 'Shorts', keyword: "Women's Shorts Online India", img: '/assets/shorts.webp', isAsset: true },
+  { label: 'Skirts', slug: 'Skirts', keyword: "Women's Skirts Online India", img: '/assets/skirts.webp', isAsset: true },
+  { label: 'Hoodies', slug: 'Hoodies', keyword: "Women's Hoodies Online India", img: '/assets/hoodiesW.webp', isAsset: true },
+  { label: 'Kurtas & Ethnic Wear', slug: 'Kurtas & Ethnic Wear', keyword: "Women's Sarees Online India", img: '/assets/sarees.webp', isAsset: true },
+  { label: 'Sweaters', slug: 'Sweater', keyword: "Women's Sweaters Online India", img: '/assets/sweatersW.webp', isAsset: true },
+  { label: 'Trousers & Bottoms', slug: 'Trousers and Bottoms', keyword: "Women's Trousers and Bottoms Online India", img: '/assets/trouserbottom.webp', isAsset: true },
+  { label: 'Sweatshirts', slug: 'Sweatshirt', keyword: "Women's Sweatshirts Online India", img: '/assets/sweatshirt-alternative.webp', isAsset: true },
+]
 export default async function CategoryRow({ gender }: { gender: Gender }) {
-  const bento = gender === 'women' ? await buildWomenBento() : MEN_BENTO
+  const bento = gender === 'women' ? WOMEN_BENTO : MEN_BENTO
   if (bento.length === 0) return null
 
   const jsonLd = {

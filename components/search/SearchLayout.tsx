@@ -14,6 +14,8 @@ import {
   type Product,
 } from '@/lib/api'
 import ProductCard from '@/components/product/ProductCard'
+import TrendingStrip from '@/components/home/TrendingStrip'
+import type { Gender } from '@/lib/api'
 import CardSkeleton from '@/components/ui/CardSkeleton'
 import { Pagination } from '@/components/ui'
 import { cn as CN } from '@/lib/utils'
@@ -47,6 +49,8 @@ export interface SearchLayoutProps {
   banners:          SearchBanner[]
   searchMode:       string | null
   defaultSort:      SearchSort
+  trendingProducts: Product[]
+  gender: Gender
   onQueryChange:       (query: string) => void
   onPageChange:        (page: number) => void
   onCategorySelect:    (slug: string) => void
@@ -77,11 +81,13 @@ function DedicatedSearchBar({
   hasSearch,
   onQueryChange,
   onClearSearch,
+  onInputValueChange,
 }: {
   query: string
   hasSearch: boolean
   onQueryChange: (query: string) => void
   onClearSearch: () => void
+  onInputValueChange: (value: string) => void
 }) {
   const [inputVal, setInputVal] = useState(query || '')
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
@@ -96,8 +102,10 @@ function DedicatedSearchBar({
   }, [])
 
   useEffect(() => {
-    setInputVal(query || '')
-  }, [query])
+    const value = query || ''
+    setInputVal(value)
+    onInputValueChange(value)
+  }, [query, onInputValueChange])
 
   const queryTimerRef = useRef<ReturnType<typeof setTimeout>>(null)
 
@@ -109,9 +117,9 @@ function DedicatedSearchBar({
   }
 
   useEffect(() => clearPendingRequests, [])
-
   const handleChange = (val: string) => {
     setInputVal(val)
+    onInputValueChange(val)
     clearPendingRequests()
 
     queryTimerRef.current = setTimeout(() => {
@@ -142,7 +150,7 @@ function DedicatedSearchBar({
   }
 
   return (
-    <div className="w-full max-w-[800px] mx-auto px-4 pt-4 pb-3 relative">
+    <div className="w-full max-w-[800px] mx-auto px-4 pt-2 pb-1 relative">
       <form
         onSubmit={handleSubmit}
         className="flex items-center border-b border-neutral-300 focus-within:border-black pb-2.5 transition-colors"
@@ -170,6 +178,7 @@ function DedicatedSearchBar({
             onClick={() => {
               clearPendingRequests()
               setInputVal('')
+              onInputValueChange('')
               setSuggestions([])
               setShowSuggestions(false)
               onClearSearch()
@@ -198,6 +207,7 @@ function DedicatedSearchBar({
               type="button"
               onClick={() => {
                 setInputVal(tag.query)
+                onInputValueChange(tag.query)
                 onQueryChange(tag.query)
               }}
               className="font-sans text-[0.7rem] tracking-[0.1em] uppercase bg-transparent border-none text-neutral-400 hover:text-black p-0 cursor-pointer transition-colors font-normal"
@@ -219,6 +229,7 @@ function DedicatedSearchBar({
                 e.preventDefault()
                 clearPendingRequests()
                 setInputVal(s.value)
+                onInputValueChange(s.value)
                 setShowSuggestions(false)
                 onQueryChange(s.value)
               }}
@@ -595,6 +606,7 @@ function SortBottomSheet({
 
 export default function SearchLayout({
   title, products, total, loading, page, totalPages,
+  trendingProducts, gender,
   categories, categoriesLoading,
   filters, availableFilters,
   appliedFilters, suggestedFilters, banners, searchMode, defaultSort,
@@ -604,6 +616,7 @@ export default function SearchLayout({
 }: SearchLayoutProps) {
   const [filOpen, setFilOpen] = useState(false)
   const [sortOpen, setSortOpen] = useState(false)
+  const [searchInputValue, setSearchInputValue] = useState('')
   const [showMbar] = useScrollHideOnIdle()
   const footerIntersecting = useFooterVisibility()
 
@@ -808,8 +821,19 @@ export default function SearchLayout({
           hasSearch={hasSearch}
           onQueryChange={onQueryChange}
           onClearSearch={onClearSearch}
+          onInputValueChange={setSearchInputValue}
         />
       </div>
+            {!hasSearch && !searchInputValue.trim() && (
+            <div className="w-full">
+              <TrendingStrip
+                products={trendingProducts}
+                gender={gender}
+                showSubtitle={false}
+                alignLeftOnDesktop
+              />
+            </div>
+          )}
 
       {hasChips && (
         <div className="hidden" aria-label="Selected search filters">
@@ -841,7 +865,7 @@ export default function SearchLayout({
         )}
 
         {/* ── Main content section ── */}
-        <div className="flex-1 min-w-0 py-2 md:py-4">
+        <div className="flex-1 min-w-0 pt-0 pb-2">
           {/* ── Mobile top category navigation strip (sticky) — ONLY show when search is active ── */}
           {hasSearch && (
             <div className="hidden" aria-hidden="true">

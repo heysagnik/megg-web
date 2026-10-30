@@ -59,6 +59,18 @@ export default function HeroSection() {
     })
   }, [])
 
+  // Start both videos automatically on mobile.
+  useEffect(() => {
+    if (isDesktop !== false) return
+    videoRefs.current.forEach((video) => {
+      if (video) {
+        video.play().catch(() => {
+          // Browser may restrict autoplay.
+        })
+      }
+    })
+  }, [isDesktop])
+
   // Preserve existing hover behavior: play the active panel
   // and pause the other video.
   const handleEnter = useCallback(
@@ -172,9 +184,18 @@ export default function HeroSection() {
               <div
                 key={desktopSrc}
                 className="relative h-1/2 min-h-0 w-full flex-1 overflow-hidden min-[1200px]:h-full min-[1200px]:w-1/2 min-[1200px]:flex-none"
-                onMouseEnter={() => handleEnter(idx)}
-                onMouseLeave={() => handleBannerLeave(idx)}
-                onFocusCapture={() => handleEnter(idx)}
+                onMouseEnter={
+                  isDesktop === true ? () => handleEnter(idx) : undefined
+                }
+                onMouseLeave={
+                  isDesktop === true ? () => handleBannerLeave(idx) : undefined
+                }
+                onFocusCapture={
+                  isDesktop === true ? () => handleEnter(idx) : undefined
+                }
+                onClick={
+                  isDesktop === false ? () => handleEnter(idx) : undefined
+                }
               >
                 {src !== null && (
                   <video

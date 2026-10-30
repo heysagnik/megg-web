@@ -92,7 +92,7 @@ export default function Header() {
               {otherGender(gender)}
             </Link>
             <Link
-              href="/search"
+              href={`/search?gender=${gender}`}
               aria-label="Search"
               className="flex items-center justify-center w-7 h-7 bg-transparent border-none cursor-pointer shrink-0 text-black hover:opacity-75 transition-opacity p-0"
             >

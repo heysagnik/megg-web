@@ -1,18 +1,34 @@
+
 'use client'
 
 import { Suspense, useCallback } from 'react'
 import { useSearch } from '@/hooks/useSearch'
 import SearchLayout from '@/components/search/SearchLayout'
+import type { Gender, Product } from '@/lib/api'
 
-export default function SearchClient() {
+interface SearchClientProps {
+  trendingProducts: Product[]
+  gender: Gender
+}
+
+export default function SearchClient({
+  trendingProducts,
+  gender,
+}: SearchClientProps) {
   return (
     <Suspense>
-      <SearchInner />
+      <SearchInner
+        trendingProducts={trendingProducts}
+        gender={gender}
+      />
     </Suspense>
   )
 }
 
-function SearchInner() {
+function SearchInner({
+  trendingProducts,
+  gender,
+}: SearchClientProps) {
   const {
     data, loading, filters, page, totalPages, defaultSort, availableFilters,
     update, toggleMulti, addMulti, clearAll, changePage,
@@ -30,7 +46,12 @@ function SearchInner() {
     kind: 'query' | 'category' | 'subcategory' | 'color' | 'brand' | 'minPrice' | 'maxPrice',
     value?: string,
   ) => {
-    if (kind === 'query' || kind === 'category' || kind === 'minPrice' || kind === 'maxPrice') {
+    if (
+      kind === 'query' ||
+      kind === 'category' ||
+      kind === 'minPrice' ||
+      kind === 'maxPrice'
+    ) {
       update({ [kind]: null })
     } else if (value != null) {
       toggleMulti(kind, value)
@@ -38,22 +59,32 @@ function SearchInner() {
   }, [update, toggleMulti])
 
   const onSuggest = useCallback((patch: {
-    category?: string; subcategory?: string[]; color?: string[]; brand?: string[]
+    category?: string
+    subcategory?: string[]
+    color?: string[]
+    brand?: string[]
   }) => {
     if (patch.category) update({ category: patch.category })
     patch.subcategory?.forEach(v => addMulti('subcategory', v))
-    patch.color?.forEach(v       => addMulti('color', v))
-    patch.brand?.forEach(v       => addMulti('brand', v))
+    patch.color?.forEach(v => addMulti('color', v))
+    patch.brand?.forEach(v => addMulti('brand', v))
   }, [update, addMulti])
 
   const categories = (() => {
     const cats = (data?.availableFilters?.categories ?? []).map(c => ({
-      label: c.name, slug: c.name, count: c.count,
+      label: c.name,
+      slug: c.name,
+      count: c.count,
     }))
-    return cats.length ? [{ label: 'All', slug: '' } as typeof cats[number], ...cats] : cats
+
+    return cats.length
+      ? [{ label: 'All', slug: '' } as typeof cats[number], ...cats]
+      : cats
   })()
 
-  const title = filters.query ? `"${filters.query}"` : filters.category || 'Browse'
+  const title = filters.query
+    ? `"${filters.query}"`
+    : filters.category || 'Browse'
 
   return (
     <SearchLayout
@@ -72,6 +103,8 @@ function SearchInner() {
       banners={data?.banners ?? []}
       searchMode={data?.searchMode ?? null}
       defaultSort={defaultSort}
+      trendingProducts={trendingProducts}
+      gender={gender}
       onQueryChange={q => update({ query: q || null })}
       onPageChange={changePage}
       onCategorySelect={onCategory}

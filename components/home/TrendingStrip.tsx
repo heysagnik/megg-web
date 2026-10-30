@@ -1,11 +1,17 @@
+'use client'
+
 import Link from 'next/link'
 import type { Gender, Product } from '@/lib/api'
 import { genderPath } from '@/lib/genderPath'
 import ProductCard from '@/components/product/ProductCard'
+import { cn as CN } from '@/lib/utils'
 
 interface TrendingStripProps {
   products: Product[]
   gender: Gender
+  className?: string
+  showSubtitle?: boolean
+  alignLeftOnDesktop?: boolean
 }
 
 /**
@@ -14,16 +20,28 @@ interface TrendingStripProps {
  * page's standard section-heading size â€” homepage sections are peers, with
  * no dominant element (like a PDP's product title) for this one to defer to.
  */
-export default function TrendingStrip({ products, gender }: TrendingStripProps) {
-  if (!products.length) return null
+export default function TrendingStrip({
+  products,
+  gender,
+  className = '',
+  showSubtitle = true,
+  alignLeftOnDesktop = false,
+}: TrendingStripProps){  if (!products.length) return null
   return (
-    <section className="w-full min-w-0 overflow-hidden pt-xl pb-xl">
+    <section className={`w-full min-w-0 overflow-hidden pt-xl pb-xl ${className}`}>
       <div className="mx-auto max-w-[var(--container-max)]">
         <div className="relative mb-lg px-[var(--container-px)]">
-          <div className="flex flex-col items-center gap-1 text-center">
-            <span className="text-label text-muted">
-              What Everyone&apos;s Wearing
-            </span>
+          <div
+            className={CN(
+              'flex flex-col items-center gap-1 text-center',
+              alignLeftOnDesktop && 'lg:items-start lg:text-left'
+            )}
+          >
+            {showSubtitle && (
+              <span className="text-label text-muted">
+                What Everyone&apos;s Wearing
+              </span>
+            )}
             <h2 className="text-section">Trending Now</h2>
           </div>
           <Link
