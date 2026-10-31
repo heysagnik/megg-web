@@ -1,11 +1,17 @@
+'use client'
+
 import Link from 'next/link'
 import type { Gender, Product } from '@/lib/api'
 import { genderPath } from '@/lib/genderPath'
 import ProductCard from '@/components/product/ProductCard'
+import { cn as CN } from '@/lib/utils'
 
 interface TrendingStripProps {
   products: Product[]
   gender: Gender
+  className?: string
+  showSubtitle?: boolean
+  alignLeftOnDesktop?: boolean
 }
 
 /**
@@ -14,21 +20,33 @@ interface TrendingStripProps {
  * page's standard section-heading size â€” homepage sections are peers, with
  * no dominant element (like a PDP's product title) for this one to defer to.
  */
-export default function TrendingStrip({ products, gender }: TrendingStripProps) {
-  if (!products.length) return null
+export default function TrendingStrip({
+  products,
+  gender,
+  className = '',
+  showSubtitle = true,
+  alignLeftOnDesktop = false,
+}: TrendingStripProps){  if (!products.length) return null
   return (
-    <section className="w-full min-w-0 overflow-hidden pt-xl pb-xl">
+    <section className={`w-full min-w-0 overflow-hidden pt-xl pb-4 md:pb-6 lg:pb-xl ${className}`}>
       <div className="mx-auto max-w-[var(--container-max)]">
         <div className="relative mb-lg px-[var(--container-px)]">
-          <div className="flex flex-col items-center gap-1 text-center">
-            <span className="text-label text-muted">
-              What Everyone&apos;s Wearing
-            </span>
+          <div
+            className={CN(
+              'flex flex-col items-center gap-1 text-center',
+              alignLeftOnDesktop && 'lg:items-start lg:text-left'
+            )}
+          >
+            {showSubtitle && (
+              <span className="text-label text-muted">
+                What Everyone&apos;s Wearing
+              </span>
+            )}
             <h2 className="text-section">Trending Now</h2>
           </div>
           <Link
             href={`${genderPath(gender, '/products')}?sort=popular`}
-            className="absolute right-[var(--container-px)] top-1/2 -translate-y-1/2 text-label text-muted hover:text-black transition-colors whitespace-nowrap"
+            className="hidden sm:inline-block absolute right-[var(--container-px)] top-1/2 -translate-y-1/2 text-label text-muted transition-colors hover:text-black whitespace-nowrap"
           >
             View All
           </Link>
@@ -48,6 +66,30 @@ export default function TrendingStrip({ products, gender }: TrendingStripProps) 
                 <ProductCard product={product} fetchPriority="auto" inStrip />
               </div>
             ))}
+            <Link
+              href={`${genderPath(gender, '/products')}?sort=popular`}
+              aria-label="Explore all trending products"
+              className="group flex w-12 shrink-0 snap-start items-center justify-center self-stretch sm:hidden"
+            >
+              <span className="flex h-10 w-10 items-center justify-center rounded-full border border-neutral-300 text-black transition-all duration-300 group-hover:border-black group-hover:bg-black group-hover:text-white">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                  className="transition-transform duration-300 group-hover:translate-x-0.5"
+                >
+                  <path d="M5 12h14" />
+                  <path d="m12 5 7 7-7 7" />
+                </svg>
+              </span>
+            </Link>
           </div>
         </div>
       </div>

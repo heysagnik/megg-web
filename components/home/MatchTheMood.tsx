@@ -79,8 +79,14 @@ export default function MatchTheMood({ gender }: { gender: Gender }) {
     const slideWidth = carousel.clientWidth
     if (slideWidth <= 0) return
 
-    const nextIndex = Math.round(carousel.scrollLeft / slideWidth)
-    setActiveIndex(Math.min(moods.length - 1, Math.max(0, nextIndex)))
+    const nextIndex = Math.min(
+      moods.length - 1,
+      Math.max(0, Math.round(carousel.scrollLeft / slideWidth))
+    )
+
+    setActiveIndex((current) =>
+      current === nextIndex ? current : nextIndex
+    )
   }
 
   function goToSlide(index: number) {
@@ -122,7 +128,7 @@ export default function MatchTheMood({ gender }: { gender: Gender }) {
               src={mood.image}
               alt={mood.alt}
               fill
-              sizes="(max-width: 639px) calc(100vw - 32px), (max-width: 1023px) 33vw, 400px"
+              sizes="(max-width: 639px) 100vw, (max-width: 1023px) 33vw, 400px"
               className="object-cover transition-transform duration-700 ease-out sm:group-hover:scale-[1.03]"
             />
 

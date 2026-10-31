@@ -126,7 +126,11 @@ async function TrendingContent({ gender }: { gender: Gender }) {
   return (
     <>
       {trendingJsonLd && <JsonLd data={trendingJsonLd} />}
-      <TrendingStrip products={trending} gender={gender} />
+      <TrendingStrip
+        products={trending}
+        gender={gender}
+        className="lg:hidden"
+      />
     </>
   )
 }
