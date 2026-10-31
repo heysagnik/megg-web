@@ -28,7 +28,7 @@ export default function TrendingStrip({
   alignLeftOnDesktop = false,
 }: TrendingStripProps){  if (!products.length) return null
   return (
-    <section className={`w-full min-w-0 overflow-hidden pt-xl pb-xl ${className}`}>
+    <section className={`w-full min-w-0 overflow-hidden pt-xl pb-4 md:pb-6 lg:pb-xl ${className}`}>
       <div className="mx-auto max-w-[var(--container-max)]">
         <div className="relative mb-lg px-[var(--container-px)]">
           <div

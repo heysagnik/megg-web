@@ -92,14 +92,7 @@ function DedicatedSearchBar({
   const [inputVal, setInputVal] = useState(query || '')
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
-  const inputRef = useRef<HTMLInputElement>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout>>(null)
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      inputRef.current?.focus({ preventScroll: true })
-    })
-    return () => window.cancelAnimationFrame(frame)
-  }, [])
 
   useEffect(() => {
     const value = query || ''
@@ -162,7 +155,6 @@ function DedicatedSearchBar({
         </svg>
 
         <input
-          ref={inputRef}
           type="text"
           value={inputVal}
           onChange={e => handleChange(e.target.value)}
@@ -182,7 +174,6 @@ function DedicatedSearchBar({
               setSuggestions([])
               setShowSuggestions(false)
               onClearSearch()
-              inputRef.current?.focus()
             }}
             aria-label="Clear search and filters"
             className="bg-transparent border-none cursor-pointer p-1 text-neutral-400 hover:text-black text-sm leading-none shrink-0"
